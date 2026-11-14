@@ -28,3 +28,12 @@ the row of the grave (persons, dates, cemetery). At most 10 graves per result. C
 - mogily.pl did not open in the agent's browser (2026-11); Find a Grave and BillionGraves rarely have
   Polish rural cemeteries.
 - When no database covers the cemetery: the family, a photo of the gravestone, or the civil registry office.
+
+## Municipal cemetery finders (checked 2026-11)
+
+Large cities run their own grave finders for municipal cemeteries (the city's or the municipal cemetery
+board's website, "wyszukiwarka grobów"), separate from Grobonet and eCmentarze, with name, years of life
+and the date of burial; parish cemeteries in the same city often have a separate finder. Typical form:
+surname, given name, optional cemetery, a "Filtruj"/"Szukaj" button and results in a side panel. Useful
+for families who settled in the western and northern territories after 1945. Search the surname alone
+and read the list, then narrow by given name.

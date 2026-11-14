@@ -44,7 +44,9 @@ See [gazetteers.md](gazetteers.md).
 - **Censuses, residence registers, land/mortgage and notarial records, commune records.**
 - **Military and wars**: Central Military Archives (Polish Army soldiers),
   [straty.pl](https://straty.pl) (victims of WW2), [Arolsen Archives](https://arolsen-archives.org)
-  (forced labour, camps), the IPN archive inventory; German loss lists 1914–1919 ([german-sources.md](german-sources.md)).
+  (forced labour, camps, Wehrmacht conscripts in post-war lists, DP files; [guide](arolsen.md)), the IPN archive inventory ([guide](ipn-inventory.md)); German loss lists 1914–1919 ([german-sources.md](german-sources.md)).
+- **Newspapers and address books** of the 1920s–1930s (digital libraries with full text): weekly civil
+  registry reports, obituaries, court reports, residents by street; [digital-libraries.md](digital-libraries.md).
 - **Cemeteries**: [graves.md](graves.md).
 - **Emigration**: passenger lists (Ellis Island 1892–1924, the German emigration ports), FamilySearch.
 - **United Kingdom and Ireland**: [FreeBMD](https://www.freebmd.org.uk) (civil indexes of England and

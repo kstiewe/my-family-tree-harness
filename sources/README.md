@@ -11,6 +11,9 @@ helpers live next to the guide (`*.js` for the browser's JavaScript console, Pyt
 | [pomgenbaza.md](pomgenbaza.md) | PomGenBaza (Pomeranian Genealogical Society): parish and civil books of Pomerania |
 | [szukajwarchiwach.md](szukajwarchiwach.md) | Szukaj w Archiwach: scans from the Polish state archives |
 | [genealogiawarchiwach.md](genealogiawarchiwach.md) | Genealogia w Archiwach: scans and indexes of the Kuyavian-Pomeranian state archives |
+| [digital-libraries.md](digital-libraries.md) | dLibra digital libraries (KPBC, PBC, Polona): full text of interwar newspapers, civil registry reports, address books |
+| [arolsen.md](arolsen.md) | Arolsen Archives: wartime and post-war documents on foreigners in Germany, DP files, camps |
+| [ipn-inventory.md](ipn-inventory.md) | IPN archival inventory: personal files of the communist era with father's name and date of birth |
 | [german-sources.md](german-sources.md) | CompGen (Verlustlisten, address books, GEDBAS), German gazetteers |
 | [graves.md](graves.md) | grave databases (Grobonet, eCmentarze …) |
 | [gazetteers.md](gazetteers.md) | finding villages and their parishes |
