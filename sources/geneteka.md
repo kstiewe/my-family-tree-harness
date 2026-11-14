@@ -49,6 +49,13 @@ the workspace `places.yaml` notes).
 - 20th-century deaths often have the age or the year of birth in "Uwagi" (married women: the
   maiden name). Listing all deaths of a surname in a region and period, without a given name,
   finds children who died young.
+- **A grandmother's maiden name from her death**: 20th-century death entries of married women often
+  carry "maiden name + year of birth" in "Uwagi" (e.g. "Nowak 1878"). List the deaths of the married
+  surname in the parish where the couple ended their lives; the maiden name then opens the search for
+  her baptism and her parents' marriage.
+- **Check the mother's age** before accepting parents found through a sibling: a mother born in 1860
+  for a child of 1908 suggests the child belongs to the next generation (a son of the couple), not to
+  the couple itself.
 - A rare surname: first `--overview SURNAME --exact` (regions), then the regional databases with a
   prefix, then narrow by years and parishes.
 - The surname overview also hints at origins: the regions where a surname is frequent tell where a

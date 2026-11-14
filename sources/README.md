@@ -10,6 +10,7 @@ helpers live next to the guide (`*.js` for the browser's JavaScript console, Pyt
 | [geneteka.md](geneteka.md) | Geneteka (PTG): national index of births, marriages, deaths; `scripts/geneteka.py` |
 | [pomgenbaza.md](pomgenbaza.md) | PomGenBaza (Pomeranian Genealogical Society): parish and civil books of Pomerania |
 | [szukajwarchiwach.md](szukajwarchiwach.md) | Szukaj w Archiwach: scans from the Polish state archives |
+| [genealogiawarchiwach.md](genealogiawarchiwach.md) | Genealogia w Archiwach: scans and indexes of the Kuyavian-Pomeranian state archives |
 | [german-sources.md](german-sources.md) | CompGen (Verlustlisten, address books, GEDBAS), German gazetteers |
 | [graves.md](graves.md) | grave databases (Grobonet, eCmentarze …) |
 | [gazetteers.md](gazetteers.md) | finding villages and their parishes |

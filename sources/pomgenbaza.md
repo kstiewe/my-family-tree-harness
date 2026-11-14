@@ -28,6 +28,11 @@ lists the address, deanery, the books with years (births/marriages/deaths separa
 are kept. Coverage often has gaps (births only from a later year, a missing year): no hit in a
 year outside the coverage means nothing.
 
+**Which tab a filter applies to** (checked 2026-11): `fatherFirstName`, `motherFirstName` and
+`motherMaidenName` filter only the births tab; `spouseFirstName` and `spouseLastName` only the marriages
+tab. The other tabs then show the unfiltered results for the surname — read only the tab the filter
+applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only matching rows).
+
 ## Techniques that work
 
 - **All children of a couple in one query**: prefix of the father's surname + prefix of the mother's
@@ -37,6 +42,12 @@ year outside the coverage means nothing.
 - **Children of a daughter**: her husband's surname + her maiden name as `motherMaidenName`.
 - **Backwards to the parents' marriage**: surname + `spouseLastName` (both prefixes) finds the
   marriage of the parents once the children have given you the mother's maiden name.
+- **A husband from the wife's given name**: when the family remembers only "Teofila Kowalska, mother of
+  Jan", the surname + `spouseFirstName` ("Kowal" + "Teof"; Latin books also "Theoph") lists the marriages
+  of Kowalski men to a Teofila. A rare given name often leaves a single marriage — a strong candidate for the
+  parents, to be checked against the parish and the years.
+- **Siblings by the father's given name**: surname + `fatherFirstName` collects the children of one man
+  across parishes when the mother's maiden name is still unknown; the result then gives the maiden name.
 - **Short prefixes catch variants** ("Kowal" → Kowalski/Kowalsky/Kowalska); clerks of civil offices
   often misspelled Polish names.
 - **Language of names**: Catholic books are in Latin (Sophia, Joannes, Maximilianus), the Standesamt
