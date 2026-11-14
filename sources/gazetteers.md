@@ -23,3 +23,22 @@ The parish decides where the records are. Record it in `places.yaml` (`parish`, 
 
 A place you cannot identify yet: record it with what is known (`notes`: the spelling in the source,
 the candidates) and add a `todo` — the gap report lists places without a parish.
+
+## Coordinates (`coords`)
+
+The map and the geography context (docs/geography.md) need `coords: [latitude, longitude]` of each
+place, or at least of its parish. One targeted lookup per place, never a bulk download:
+
+- **OpenStreetMap Nominatim** (`https://nominatim.openstreetmap.org/search?format=json&q=…`): add the
+  commune or county and the country to the query ("Przykładowo, gmina Wzorcowo, Polska"); at most one
+  request per second, with a descriptive User-Agent. Check the result's `display_name` — the commune
+  and county must match, not just the name.
+- **PRNG** and **polskawliczbach.pl**: the official coordinates of Polish villages, useful when the
+  name is shared by several villages.
+- **Wikipedia**: the coordinates in the infobox (the GeoHack link).
+- A village that no longer exists or cannot be told apart from its namesakes: leave `coords` out (the
+  map uses the parish) and say why in `notes`.
+
+Write the source in `notes` ("coords: OpenStreetMap Nominatim, 2026-11-14"). Coordinates of a parish
+are those of its church or village; a place known only as a region or country gets the `type`
+`region` or `country` and is drawn as a ring, not counted in clusters.

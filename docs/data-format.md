@@ -68,6 +68,12 @@ parents; a person may be a spouse in several families.
 `country` (ISO code), `coords` (`[lat, lon]`), `geneteka_region`, `records` (where the books are),
 `notes`.
 
+`coords` are decimal degrees (WGS84), latitude first: `[52.61, 20.38]`. They are optional; a place
+without them is drawn at the coordinates of its parish, and the gap report lists it. Write where the
+coordinates come from in `notes` (e.g. "coords: OpenStreetMap, 2026-11-14"). The build warns when a
+Polish place lies outside Poland, which usually means latitude and longitude are swapped. The map and
+the geography context are described in [geography.md](geography.md).
+
 `type` is free text (village, town, manor …); these values have a meaning for the reports:
 `parish` (also `parafia`), `region`, `commune` (`gmina`), `county` (`powiat`), `country` (`kraj`).
 

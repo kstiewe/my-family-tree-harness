@@ -1,0 +1,90 @@
+/* The family map as a component (templates/map_body.html): the map page shows it alone, the tree page as its "Map"
+   view. Every rule is scoped to .geomap and the ids start with gm-, so it does not meet the tree's own rules. The
+   page provides the shared tokens (--bg, --panel, --text, --accent …, fonts); the map adds its own below. */
+:root {
+  --sea: #dfe7ea; --land: #fbfcfb; --coast: #a9b7b3; --frontier: #c2ccc9; --partition: #7a5c9e;
+  --heat-1: #fde9b8; --heat-2: #f7c25c; --heat-3: #e48a2a; --heat-4: #bf5418; --heat-5: #82300f;
+  --dot: #2b3633; --trail: #2f4f8a; --halo: #fbfcfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sea: #0d1214; --land: #1d2322; --coast: #4a5753; --frontier: #3a4542; --partition: #b9a0dc;
+    --heat-1: #4f240c; --heat-2: #8c3f12; --heat-3: #cf6a1e; --heat-4: #f0a242; --heat-5: #ffe08f;
+    --dot: #dfe7e4; --trail: #9db8f2; --halo: #1d2322;
+  }
+}
+:root[data-theme="dark"] {
+  --sea: #0d1214; --land: #1d2322; --coast: #4a5753; --frontier: #3a4542; --partition: #b9a0dc;
+  --heat-1: #4f240c; --heat-2: #8c3f12; --heat-3: #cf6a1e; --heat-4: #f0a242; --heat-5: #ffe08f;
+  --dot: #dfe7e4; --trail: #9db8f2; --halo: #1d2322;
+}
+.geomap { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.geomap[hidden], .geomap [hidden] { display: none !important; }
+.geomap .gm-bar { display: flex; flex-direction: column; gap: 8px; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+.geomap .gm-row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.geomap h1 { font: 600 19px/1.2 var(--font-display); margin: 0; text-wrap: balance; }
+.geomap .muted { color: var(--muted); font-size: 12px; }
+.geomap .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.geomap .seg button { border: 0; background: transparent; color: var(--text); padding: 5px 11px; font: inherit; cursor: pointer; }
+.geomap .seg button + button { border-left: 1px solid var(--border); }
+.geomap .seg button.on { background: var(--accent); color: var(--on-accent); }
+.geomap button:focus-visible, .geomap input:focus-visible, .geomap [tabindex]:focus-visible { outline: 2px solid var(--hl); outline-offset: 1px; }
+.geomap .gm-years { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.geomap .gm-years input[type=range] { width: 120px; accent-color: var(--accent); }
+.geomap .gm-years output { font: 500 12.5px/1 var(--font-mono); min-width: 4ch; text-align: center; }
+.geomap .gm-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.geomap .gm-chips button { font: 500 11.5px/1 var(--font-mono); padding: 5px 7px; border-radius: 5px; border: 1px solid var(--border);
+  background: var(--panel); color: var(--text); cursor: pointer; }
+.geomap .gm-chips button.on { background: var(--chip); border-color: var(--accent); }
+.geomap .gm-tog { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; cursor: pointer; }
+.geomap .gm-tog input { accent-color: var(--accent); margin: 0; }
+.geomap .gm-main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 380px; grid-template-rows: minmax(0, 1fr); min-height: 0; }
+#gm-map { position: relative; overflow: hidden; min-height: 0; background: var(--sea); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+#gm-map.panning { cursor: grabbing; }
+#gm-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#gm-empty { position: absolute; left: 16px; top: 16px; margin: 0; padding: 12px 14px; max-width: 460px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 8px; color: var(--muted); }
+#gm-tip { position: absolute; pointer-events: none; padding: 5px 8px; border-radius: 6px; background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,.15); font-size: 12.5px; white-space: nowrap; transform: translate(12px, -50%); }
+#gm-tip b { font-weight: 600; }
+#gm-tip span { color: var(--muted); font-variant-numeric: tabular-nums; }
+.geomap .gm-ctrl { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.geomap .gm-ctrl button { width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--panel); color: var(--text); font: 600 16px/1 var(--font-body); cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.geomap .gm-ctrl button:hover { background: var(--chip); }
+.geomap .gm-legend { position: absolute; left: 12px; bottom: 12px; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; max-width: calc(100% - 24px);
+  padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, var(--panel) 90%, transparent); border: 1px solid var(--border); font-size: 12px; }
+.geomap .gm-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.geomap .ramp { display: inline-block; width: 90px; height: 10px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--heat-1), var(--heat-2), var(--heat-3), var(--heat-4), var(--heat-5)); }
+.geomap .k-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--dot); box-shadow: 0 0 0 1.5px var(--halo); }
+.geomap .k-ring { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--dot); }
+.geomap .k-trail { width: 22px; height: 0; border-top: 2px solid var(--trail); }
+.geomap .k-part { width: 22px; height: 0; border-top: 2px dashed var(--partition); }
+.geomap .gm-aside { background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+#gm-sel { flex: 1 1 60%; overflow: auto; padding: 14px 16px; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+#gm-side { flex: 1 1 40%; overflow: auto; padding: 4px 0 12px; }
+.geomap h2 { font: 600 21px/1.2 var(--font-display); margin: 0 0 4px; text-wrap: balance; }
+.geomap h3 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 16px 0 6px; }
+#gm-side h3 { margin: 12px 16px 4px; }
+.geomap .gm-pl { margin: 0 0 14px; }
+.geomap .gm-pl > b { font-weight: 600; }
+.geomap .gm-ev { display: grid; grid-template-columns: 2.2em 3.6em minmax(0, 1fr); gap: 0 6px; padding: 2px 0; }
+.geomap .gm-ev .sym { color: var(--muted); text-align: center; }
+.geomap .gm-ev .yr { font: 12px/1.6 var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.geomap .gm-ev .yr.est { font-style: italic; }
+.geomap .kn { font: 500 11px/1 var(--font-mono); color: var(--muted); margin-left: 4px; }
+.geomap .link { color: var(--accent); cursor: pointer; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.geomap .gm-cl { display: grid; grid-template-columns: 2.6em minmax(0, 1fr) auto; gap: 0 8px; padding: 5px 16px; cursor: pointer; align-items: baseline; }
+.geomap .gm-cl:hover, .geomap .gm-cl.on { background: var(--chip); }
+.geomap .gm-cl .id { font: 500 11.5px/1.5 var(--font-mono); color: var(--muted); }
+.geomap .gm-cl .n { font-variant-numeric: tabular-nums; text-align: right; color: var(--muted); font-size: 12.5px; }
+.geomap .gm-note { margin: 8px 16px 0; color: var(--muted); font-size: 12px; }
+@media (max-width: 820px) {
+  .geomap { display: block; }
+  .geomap .gm-main { display: block; }
+  #gm-map { height: 64vh; border-bottom: 1px solid var(--border); }
+  .geomap .gm-aside { border-left: 0; }
+  #gm-sel, #gm-side { overflow: visible; }
+  .geomap .gm-years input[type=range] { width: 96px; }
+}

@@ -18,7 +18,7 @@
 
 - id: F0004
   husband: I0009                    # Józef Kowalski
-  wife: I0010                       # Helena Lewandowska
+  wife: I0010                       # Helena Wzorkowska
   marriage: {date: "1932", place: P0002}
   children: [I0005]                 # Jan
 

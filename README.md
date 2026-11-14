@@ -260,14 +260,16 @@ Every build regenerates `<workspace>/output/`. File names follow the report lang
 
 | Output | `language: en` | `language: pl` | What it is |
 |---|---|---|---|
-| 🌳 Interactive tree | `tree.html` | `drzewo.html` | generation lanes, line highlighting, zoom, search, facts, sources, research hints; works offline (web fonts aside) |
+| 🌳 Interactive tree | `tree.html` | `drzewo.html` | generation lanes, line highlighting, zoom, search, facts, sources, research hints; any person as the proband (only their ancestors, or also their ancestors' siblings and their own descendants); the current view saved as a sharp PNG; a Map view with the heatmap of births and deaths (the map below); works offline (web fonts aside) |
 | 🧩 Embeddable tree | `tree-artifact.html` | `drzewo-artefakt.html` | the same page without the document skeleton, for hosts that add one (e.g. Claude artifacts) |
 | 📈 Diagrams | `tree.mmd`, `ancestors.mmd` | `drzewo.mmd`, `przodkowie.mmd` | Mermaid: the whole tree and the line of ancestors |
 | 📜 Ancestor list | `ancestors.md` | `przodkowie.md` | Kekule numbering with completeness per generation |
 | 🕳️ Gap report | `gaps.md` | `luki.md` | missing facts with concrete research suggestions and Geneteka links |
+| 🗺️ Map | `map.html`, `map-artifact.html` | `mapa.html`, `mapa-artefakt.html` | heatmap of births and deaths on Poland (with the partition borders) and the world, year filter, lines of ancestors, people per place; the map geometry is embedded |
+| 🧭 Geography | `geography.md`, `geography.json` | `geografia.md`, `geografia.json` | clusters of places, migration trails along the lines of ancestors and where to look for missing ancestors — context for the agent |
 | 🧬 GEDCOM | `tree.ged` | `drzewo.ged` | GEDCOM 5.5.1 for Gramps, MyHeritage, Ancestry, FamilySearch |
 
-`--public` hides living persons in HTML and GEDCOM. A person counts as living unless `living: false`
+`--public` hides living persons in HTML, the map and GEDCOM. A person counts as living unless `living: false`
 is set or a death or burial is recorded, when born less than 100 years ago or with no birth date
 (great-grandparents and earlier excepted). The agent never searches for living people online.
 
@@ -395,7 +397,7 @@ my-family-tree-harness/
 ├── CLAUDE.md            ← Claude Code specifics (imports AGENTS.md)
 ├── familytree/          ← Python package: model, validation, reports, HTML, GEDCOM, i18n, guard
 │   ├── locales/         ←   translations (pl.py); add a language by copying it
-│   ├── templates/       ←   the HTML page
+│   ├── templates/       ←   the HTML pages: tree, diagram layout (layout.js, runs in the page), map
 │   └── skeleton/        ←   what `workspace.py init` creates
 ├── scripts/             ← entry points: build · geneteka · workspace · guard
 ├── sources/             ← guides to services and regions, plus browser helpers (*.js)

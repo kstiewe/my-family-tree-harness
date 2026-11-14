@@ -82,7 +82,7 @@
 
 - id: S0009
   type: online_tree
-  title: "Someone else's online tree mentioning the Lewandowski family"
+  title: "Someone else's online tree mentioning the Wzorkowski family"
   url: "https://example.org/tree/12345"
   quality: derivative
   notes: "Not attached to any fact yet (the build warns about it)."

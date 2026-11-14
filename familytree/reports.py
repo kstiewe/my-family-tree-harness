@@ -134,6 +134,7 @@ def write_gaps(tree: Tree, path: Path) -> None:
           for plid, m in tree.place_gaps()] or [tr("_None._")]
     L += ["", tr("## 5. Validation warnings"), ""]
     L += [f"- {w}" for w in tree.warnings] or [tr("_None._")]
+    L += ["", tr("## 6. Geography"), ""] + tree.geo(living=True).gap_lines()
     path.write_text("\n".join(L) + "\n", encoding="utf-8")
 
 

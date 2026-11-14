@@ -1,0 +1,499 @@
+<section class="geomap" id="geomap" aria-label="⟦Family map⟧">
+<div class="gm-bar">
+  <div class="gm-row">
+    <h1 class="gm-title">⟦Family map⟧</h1>
+    <span class="muted" id="gm-sub"></span>
+    <div class="seg" id="gm-views" role="group" aria-label="⟦Map⟧">
+      <button type="button" data-v="poland">⟦Poland⟧</button>
+      <button type="button" data-v="world">⟦World⟧</button>
+    </div>
+    <div class="seg" id="gm-modes" role="group" aria-label="⟦Events⟧">
+      <button type="button" data-m="birth">⟦Births⟧</button>
+      <button type="button" data-m="death">⟦Deaths⟧</button>
+      <button type="button" data-m="both">⟦Births and deaths⟧</button>
+      <button type="button" data-m="all">⟦All events⟧</button>
+    </div>
+  </div>
+  <div class="gm-row">
+    <span class="gm-years" id="gm-years">
+      <input type="range" id="gm-y0" aria-label="⟦From year⟧"><output id="gm-o0" for="gm-y0"></output>–<output id="gm-o1" for="gm-y1"></output><input type="range" id="gm-y1" aria-label="⟦To year⟧">
+    </span>
+    <span class="gm-chips" id="gm-cent" role="group" aria-label="⟦Centuries⟧"></span>
+    <label class="gm-tog"><input type="checkbox" id="gm-und" checked>⟦undated⟧</label>
+    <label class="gm-tog"><input type="checkbox" id="gm-anc">⟦ancestors only⟧</label>
+    <label class="gm-tog"><input type="checkbox" id="gm-trl" checked>⟦lines of ancestors⟧</label>
+    <label class="gm-tog" id="gm-prtl"><input type="checkbox" id="gm-prt" checked>⟦partition borders⟧</label>
+  </div>
+</div>
+<div class="gm-main">
+  <div id="gm-map" tabindex="0" role="application" aria-label="⟦Map: drag to pan; the mouse wheel or + and − zooms; click a place to list the people recorded there⟧">
+    <canvas id="gm-cv"></canvas>
+    <p id="gm-empty" hidden>⟦No events with coordinates yet — add coords to the places in data/places.yaml (or to their parishes) and build again.⟧</p>
+    <div id="gm-tip" hidden></div>
+    <div class="gm-ctrl">
+      <button type="button" id="gm-zin" title="⟦Zoom in⟧" aria-label="⟦Zoom in⟧">+</button>
+      <button type="button" id="gm-zout" title="⟦Zoom out⟧" aria-label="⟦Zoom out⟧">−</button>
+      <button type="button" id="gm-zfit" title="⟦Show all events⟧" aria-label="⟦Show all events⟧">⤢</button>
+    </div>
+    <div class="gm-legend">
+      <span><i class="ramp"></i>⟦fewer → more events⟧</span>
+      <span><i class="k-dot"></i>⟦place⟧</span>
+      <span id="gm-lga" hidden><i class="k-ring"></i>⟦region or country⟧</span>
+      <span><i class="k-trail"></i>⟦parent → child⟧</span>
+      <span id="gm-lgp"><i class="k-part"></i>⟦partition border, approx. 1846–1914⟧</span>
+    </div>
+  </div>
+  <div class="gm-aside">
+    <div id="gm-sel" aria-live="polite"></div>
+    <div id="gm-side"></div>
+  </div>
+</div>
+</section>
+<script>
+(() => {
+"use strict";
+const D = __MAP_DATA__;
+const G = __MAP_GEO__;
+const $ = id => document.getElementById("gm-" + id);
+const root = document.getElementById("geomap");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const SYM = {birth: "*", death: "†", marriage: "⚭", residence: "⌂", other: "•"};
+const KIND = {birth: "⟦birth⟧", death: "⟦death⟧", marriage: "⟦marriage⟧", residence: "⟦residence⟧", other: "⟦other event⟧"};
+const PART = {prussian: "⟦Prussian partition⟧", russian: "⟦Russian partition⟧", austrian: "⟦Austrian partition⟧"};
+const MODES = {birth: ["birth"], death: ["death"], both: ["birth", "death"], all: ["birth", "death", "marriage", "residence", "other"]};
+const ORDER = ["birth", "marriage", "residence", "other", "death"];
+const RAD = Math.PI / 180;
+const FONT = '"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif';
+
+// ---- geometry: delta-encoded rings and lines (familytree/geodata) and two projections
+function decode(g) {
+  const dec = a => { const out = []; let x = 0, y = 0; for (let i = 0; i < a.length; i += 2) { x += a[i]; y += a[i + 1]; out.push([x / g.q, y / g.q]); } return out; };
+  return {land: g.land.map(dec), borders: g.borders.map(dec)};
+}
+function conic(lon0, lat0, lat1, lat2) {        // Lambert conformal conic: shapes of Poland stay true
+  const f1 = lat1 * RAD, f2 = lat2 * RAD, t = f => Math.tan(Math.PI / 4 + f / 2);
+  const n = Math.log(Math.cos(f1) / Math.cos(f2)) / Math.log(t(f2) / t(f1));
+  const F = Math.cos(f1) * Math.pow(t(f1), n) / n, rho = f => F / Math.pow(t(f), n), r0 = rho(lat0 * RAD);
+  return (lon, lat) => { const r = rho(Math.max(-85, Math.min(85, lat)) * RAD), a = n * (lon - lon0) * RAD;
+    return [1000 * r * Math.sin(a), -1000 * (r0 - r * Math.cos(a))]; };
+}
+function equalEarth(lon, lat) {                  // Equal Earth: areas of the continents stay true
+  const A1 = 1.340264, A2 = -0.081106, A3 = 0.000893, A4 = 0.003796, M = Math.sqrt(3) / 2;
+  const l = lon * RAD, th = Math.asin(M * Math.sin(lat * RAD)), t2 = th * th, t6 = t2 * t2 * t2;
+  return [1000 * l * Math.cos(th) / (M * (A1 + 3 * A2 * t2 + t6 * (7 * A3 + 9 * A4 * t2))), -1000 * th * (A1 + A2 * t2 + t6 * (A3 + A4 * t2))];
+}
+const VIEWS = {
+  poland: {proj: conic(19.5, 52, 49, 55), src: G.europe, home: [14, 48.9, 24.2, 55.0], partitions: true, refLat: 52},
+  world: {proj: equalEarth, src: G.world, home: [-168, -56, 180, 78], refLat: 45},
+};
+function prepare(v) {
+  if (v.land) return;
+  const P = v.proj, geo = decode(v.src);
+  const path = (lines, close) => { const p = new Path2D();
+    for (const line of lines) { line.forEach(([lo, la], i) => { const [x, y] = P(lo, la); i ? p.lineTo(x, y) : p.moveTo(x, y); }); if (close) p.closePath(); }
+    return p; };
+  v.land = path(geo.land, true);
+  v.borders = path(geo.borders, false);
+  if (v.partitions) v.part = path(G.overlay.partitions.map(l => l.points.map(([la, lo]) => [lo, la])), false);
+  const [ax, ay] = P(19.5, v.refLat - 0.5), [bx, by] = P(19.5, v.refLat + 0.5);
+  v.unitsPerKm = Math.hypot(bx - ax, by - ay) / 111.2;
+  v.pts = {};
+  for (const [id, pl] of Object.entries(D.places)) v.pts[id] = P(pl.c[1], pl.c[0]);
+}
+
+// ---- state
+const S = {view: "poland", mode: "both", y0: 0, y1: 0, und: true, anc: false, trl: true, prt: true, k: 1, tx: 0, ty: 0, sel: null};
+const cv = $("cv"), ctx = cv.getContext("2d"), map = $("map");
+let cw = 0, ch = 0, dpr = 1, raf = 0, TOK = {}, LUT = null, started = false, pending = null;
+const view = () => VIEWS[S.view];
+const scr = (v, id) => { const [x, y] = v.pts[id]; return [x * S.k + S.tx, y * S.k + S.ty]; };
+
+const years = D.events.map(e => e.y).filter(y => y != null);
+const YMIN = years.length ? Math.floor(Math.min(...years) / 10) * 10 : 0;
+const YMAX = years.length ? Math.ceil((Math.max(...years) + 1) / 10) * 10 : 0;
+S.y0 = YMIN; S.y1 = YMAX;
+
+function inYears(e) { return e.y == null ? S.und : e.y >= S.y0 && e.y <= S.y1; }
+function visible() {
+  const kinds = MODES[S.mode];
+  return D.events.filter(e => kinds.includes(e.k) && inYears(e) && (!S.anc || D.persons[e.p].k.length));
+}
+
+// ---- theme tokens → colours on the canvas
+function readTheme() {
+  const cs = getComputedStyle(document.documentElement), probe = document.createElement("canvas").getContext("2d");
+  const hex = name => { probe.fillStyle = "#000"; probe.fillStyle = cs.getPropertyValue(name).trim() || "#000"; return probe.fillStyle; };
+  for (const t of ["sea", "land", "coast", "frontier", "partition", "dot", "trail", "halo", "text", "accent", "muted", "panel"]) TOK[t] = hex("--" + t);
+  const stops = [1, 2, 3, 4, 5].map(i => { const h = hex("--heat-" + i); return [1, 3, 5].map(j => parseInt(h.substr(j, 2), 16)); });
+  LUT = new Uint8ClampedArray(256 * 4);
+  for (let a = 0; a < 256; a++) {
+    const t = a / 255, f = Math.min(3.999, t * 4), i = Math.floor(f), w = f - i;
+    for (let c = 0; c < 3; c++) LUT[a * 4 + c] = stops[i][c] + (stops[i + 1][c] - stops[i][c]) * w;
+    LUT[a * 4 + 3] = a < 4 ? 0 : 255 * Math.min(0.85, 0.3 + t * 0.7);
+  }
+}
+
+// ---- drawing
+function heatRadius(v) { return Math.max(22, Math.min(64, 15 * v.unitsPerKm * S.k)); }
+const hc = document.createElement("canvas"), hx = hc.getContext("2d", {willReadFrequently: true});
+function drawHeat(v, counts) {
+  const sc = 0.5, W = Math.max(1, Math.ceil(cw * sc)), H = Math.max(1, Math.ceil(ch * sc));
+  if (hc.width !== W || hc.height !== H) { hc.width = W; hc.height = H; }
+  hx.clearRect(0, 0, W, H);
+  const r = heatRadius(v) * sc;
+  for (const [id, n] of counts) {
+    if (D.places[id].area) continue;
+    const [x0, y0] = scr(v, id), x = x0 * sc, y = y0 * sc;
+    if (x < -r || y < -r || x > W + r || y > H + r) continue;
+    const a = 1 - Math.pow(0.7, n), g = hx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(0,0,0,${a})`); g.addColorStop(1, "rgba(0,0,0,0)");
+    hx.fillStyle = g; hx.fillRect(x - r, y - r, 2 * r, 2 * r);
+  }
+  const img = hx.getImageData(0, 0, W, H), px = img.data;
+  for (let i = 3; i < px.length; i += 4) {
+    const a = px[i]; if (!a) continue;
+    px[i - 3] = LUT[a * 4]; px[i - 2] = LUT[a * 4 + 1]; px[i - 1] = LUT[a * 4 + 2]; px[i] = LUT[a * 4 + 3];
+  }
+  hx.putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(hc, 0, 0, cw, ch);
+}
+function radius(n) { return 2.5 + 1.6 * Math.sqrt(n); }
+function arrow(ax, ay, bx, by, rb, color, width, bend) {
+  const mx = (ax + bx) / 2, my = (ay + by) / 2, dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy);
+  if (len < 4) return;
+  const cx = mx - dy * bend, cy = my + dx * bend;
+  const ex = bx - cx, ey = by - cy, el = Math.hypot(ex, ey) || 1, ux = ex / el, uy = ey / el;
+  const tx = bx - ux * (rb + 2), ty = by - uy * (rb + 2);
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = width;
+  ctx.beginPath(); ctx.moveTo(ax, ay); ctx.quadraticCurveTo(cx, cy, tx, ty); ctx.stroke();
+  const h = 4 + width * 2;
+  ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx - ux * h - uy * h * 0.55, ty - uy * h + ux * h * 0.55);
+  ctx.lineTo(tx - ux * h + uy * h * 0.55, ty - uy * h - ux * h * 0.55); ctx.closePath(); ctx.fill();
+}
+function draw() {
+  const v = view(); prepare(v);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = TOK.sea; ctx.fillRect(0, 0, cw, ch);
+  ctx.setTransform(dpr * S.k, 0, 0, dpr * S.k, dpr * S.tx, dpr * S.ty);
+  ctx.fillStyle = TOK.land; ctx.fill(v.land);
+  ctx.lineJoin = "round"; ctx.lineCap = "round";
+  ctx.strokeStyle = TOK.frontier; ctx.lineWidth = 1 / S.k; ctx.stroke(v.borders);
+  ctx.strokeStyle = TOK.coast; ctx.lineWidth = 0.8 / S.k; ctx.stroke(v.land);
+  if (v.part && S.prt) {
+    ctx.setLineDash([7 / S.k, 5 / S.k]); ctx.strokeStyle = TOK.partition; ctx.lineWidth = 1.8 / S.k; ctx.stroke(v.part); ctx.setLineDash([]);
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const evs = visible(), counts = new Map();
+  for (const e of evs) counts.set(e.pl, (counts.get(e.pl) || 0) + 1);
+  if (counts.size) drawHeat(v, counts);
+  if (v.part && S.prt) {
+    ctx.font = `600 11px ${FONT}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for (const lab of G.overlay.labels) {
+      const [x, y] = v.proj(lab.at[1], lab.at[0]), sx = x * S.k + S.tx, sy = y * S.k + S.ty, text = PART[lab.partition].toUpperCase();
+      ctx.lineWidth = 3; ctx.strokeStyle = TOK.halo; ctx.strokeText(text, sx, sy); ctx.fillStyle = TOK.partition; ctx.fillText(text, sx, sy);
+    }
+  }
+  const sel = S.sel ? S.sel.places : null;
+  if (S.trl) {
+    ctx.globalAlpha = 0.8;
+    for (const l of D.links) {
+      if (l.y != null && !(l.y >= S.y0 && l.y <= S.y1) || l.a === l.b) continue;
+      const [ax, ay] = scr(v, l.a), [bx, by] = scr(v, l.b);
+      arrow(ax, ay, bx, by, radius(counts.get(l.b) || 1), TOK.trail, 1.5, 0.16);
+    }
+    ctx.globalAlpha = 1;
+  }
+  if (S.sel && S.sel.route && S.sel.route.length > 1) {
+    ctx.setLineDash([5, 4]);
+    for (let i = 1; i < S.sel.route.length; i++) {
+      const [ax, ay] = scr(v, S.sel.route[i - 1]), [bx, by] = scr(v, S.sel.route[i]);
+      arrow(ax, ay, bx, by, 6, TOK.text, 1.6, 0.1);
+    }
+    ctx.setLineDash([]);
+  }
+  const shown = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  for (const [id, n] of shown) {
+    const [x, y] = scr(v, id), r = radius(n);
+    if (x < -20 || y < -20 || x > cw + 20 || y > ch + 20) continue;
+    ctx.beginPath(); ctx.arc(x, y, r + 1.5, 0, 2 * Math.PI); ctx.fillStyle = TOK.halo; ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
+    if (D.places[id].area) { ctx.lineWidth = 1.5; ctx.strokeStyle = TOK.dot; ctx.stroke(); } else { ctx.fillStyle = TOK.dot; ctx.fill(); }
+    if (sel && sel.has(id)) { ctx.beginPath(); ctx.arc(x, y, r + 5, 0, 2 * Math.PI); ctx.lineWidth = 2.5; ctx.strokeStyle = TOK.accent; ctx.stroke(); }
+  }
+  // place names: the busiest (and the selected) first, skipping any that would overlap
+  ctx.font = `500 12px ${FONT}`; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+  const boxes = [], limit = Math.round(6 + S.k / fitScale * 4);
+  const order = sel ? [...shown.filter(([id]) => sel.has(id)), ...shown.filter(([id]) => !sel.has(id))] : shown;
+  let drawn = 0;
+  for (const [id, n] of order) {
+    if (drawn >= limit && !(sel && sel.has(id))) break;
+    const [x, y] = scr(v, id), r = radius(n), text = D.places[id].n, w = ctx.measureText(text).width;
+    const b = [x + r + 4, y - 8, x + r + 6 + w, y + 8];
+    if (b[2] < 0 || b[0] > cw || b[3] < 0 || b[1] > ch || boxes.some(o => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1])) continue;
+    boxes.push(b); drawn++;
+    ctx.lineWidth = 3.5; ctx.strokeStyle = TOK.halo; ctx.strokeText(text, b[0], y); ctx.fillStyle = TOK.text; ctx.fillText(text, b[0], y);
+  }
+  $("empty").hidden = D.events.length > 0;
+}
+function redraw() { if (started && !raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); }
+
+// ---- view fitting, pan and zoom
+let fitScale = 1;
+function fitBox(x0, y0, x1, y1, pad, labels = 0) {     // labels: room on the right for place names
+  const k = Math.min((cw - 2 * pad - labels) / Math.max(1e-6, x1 - x0), (ch - 2 * pad) / Math.max(1e-6, y1 - y0));
+  S.k = Math.max(1e-6, k); S.tx = (cw - labels - S.k * (x0 + x1)) / 2; S.ty = (ch - S.k * (y0 + y1)) / 2;
+}
+function lonLatBox(v, [lo0, la0, lo1, la1]) {
+  const xs = [], ys = [];
+  for (let i = 0; i <= 8; i++) for (const [lo, la] of [[lo0 + (lo1 - lo0) * i / 8, la0], [lo0 + (lo1 - lo0) * i / 8, la1], [lo0, la0 + (la1 - la0) * i / 8], [lo1, la0 + (la1 - la0) * i / 8]]) {
+    const [x, y] = v.proj(lo, la); xs.push(x); ys.push(y);
+  }
+  return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+}
+function home() {
+  const v = view(); prepare(v);
+  const b = lonLatBox(v, v.home); fitBox(...b, 16); fitScale = S.k;
+}
+function fitPlaces(ids, minKm) {
+  const v = view(); prepare(v);
+  const pts = ids.filter(id => v.pts[id] && !D.places[id].area).map(id => v.pts[id]);
+  if (!pts.length) { home(); return; }
+  let [x0, y0, x1, y1] = [Math.min(...pts.map(p => p[0])), Math.min(...pts.map(p => p[1])), Math.max(...pts.map(p => p[0])), Math.max(...pts.map(p => p[1]))];
+  const m = (minKm || 25) * v.unitsPerKm, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  x0 = Math.min(x0, cx - m); x1 = Math.max(x1, cx + m); y0 = Math.min(y0, cy - m); y1 = Math.max(y1, cy + m);
+  fitBox(x0, y0, x1, y1, 48, Math.min(120, cw / 6));
+}
+function zoomAt(x, y, f) {
+  const k = Math.max(fitScale * 0.5, Math.min(fitScale * 400, S.k * f)), g = k / S.k;
+  S.tx = x - (x - S.tx) * g; S.ty = y - (y - S.ty) * g; S.k = k; redraw();
+}
+function resize() {
+  const r = map.getBoundingClientRect(), ow = cw, oh = ch;
+  if (!r.width || !r.height) return;          // hidden: the tree page shows the map only in its "Map" view
+  if (!started) { start(r); return; }
+  dpr = window.devicePixelRatio || 1; cw = Math.max(1, r.width); ch = Math.max(1, r.height);
+  cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
+  if (ow) { S.tx += (cw - ow) / 2; S.ty += (ch - oh) / 2; }
+  redraw();
+}
+const pointers = new Map();
+let drag = null, moved = false, pinch = null;
+const local = e => { const r = map.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+map.addEventListener("pointerdown", e => {
+  if (e.target.closest(".gm-ctrl, .gm-legend")) return;
+  map.setPointerCapture(e.pointerId); pointers.set(e.pointerId, local(e)); moved = false; $("tip").hidden = true;
+  if (pointers.size === 1) drag = {p: local(e), tx: S.tx, ty: S.ty};
+  if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch = {d: Math.hypot(a[0] - b[0], a[1] - b[1]), k: S.k}; }
+});
+map.addEventListener("pointermove", e => {
+  const p = local(e);
+  if (!pointers.has(e.pointerId)) { hover(p); return; }
+  pointers.set(e.pointerId, p);
+  if (pointers.size === 2 && pinch) {
+    const [a, b] = [...pointers.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+    zoomAt((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, pinch.k * d / Math.max(1, pinch.d) / S.k); moved = true; return;
+  }
+  if (drag) {
+    const dx = p[0] - drag.p[0], dy = p[1] - drag.p[1];
+    if (!moved && Math.hypot(dx, dy) > 4) { moved = true; map.classList.add("panning"); }
+    if (moved) { S.tx = drag.tx + dx; S.ty = drag.ty + dy; redraw(); }
+  }
+});
+function up(e) {
+  if (!pointers.has(e.pointerId)) return;
+  if (pointers.size === 1 && !moved && e.type === "pointerup") pick(local(e));
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinch = null;
+  if (!pointers.size) { drag = null; map.classList.remove("panning"); }
+}
+map.addEventListener("pointerup", up);
+map.addEventListener("pointercancel", up);
+map.addEventListener("pointerleave", () => { if (!pointers.size) $("tip").hidden = true; });
+map.addEventListener("wheel", e => { e.preventDefault(); const [x, y] = local(e); zoomAt(x, y, Math.exp(-e.deltaY * 0.0015)); }, {passive: false});
+map.addEventListener("keydown", e => {
+  const step = 60, keys = {ArrowLeft: [step, 0], ArrowRight: [-step, 0], ArrowUp: [0, step], ArrowDown: [0, -step]};
+  if (keys[e.key]) { S.tx += keys[e.key][0]; S.ty += keys[e.key][1]; redraw(); }
+  else if (e.key === "+" || e.key === "=") zoomAt(cw / 2, ch / 2, 1.4);
+  else if (e.key === "-") zoomAt(cw / 2, ch / 2, 1 / 1.4);
+  else if (e.key === "0") { fitAll(); redraw(); }
+  else if (e.key === "Escape") { S.sel = null; renderSel(); redraw(); }
+  else return;
+  e.preventDefault();
+});
+$("zin").onclick = () => zoomAt(cw / 2, ch / 2, 1.5);
+$("zout").onclick = () => zoomAt(cw / 2, ch / 2, 1 / 1.5);
+$("zfit").onclick = () => { fitAll(); redraw(); };
+function fitAll() { fitPlaces([...new Set(visible().map(e => e.pl))], 40); }
+function fitCore() {          // the first view: the places nearest the centre of gravity that hold 90% of the events
+  const v = view(), counts = new Map();
+  for (const e of visible()) if (!D.places[e.pl].area) counts.set(e.pl, (counts.get(e.pl) || 0) + 1);
+  const total = [...counts.values()].reduce((a, b) => a + b, 0);
+  if (!total) { home(); return; }
+  let cx = 0, cy = 0;
+  for (const [id, n] of counts) { cx += v.pts[id][0] * n / total; cy += v.pts[id][1] * n / total; }
+  const order = [...counts.keys()].sort((a, b) => Math.hypot(v.pts[a][0] - cx, v.pts[a][1] - cy) - Math.hypot(v.pts[b][0] - cx, v.pts[b][1] - cy));
+  const core = [];
+  let sum = 0;
+  for (const id of order) { if (sum >= total * 0.9) break; core.push(id); sum += counts.get(id); }
+  fitPlaces(core, 40);
+}
+
+// ---- picking places, the tooltip and the register on the right
+function near(p, extra) {
+  const v = view(), counts = new Map();
+  for (const e of visible()) counts.set(e.pl, (counts.get(e.pl) || 0) + 1);
+  const hits = [];
+  for (const [id, n] of counts) {
+    const [x, y] = scr(v, id), d = Math.hypot(x - p[0], y - p[1]);
+    if (d <= radius(n) + extra) hits.push([id, d, n]);
+  }
+  return hits.sort((a, b) => a[1] - b[1]);
+}
+function hover(p) {
+  const tip = $("tip"), hit = near(p, 6)[0];
+  if (!hit) { tip.hidden = true; return; }
+  const [id, , n] = hit, by = {};
+  for (const e of visible()) if (e.pl === id) by[e.k] = (by[e.k] || 0) + 1;
+  tip.innerHTML = `<b>${esc(D.places[id].n)}</b> <span>${ORDER.filter(k => by[k]).map(k => SYM[k] + " " + by[k]).join(" · ")}</span>`;
+  tip.style.left = p[0] + "px"; tip.style.top = p[1] + "px"; tip.hidden = false;
+}
+function pick(p) {
+  const hits = near(p, 16);
+  S.sel = hits.length ? {places: new Set(hits.map(h => h[0])), title: null} : null;
+  renderSel(); redraw();
+}
+function evRow(e, withPlace) {
+  const per = D.persons[e.p], yr = e.y == null ? "?" : (e.e ? "~" + e.y : e.y);
+  return `<div class="gm-ev"><span class="sym" title="${esc(KIND[e.k])}">${SYM[e.k]}</span><span class="yr${e.e ? " est" : ""}">${yr}</span>`
+    + `<span><span class="link" tabindex="0" role="button" data-p="${esc(e.p)}">${esc(per.n)}</span>`
+    + (per.k.length ? `<span class="kn">[${per.k.join(", ")}]</span>` : "")
+    + (withPlace ? ` <span class="muted">${esc(KIND[e.k])} · ${esc(D.places[e.pl].n)}</span>` : "") + `</span></div>`;
+}
+const byYear = (a, b) => (a.y ?? 9999) - (b.y ?? 9999) || ORDER.indexOf(a.k) - ORDER.indexOf(b.k);
+function placeHead(id) {
+  const pl = D.places[id], bits = [];
+  if (pl.full && pl.full !== pl.n) bits.push(esc(pl.full));
+  if (pl.part) bits.push(esc(PART[pl.part]));
+  if (pl.b === "parish") bits.push("⟦coordinates of the parish⟧");
+  if (pl.area) bits.push("⟦region or country⟧");
+  return `<b>${esc(pl.n)}</b>` + (bits.length ? ` <span class="muted">${bits.join(" · ")}</span>` : "");
+}
+function renderSel() {
+  const el = $("sel");
+  if (!S.sel) {
+    el.innerHTML = `<h2>⟦Where the family lived⟧</h2><p>⟦Click a place or a hot spot on the map to list the people recorded there. The colour shows how many of the chosen events fall in the area; arrows lead from a parent's place to the child's along the lines of ancestors.⟧</p>`;
+    return;
+  }
+  if (S.sel.person) {
+    const pid = S.sel.person, per = D.persons[pid], evs = D.events.filter(e => e.p === pid).sort(byYear);
+    el.innerHTML = `<h2>${esc(per.n)}${per.k.length ? `<span class="kn">[${per.k.join(", ")}]</span>` : ""}</h2>`
+      + (per.life.length ? `<p class="muted">${per.life.map(esc).join(" · ")}</p>` : "")
+      + `<h3>⟦Places on the map⟧</h3>` + evs.map(e => evRow(e, true)).join("")
+      + (root.dataset.linked ? `<p><span class="link" tabindex="0" role="button" data-tree="${esc(pid)}">⟦Show in the tree⟧</span></p>` : "")
+      + (S.sel.prev ? `<p><span class="link" tabindex="0" role="button" data-back="1">⟦Back to the selected places⟧</span></p>` : "");
+    return;
+  }
+  const ids = [...S.sel.places], vis = new Set(visible()), all = D.events.filter(e => S.sel.places.has(e.pl));
+  const hidden = all.filter(e => !vis.has(e)).length;
+  el.innerHTML = `<h2>${S.sel.title ? esc(S.sel.title) : ids.length === 1 ? esc(D.places[ids[0]].n) : `⟦Places: ${ids.length}⟧`}</h2>`
+    + ids.map(id => `<div class="gm-pl">${placeHead(id)}${all.filter(e => e.pl === id && vis.has(e)).sort(byYear).map(e => evRow(e, false)).join("")}</div>`).join("")
+    + (hidden ? `<p class="muted">⟦Outside the filters: ${hidden} more events⟧</p>` : "");
+}
+function personSel(pid, prev) {
+  const evs = D.events.filter(x => x.p === pid).sort(byYear);
+  return {person: pid, places: new Set(evs.map(x => x.pl)), route: evs.filter(x => !D.places[x.pl].area).map(x => x.pl)
+    .filter((pl, i, a) => i === 0 || pl !== a[i - 1]), prev};
+}
+$("sel").addEventListener("click", e => {
+  const t = e.target.closest("[data-p], [data-back], [data-tree]");
+  if (!t) return;
+  if (t.dataset.tree) { root.dispatchEvent(new CustomEvent("geomap:person", {bubbles: true, detail: t.dataset.tree})); return; }
+  if (t.dataset.back) { S.sel = S.sel && S.sel.prev ? S.sel.prev : null; }
+  else S.sel = personSel(t.dataset.p, S.sel && !S.sel.person ? S.sel : (S.sel || {}).prev);
+  renderSel(); redraw();
+});
+$("sel").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches("[data-p], [data-back], [data-tree]")) { e.preventDefault(); e.target.click(); } });
+function renderSide() {
+  const rows = D.clusters.map(c => `<div class="gm-cl" tabindex="0" role="button" data-c="${esc(c.id)}"><span class="id">${esc(c.id)}</span>`
+    + `<span>${esc(c.label)}${c.years ? ` <span class="muted">${c.years}</span>` : ""}</span><span class="n">${c.n}</span></div>`).join("");
+  $("side").innerHTML = `<h3>⟦Clusters of places⟧</h3>` + (rows || `<p class="gm-note">⟦None yet.⟧</p>`)
+    + (D.stats.geocode ? `<p class="gm-note">⟦Not on the map: places without coordinates: ${D.stats.geocode}, their events: ${D.stats.off} — see ${D.files.context}.⟧</p>` : "");
+}
+$("side").addEventListener("click", e => {
+  const t = e.target.closest("[data-c]");
+  if (!t) return;
+  const c = D.clusters.find(x => x.id === t.dataset.c);
+  if (S.view !== "poland" && c.lat > 47 && c.lat < 57 && c.lon > 12 && c.lon < 26) setView("poland");
+  S.sel = {places: new Set(c.places), title: `${c.id} · ${c.label}`};
+  fitPlaces(c.places, Math.max(15, c.r * 1.3)); renderSel(); redraw();
+});
+$("side").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches("[data-c]")) { e.preventDefault(); e.target.click(); } });
+
+// ---- controls
+function setView(name) {
+  S.view = name;
+  for (const b of $("views").children) b.classList.toggle("on", b.dataset.v === name);
+  $("prtl").hidden = !VIEWS[name].partitions; $("lgp").hidden = !VIEWS[name].partitions || !S.prt;
+  home(); redraw();
+}
+for (const b of $("views").children) b.onclick = () => setView(b.dataset.v);
+function setMode(m) { S.mode = m; for (const b of $("modes").children) b.classList.toggle("on", b.dataset.m === m); renderSel(); redraw(); }
+for (const b of $("modes").children) b.onclick = () => setMode(b.dataset.m);
+function setYears(a, b) {
+  S.y0 = Math.min(a, b); S.y1 = Math.max(a, b);
+  $("y0").value = S.y0; $("y1").value = S.y1; $("o0").textContent = S.y0; $("o1").textContent = S.y1;
+  for (const c of $("cent").children) c.classList.toggle("on", +c.dataset.a === S.y0 && +c.dataset.b === S.y1);
+  renderSel(); redraw();
+}
+if (years.length) {
+  for (const id of ["y0", "y1"]) { const r = $(id); r.min = YMIN; r.max = YMAX; r.step = 1; r.oninput = () => setYears(+$("y0").value, +$("y1").value); }
+  const chips = [[YMIN, YMAX, "⟦all years⟧"]];
+  for (let c = Math.floor(YMIN / 100); c * 100 < YMAX; c++) chips.push([Math.max(YMIN, c * 100), Math.min(YMAX, c * 100 + 99), `${c * 100}–${c * 100 + 99}`]);
+  $("cent").innerHTML = chips.map(([a, b, t]) => `<button type="button" data-a="${a}" data-b="${b}">${t}</button>`).join("");
+  for (const c of $("cent").children) c.onclick = () => setYears(+c.dataset.a, +c.dataset.b);
+} else { $("years").hidden = true; $("cent").hidden = true; }
+$("und").onchange = e => { S.und = e.target.checked; renderSel(); redraw(); };
+$("anc").onchange = e => { S.anc = e.target.checked; renderSel(); redraw(); };
+$("trl").onchange = e => { S.trl = e.target.checked; redraw(); };
+$("prt").onchange = e => { S.prt = e.target.checked; $("lgp").hidden = !S.prt || !view().partitions; redraw(); };
+$("lga").hidden = !Object.values(D.places).some(p => p.area);
+$("sub").textContent = `⟦${D.title} · events on the map: ${D.stats.on} of ${D.stats.on + D.stats.off} · as of ${D.generated}⟧`;
+
+function retheme() { readTheme(); redraw(); }
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", retheme);
+new MutationObserver(retheme).observe(document.documentElement, {attributes: true, attributeFilter: ["data-theme"]});
+if (window.ResizeObserver) new ResizeObserver(resize).observe(map); else window.addEventListener("resize", resize);
+
+// ---- start: the first view needs the size of the map, so it waits until the map is shown
+const inPL = c => c[0] > 42 && c[0] < 61 && c[1] > 3 && c[1] < 40;
+function start(r) {
+  started = true;
+  dpr = window.devicePixelRatio || 1; cw = r.width; ch = r.height;
+  cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
+  const inPoland = D.events.filter(e => inPL(D.places[e.pl].c)).length;
+  setView(!D.events.length || inPoland * 2 >= D.events.length ? "poland" : "world");
+  if (D.events.length) fitCore();
+  if (pending) { const pid = pending; pending = null; showPerson(pid); }
+  redraw();
+}
+/** Selects a person (from the tree page): their places on the map, the route between them and their card. */
+function showPerson(pid) {
+  if (!D.persons[pid]) return;
+  if (!started) { pending = pid; return; }
+  S.sel = personSel(pid, null);
+  const ids = [...S.sel.places].filter(id => !D.places[id].area);
+  const want = ids.length && ids.every(id => inPL(D.places[id].c)) ? "poland" : "world";
+  if (ids.length && S.view !== want) setView(want);
+  fitPlaces(ids, 40); renderSel(); redraw();
+}
+root.geomap = {has: pid => !!D.persons[pid], showPerson};
+
+readTheme();
+setMode("both");
+setYears(YMIN, YMAX);
+renderSide();
+renderSel();
+resize();
+})();
+</script>

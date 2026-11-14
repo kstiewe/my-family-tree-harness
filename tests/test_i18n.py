@@ -41,7 +41,8 @@ def code_message_ids() -> set[str]:
 
 
 def template_ids() -> set[str]:
-    return {m for p in (PACKAGE / "templates").glob("*.html") for m in i18n.template_ids(p.read_text(encoding="utf-8"))}
+    return {m for p in (PACKAGE / "templates").glob("*.*") if p.suffix in (".html", ".js")
+            for m in i18n.template_ids(p.read_text(encoding="utf-8"))}
 
 
 def fields(text: str) -> set[str]:
@@ -76,17 +77,21 @@ class Catalogs(unittest.TestCase):
 
 @unittest.skipUnless(shutil.which("node"), "node is not installed")
 class PageScript(unittest.TestCase):
-    def test_page_script_parses_in_every_language(self):
+    def test_page_scripts_parse_in_every_language(self):
         for lang in i18n.available():
             out = tmpdir()
             code, stdout, _ = run(build.main, ["--workspace", str(EXAMPLE), "--out", str(out), "--lang", lang])
             self.assertEqual(code, 0, stdout)
-            page = next(out.glob("*-*.html")).read_text(encoding="utf-8")          # the artifact variant
-            script = page.rsplit("<script>", 1)[1].split("</script>", 1)[0]
-            js = out / "page.js"
-            js.write_text(script, encoding="utf-8")
-            result = subprocess.run(["node", "--check", str(js)], capture_output=True, text=True)
-            self.assertEqual(result.returncode, 0, f"{lang}: {result.stderr}")
+            pages = sorted(out.glob("*-*.html"))                                  # the artifact variants: tree, map
+            self.assertEqual(len(pages), 2, pages)
+            for path in pages:
+                scripts = re.findall(r"<script>(.*?)</script>", path.read_text(encoding="utf-8"), re.S)
+                self.assertTrue(scripts, path.name)
+                for i, script in enumerate(scripts):
+                    js = out / f"page{i}.js"
+                    js.write_text(script, encoding="utf-8")
+                    result = subprocess.run(["node", "--check", str(js)], capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 0, f"{lang} {path.name} script {i}: {result.stderr}")
 
 
 if __name__ == "__main__":

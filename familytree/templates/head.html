@@ -40,6 +40,32 @@ h1 { font: 600 19px/1.2 var(--font-display); margin: 0; text-wrap: balance; }
 .seg button.on { background: var(--accent); color: var(--on-accent); }
 button:focus-visible, input:focus-visible, [tabindex]:focus-visible, a:focus-visible, .link:focus-visible { outline: 2px solid var(--hl); outline-offset: 1px; }
 input[type=search] { font: inherit; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); flex: 0 1 260px; min-width: 0; }
+/* Proband picker (only in "Ancestors of the proband"): a field that filters a list of persons, and the ancestors-only switch. */
+.pb { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-width: 0; }
+.pb[hidden] { display: none; }
+.pb > label:first-child { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.combo { position: relative; flex: 0 1 280px; min-width: 0; }
+.combo::after { content: "▾"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+#pb-q { width: 100%; font: inherit; font-weight: 600; padding: 6px 28px 6px 10px; border: 1px solid var(--accent); border-radius: 6px; background: var(--panel); color: var(--text); text-overflow: ellipsis; }
+#pb-q::placeholder { font-weight: 400; color: var(--muted); }
+#pb-list { position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; width: max(100%, 340px); max-width: calc(100vw - 32px); max-height: min(420px, 60vh);
+  overflow: auto; padding: 4px 0; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 28px rgba(0,0,0,.18); }
+#pb-list [role=option] { display: flex; justify-content: space-between; gap: 10px; padding: 5px 12px; cursor: pointer; }
+#pb-list [role=option] span:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#pb-list [role=option]:hover, #pb-list .act { background: var(--chip); }
+#pb-list [aria-selected=true] { font-weight: 600; box-shadow: inset 3px 0 0 var(--accent); }
+#pb-list i { font-style: normal; }
+#pb-list p { margin: 0; padding: 6px 12px; }
+.chk { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+.chk input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
+.go-anc { display: inline-block; margin-top: 8px; padding: 4px 10px; font: inherit; font-size: 12.5px; color: var(--accent); background: transparent;
+  border: 1px solid var(--accent); border-radius: 6px; cursor: pointer; }
+.go-anc:hover { background: var(--accent); color: var(--on-accent); }
+.go-anc + .go-anc { margin-left: 6px; }
+/* The "Map" view: the family map (map.css) takes the place of the diagram; its own title is the page's. */
+.on-map main, .on-map .tree-only { display: none !important; }
+body:not(.on-map) .geomap { display: none; }
+.geomap .gm-title { display: none; }
 main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: minmax(0, 1fr); min-height: 0; }
 /* Diagram: generation lanes (background + labels stuck to the left edge), person cards and family lines. */
 #chart { position: relative; overflow: hidden; min-height: 0; background: var(--bg); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
@@ -85,6 +111,9 @@ main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 400px; grid
 .ctrl button { width: 36px; height: 36px; display: grid; place-items: center; padding: 0; border-radius: 8px; border: 1px solid var(--border);
   background: var(--panel); color: var(--text); font: 600 17px/1 var(--font-body); cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
 .ctrl button:hover { background: var(--chip); }
+.ctrl button:disabled { cursor: progress; opacity: .55; }
+.toast { position: absolute; left: 12px; bottom: 12px; max-width: min(420px, calc(100% - 72px)); margin: 0; padding: 8px 12px; border-radius: 8px;
+  background: var(--text); color: var(--bg); font-size: 13px; box-shadow: 0 2px 10px rgba(0,0,0,.2); pointer-events: none; }
 .legend { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; }
 .sw { display: inline-block; width: 24px; height: 13px; margin-right: 6px; vertical-align: -2px; border-radius: 3px;
   border: 1px solid var(--border); border-left: 4px solid var(--male); background: var(--panel); }
@@ -117,4 +146,5 @@ a.src:hover { background: var(--accent); color: var(--on-accent); }
   aside { border-left: 0; }
   #details, #list { overflow: visible; }
 }
+__MAP_CSS__
 </style>

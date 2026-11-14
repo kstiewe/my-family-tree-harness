@@ -93,6 +93,10 @@ def schema_json() -> dict:
             "source_type": sorted(SOURCE_TYPES), "source_quality": sorted(SOURCE_QUALITY),
             "source_language": LANGUAGES,
         },
+        "field_notes": {
+            "place.coords": "[latitude, longitude] in decimal degrees (WGS84), optional. A place without it is shown at "
+                            "its parish's coords on the map; write where the coordinates come from in notes.",
+        },
         "references": {
             "event.place": "places", "event.sources[]": "sources", "family.husband": "persons",
             "family.wife": "persons", "family.children[]": "persons", "place.parish": "places",

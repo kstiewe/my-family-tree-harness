@@ -1,0 +1,35 @@
+<title>⟦Family map⟧</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap">
+<style>
+/* Layout: filters in one row above a canvas map (heat of events, places, lines of ancestors); on the right
+   the register of the selected places — the same index-card look as the tree. The map itself is the component
+   in map.css and map_body.html, which the tree page embeds as its "Map" view; this page shows it alone. */
+:root {
+  --bg: #f2f4f3; --panel: #ffffff; --text: #1a2220; --muted: #5b6864; --border: #d9e0dd; --chip: #e9eeec;
+  --accent: #2f4f8a; --on-accent: #ffffff; --hl: #c98a00;
+  --font-display: "Spectral", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121615; --panel: #1a1f1e; --text: #e4eae8; --muted: #9aa8a3; --border: #2d3533; --chip: #242b29;
+    --accent: #9db8f2; --on-accent: #0f1520; --hl: #f0b429;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121615; --panel: #1a1f1e; --text: #e4eae8; --muted: #9aa8a3; --border: #2d3533; --chip: #242b29;
+  --accent: #9db8f2; --on-accent: #0f1520; --hl: #f0b429;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; font: 14px/1.5 var(--font-body); background: var(--bg); color: var(--text); display: flex; flex-direction: column; }
+@media (max-width: 820px) {
+  body { display: block; height: auto; }
+}
+__MAP_CSS__
+</style>

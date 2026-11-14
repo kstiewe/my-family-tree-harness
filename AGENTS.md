@@ -59,9 +59,11 @@ Leave nothing out. If something ended up only in notes, say so in your answer.
 Steps:
 1. Check for duplicates first: `python3 scripts/build.py --find "<surname>"` (ignores diacritics,
    includes variants; `--json` for machine-readable output).
-2. Add places first (find the parish, partition and `geneteka_region`; the parish of a village is
-   in the Słownik geograficzny or in `python3 scripts/geneteka.py --parishes -w CODE`), then the
-   source (a family account is `type: oral` with `informant`), finally persons and families.
+2. Add places first (find the parish, partition, `geneteka_region` and `coords`; the parish of a
+   village is in the Słownik geograficzny or in `python3 scripts/geneteka.py --parishes -w CODE`;
+   coordinates come from one targeted gazetteer lookup, see `sources/gazetteers.md`, with the source
+   in `notes`), then the source (a family account is `type: oral` with `informant`), finally persons
+   and families.
 3. Take new IDs from the "Next free IDs" line of the build (or `next_ids` in `--json`).
 4. In families.yaml put a comment with the name next to every ID.
 5. Mark uncertain things `confidence: probable` / `hypothesis` and give the reason in `notes`.
@@ -81,6 +83,12 @@ Steps:
   `sources/regions/`. Add what you learn about a service or region there (generic, fictional
   examples) — this is how the toolkit grows. Family-specific findings (which parish IDs you used,
   where a record was) go to the workspace.
+- Before searching for an ancestor whose place of birth, place of death or parents are missing, read
+  the workspace `output/geography.md` (Polish: `geografia.md`; the same as JSON in `geography.json`):
+  clusters of the family's places, migration trails along each line, and per ancestor a reference
+  place, the parishes and family places within 25 km and where the surname occurs elsewhere. Search
+  the reference parish first, then the neighbouring ones nearest first, within the estimated years.
+  It is a heuristic for choosing where to search, never evidence; see docs/geography.md.
 - Geneteka: `python3 scripts/geneteka.py` builds links, lists parishes and gives a surname overview;
   read result tables in a browser (the API gives scripts incomplete data — do not work around it).
 - An index hit is a candidate, not a fact. Judge a match by the parents' names, the place, the age
@@ -106,7 +114,7 @@ Steps:
 | `python3 scripts/build.py --json` | the same as JSON: issues with `code`, `record`, `message`, `fix` |
 | `python3 scripts/build.py --check` | validate only |
 | `python3 scripts/build.py --find TEXT [--json]` | duplicate check |
-| `python3 scripts/build.py --public` | HTML/GEDCOM without living persons |
+| `python3 scripts/build.py --public` | HTML, map and GEDCOM without living persons |
 | `python3 scripts/build.py --schema` | the data model as JSON |
 | `python3 scripts/geneteka.py --help` | Geneteka links, parishes, surname overview |
 | `python3 scripts/workspace.py where / context / init / link / serve` | the private workspace |

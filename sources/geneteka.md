@@ -56,6 +56,16 @@ the workspace `places.yaml` notes).
 - **Check the mother's age** before accepting parents found through a sibling: a mother born in 1860
   for a child of 1908 suggests the child belongs to the next generation (a son of the couple), not to
   the couple itself.
+- **Children of a known father across a big surname result**: search the surname alone for a range of
+  years (e.g. births "Kowalski" 1900–1926, hundreds of rows), then type the father's given name into
+  the table's own "Szukaj:" box. The filter runs on the server over all columns of the result (child,
+  father, mother, maiden name, parish), so "Jan" lists every child whose father — or mother's maiden
+  name — contains "Jan"; a fragment of the mother's maiden name ("Nowak") or a given name works too.
+  In the console: `jQuery('table.dataTable').DataTable().search('Jan').draw()`. Repeat region by
+  region; it is the quickest way to rule a couple in or out nationwide (checked 2026-11).
+- An oral account with an unusual maiden name ("Nowaczna or something like that"): run the overview
+  with the variants; if the surname exists, the regions and parishes where it clusters are the next
+  place to look — but a surname cluster alone links nobody.
 - A rare surname: first `--overview SURNAME --exact` (regions), then the regional databases with a
   prefix, then narrow by years and parishes.
 - The surname overview also hints at origins: the regions where a surname is frequent tell where a
