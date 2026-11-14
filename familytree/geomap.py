@@ -6,6 +6,7 @@ embedded, so the page loads nothing from other hosts except the fonts."""
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 from .dates import TODAY
@@ -50,20 +51,23 @@ def map_data(tree: Tree, geo: Geo) -> dict:
             "files": {"context": tr("geography.md")}}
 
 
-def _templates() -> tuple[str, str]:
-    return (fill((TEMPLATES / "map_head.html").read_text(encoding="utf-8")),
-            fill((TEMPLATES / "map_body.html").read_text(encoding="utf-8")))
+def component(tree: Tree, geo: Geo) -> tuple[str, str]:
+    """The map as a component of a page: its stylesheet, and its markup and script with the data filled in. The
+    map page shows it alone; the tree page embeds it as its "Map" view."""
+    css = (TEMPLATES / "map.css").read_text(encoding="utf-8")
+    body = fill((TEMPLATES / "map_body.html").read_text(encoding="utf-8"))
+    values = {"MAP_GEO": json.dumps(geometry(), separators=(",", ":")),
+              "MAP_DATA": json.dumps(map_data(tree, geo), ensure_ascii=False).replace("</", "<\\/")}
+    return css, re.sub(r"__(MAP_GEO|MAP_DATA)__", lambda m: values[m.group(1)], body)
 
 
 def write_map(tree: Tree, geo: Geo, path: Path, artifact: bool = False) -> None:
-    head, body = _templates()
+    css, body = component(tree, geo)
+    head = fill((TEMPLATES / "map_head.html").read_text(encoding="utf-8")).replace("__MAP_CSS__", css)
     if artifact:
         page = head + "\n" + body + "\n"
     else:
-        page = ('<!doctype html>\n<html lang="__LANG__">\n<head>\n<meta charset="utf-8">\n'
+        page = (f'<!doctype html>\n<html lang="{language()}">\n<head>\n<meta charset="utf-8">\n'
                 '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
                 + head + "\n</head>\n<body>\n" + body + "\n</body>\n</html>\n")
-    data = json.dumps(map_data(tree, geo), ensure_ascii=False).replace("</", "<\\/")
-    geo_json = json.dumps(geometry(), separators=(",", ":"))
-    page = page.replace("__LANG__", language()).replace("__GEO__", geo_json).replace("__DATA__", data)
     path.write_text(page, encoding="utf-8")

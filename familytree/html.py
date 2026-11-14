@@ -1,12 +1,16 @@
 """Interactive HTML page: a standalone file and a variant without the document skeleton (for hosts
-such as Claude artifacts, which add <html>/<head>/<body> themselves)."""
+such as Claude artifacts, which add <html>/<head>/<body> themselves). Besides the tree, the page carries the
+family map (geomap.py) as its "Map" view."""
 
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 from .dates import TODAY, safe_date
+from .geo import Geo
+from .geomap import component
 from .i18n import fill, language, tr
 from .model import Tree
 from .schema import LIFE_EVENTS, event_label, event_type_label, language_names
@@ -86,9 +90,11 @@ def artifact_template() -> str:
     return head + "\n" + body + "\n"
 
 
-def write_html(tree: Tree, path: Path, public: bool, artifact: bool = False) -> None:
+def write_html(tree: Tree, path: Path, public: bool, artifact: bool = False, geo: Geo | None = None) -> None:
     template = artifact_template() if artifact else standalone_template()
-    data = json.dumps(html_data(tree, public), ensure_ascii=False).replace("</", "<\\/")
-    title = (tree.project.get("name") or tr("Family tree")).replace("<", "&lt;")
-    page = template.replace("__LANG__", language()).replace("__TITLE__", title).replace("__DATA__", data)
+    css, body = component(tree, geo) if geo else ("", "")
+    values = {"LANG": language(), "TITLE": (tree.project.get("name") or tr("Family tree")).replace("<", "&lt;"),
+              "DATA": json.dumps(html_data(tree, public), ensure_ascii=False).replace("</", "<\\/"),
+              "MAP_CSS": css, "MAP": body}
+    page = re.sub(r"__(LANG|TITLE|DATA|MAP_CSS|MAP)__", lambda m: values[m.group(1)], template)   # one pass: data stays as is
     path.write_text(page, encoding="utf-8")

@@ -16,7 +16,7 @@ const fs = require('fs');
 const [page, out, ...probands] = process.argv.slice(2);
 const html = fs.readFileSync(page, 'utf8');
 const D = JSON.parse(html.match(/<script id="tree-data" type="application\\/json">([\\s\\S]*?)<\\/script>/)[1].replace(/<\\\\\\//g, '</'));
-const layout = html.match(/<script>([\\s\\S]*?)<\\/script>/)[1];
+const layout = [...html.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)].map(m => m[1]).find(s => s.includes('const TreeLayout'));
 const TreeLayout = new Function(layout + '; return TreeLayout;')();
 const G = TreeLayout.graph(D), result = {};
 for (const pb of probands) result[pb] = Object.fromEntries(['anc', 'kin', 'all'].map(m => [m, TreeLayout.build(D, G, pb, m)]));

@@ -61,6 +61,11 @@ input[type=search] { font: inherit; padding: 6px 10px; border: 1px solid var(--b
 .go-anc { display: inline-block; margin-top: 8px; padding: 4px 10px; font: inherit; font-size: 12.5px; color: var(--accent); background: transparent;
   border: 1px solid var(--accent); border-radius: 6px; cursor: pointer; }
 .go-anc:hover { background: var(--accent); color: var(--on-accent); }
+.go-anc + .go-anc { margin-left: 6px; }
+/* The "Map" view: the family map (map.css) takes the place of the diagram; its own title is the page's. */
+.on-map main, .on-map .tree-only { display: none !important; }
+body:not(.on-map) .geomap { display: none; }
+.geomap .gm-title { display: none; }
 main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: minmax(0, 1fr); min-height: 0; }
 /* Diagram: generation lanes (background + labels stuck to the left edge), person cards and family lines. */
 #chart { position: relative; overflow: hidden; min-height: 0; background: var(--bg); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
@@ -141,4 +146,5 @@ a.src:hover { background: var(--accent); color: var(--on-accent); }
   aside { border-left: 0; }
   #details, #list { overflow: visible; }
 }
+__MAP_CSS__
 </style>

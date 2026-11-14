@@ -1,8 +1,9 @@
 <header>
   <h1>__TITLE__</h1>
-  <span class="muted" id="stats"></span>
-  <div class="seg" id="views"><button type="button" data-view="full" class="on">⟦Whole tree⟧</button><button type="button" data-view="anc">⟦Ancestors of the proband⟧</button></div>
-  <div class="pb" id="pb" hidden>
+  <div class="seg" id="pages" role="group" aria-label="⟦View⟧"><button type="button" data-page="tree" class="on" aria-pressed="true">⟦Tree⟧</button><button type="button" data-page="map" aria-pressed="false">⟦Map⟧</button></div>
+  <span class="muted tree-only" id="stats"></span>
+  <div class="seg tree-only" id="views"><button type="button" data-view="full" class="on">⟦Whole tree⟧</button><button type="button" data-view="anc">⟦Ancestors of the proband⟧</button></div>
+  <div class="pb tree-only" id="pb" hidden>
     <label for="pb-q">⟦Proband⟧</label>
     <div class="combo">
       <input type="text" id="pb-q" role="combobox" aria-expanded="false" aria-controls="pb-list" aria-autocomplete="list"
@@ -11,8 +12,8 @@
     </div>
     <label class="chk" title="⟦Unticked: also the siblings of the ancestors (with spouses) and the proband's descendants⟧"><input type="checkbox" id="pb-only" checked> ⟦only ancestors⟧</label>
   </div>
-  <input type="search" id="q" placeholder="⟦Search for a person…⟧" aria-label="⟦Search for a person⟧">
-  <div class="muted legend">
+  <input type="search" class="tree-only" id="q" placeholder="⟦Search for a person…⟧" aria-label="⟦Search for a person⟧">
+  <div class="muted legend tree-only">
     <span><i class="sw line"></i>⟦direct line of the proband⟧</span><span><i class="sw"></i>⟦collateral relatives⟧</span><span><i class="sw hyp"></i>⟦hypothesis⟧</span>
     <span>⟦≈ probable · number in the corner = Kekule number · * birth · † death · ⚭ marriage · click a person to highlight their line⟧</span>
   </div>
@@ -35,6 +36,7 @@
   </div>
   <aside><div id="details"><p class="muted">⟦Click a person in the diagram or in the list.⟧</p></div><div id="list"></div></aside>
 </main>
+__MAP__
 <script id="tree-data" type="application/json">__DATA__</script>
 <script>
 __LAYOUT__
@@ -44,6 +46,7 @@ document.documentElement.lang = '__LANG__';
 const D = JSON.parse(document.getElementById('tree-data').textContent);
 const $ = s => document.querySelector(s);
 const chart = $('#chart'), world = $('#world'), lines = $('#lines'), bandsEl = $('#bands'), labelsEl = $('#labels');
+const gm = document.getElementById('geomap');          // the family map (templates/map_body.html), the "Map" view
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fold = s => String(s).toLowerCase().replace(/ł/g, 'l').normalize('NFD').replace(/[̀-ͯ]/g, '');
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -315,6 +318,7 @@ function select(pid, focus = true, lit = true) {
   let h = `<h2>${esc(p.name)}</h2><div class="badge">${pid}${kek.length ? ' · ⟦no.⟧ ' + kek.join(', ') : ''}` +
     `${p.confidence ? ' · ' + conf[p.confidence] : ''}${p.religion ? ' · ' + esc(p.religion) : ''}${p.living ? ' · ⟦living person⟧' : ''}</div>`;
   if (!(view === 'anc' && proband === pid)) h += `<button type="button" class="go-anc" data-anc="${pid}">⟦Show the ancestors of this person⟧</button>`;
+  if (gm?.geomap?.has(pid)) h += `<button type="button" class="go-anc" data-map="${pid}">⟦Show on the map⟧</button>`;
   if (p.variants) h += `<div class="muted">⟦Variants:⟧ ${esc(p.variants.join(', '))}</div>`;
   if (p.facts.length || p.occupation) {
     h += '<h3>⟦Facts⟧</h3>' + p.facts.map(f => `<p class="fact"><b>${esc(f.label)}</b> ${esc(f.date)}${f.place ? ', ' + esc(f.place) : ''}` +
@@ -337,6 +341,7 @@ function select(pid, focus = true, lit = true) {
   det.innerHTML = h; det.scrollTop = 0;
   det.querySelectorAll('[data-go]').forEach(a => onActivate(a, () => select(a.dataset.go)));
   det.querySelector('[data-anc]')?.addEventListener('click', () => setProband(pid, 'anc'));
+  det.querySelector('[data-map]')?.addEventListener('click', () => { setPage('map'); gm.geomap.showPerson(pid); });
   document.querySelectorAll('#list div').forEach(d => d.classList.toggle('on', d.dataset.pid === pid));
   if (mark(pid, lit) && focus) centerOn(pid, 0.7);
 }
@@ -363,6 +368,18 @@ function setProband(pid, v = view) {
   setView(v);
   select(pid, false, false);
 }
+
+// ---- pages: the tree, or the family map with the heat of births and deaths
+
+function setPage(name) {
+  document.body.classList.toggle('on-map', name === 'map');
+  document.querySelectorAll('#pages button').forEach(b => { b.classList.toggle('on', b.dataset.page === name); b.setAttribute('aria-pressed', b.dataset.page === name); });
+}
+if (gm) {
+  gm.dataset.linked = '1';                              // the map's person card links back to the tree
+  $('#pages').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setPage(b.dataset.page); });
+  gm.addEventListener('geomap:person', e => { setPage('tree'); if (D.persons[e.detail]) select(e.detail); });
+} else $('#pages').remove();
 
 $('#views').addEventListener('click', e => {
   const b = e.target.closest('button');

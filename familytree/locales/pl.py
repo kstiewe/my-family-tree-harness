@@ -324,6 +324,9 @@ MESSAGES = {
     "The image could not be created — the tree may be too large for this browser.":
         "Nie udało się utworzyć obrazu — drzewo może być za duże dla tej przeglądarki.",
     "language": "język",
+    "View": "Widok",
+    "Tree": "Drzewo",
+    "Show on the map": "Pokaż na mapie",
 
     # ---- geography: the map page, clusters, migration trails, hints (familytree/geo.py, geomap.py)
     "map.html": "mapa.html",
@@ -465,6 +468,7 @@ MESSAGES = {
         "przypada na okolicę; strzałki prowadzą od miejsca rodzica do miejsca dziecka wzdłuż linii przodków.",
     "Places on the map": "Miejsca na mapie",
     "Back to the selected places": "Wróć do zaznaczonych miejsc",
+    "Show in the tree": "Pokaż w drzewie",
     "Places: ${ids.length}": "Miejsca: ${ids.length}",
     "Outside the filters: ${hidden} more events": "Poza filtrami: jeszcze ${hidden} zdarzeń",
     "Clusters of places": "Skupiska miejsc",

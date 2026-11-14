@@ -22,7 +22,9 @@ place. A birth without a date gets the estimated year from the dates of the rela
 ## The map page
 
 `map.html` (Polish `mapa.html`) and `map-artifact.html` (`mapa-artefakt.html`, without the document
-skeleton, for Claude artifacts). The country outlines (Natural Earth, public domain) and the borders
+skeleton, for Claude artifacts). The tree page carries the same map as its **Map** view (the
+"Tree / Map" switch in its header), so one tree artifact shows both; a person's card in the tree has
+"Show on the map", and a person on the map has "Show in the tree". The country outlines (Natural Earth, public domain) and the borders
 of the partitions are embedded in the page, so it works without map servers; only the web fonts come
 from Google Fonts.
 

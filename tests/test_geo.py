@@ -154,6 +154,16 @@ class BuildOutputs(unittest.TestCase):
         self.assertIn("## 6. Geography", gaps)
         self.assertIn("geography.md", gaps)
 
+    def test_tree_page_has_the_map_view(self):
+        out = self.build()
+        for name in ("tree.html", "tree-artifact.html"):
+            page = (out / name).read_text()
+            self.assertIn('id="pages"', page)                                  # the Tree / Map switch
+            self.assertIn('<section class="geomap" id="geomap"', page)
+            self.assertIn('"europe":{"q":200', page)                           # the map geometry is embedded too
+            self.assertNotRegex(page, r"__(MAP|MAP_CSS|MAP_DATA|MAP_GEO|DATA|LANG|TITLE)__")
+            self.assertEqual(page.count('id="geomap"'), 1, name)
+
     def test_polish_names_and_public_mode(self):
         out = self.build("--lang", "pl", "--public")
         page = (out / "mapa.html").read_text()
