@@ -1,0 +1,7 @@
+# Privacy guard settings (FICTIONAL example). In a real workspace this file is private.
+
+block:
+  - "Ciocia Hela"                 # a family nickname that is not in data/
+  - "kowalska.family@example.org"
+
+allow: []

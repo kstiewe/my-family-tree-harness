@@ -1,0 +1,18 @@
+# Family data never lives in this repository: it belongs in a private workspace
+# (see docs/privacy.md). These patterns catch it if it is created here by mistake.
+/data/
+/output/
+/research/
+/INSTRUCTIONS.md
+/privacy.yaml
+/.workspace
+*.ged
+examples/*/output/
+
+# Local tool state
+.serena/
+.claude/settings.local.json
+CLAUDE.local.md
+__pycache__/
+*.pyc
+.venv/

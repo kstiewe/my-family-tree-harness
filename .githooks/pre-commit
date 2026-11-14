@@ -1,0 +1,3 @@
+#!/bin/sh
+# Privacy guard (scripts/guard.py --help). Never bypass it with --no-verify.
+exec python3 "$(git rev-parse --show-toplevel)/scripts/guard.py" pre-commit

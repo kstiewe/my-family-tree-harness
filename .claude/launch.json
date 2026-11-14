@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "tree",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "scripts/workspace.py",
+        "serve",
+        "--port",
+        "8765"
+      ],
+      "port": 8765
+    },
+    {
+      "name": "sample-tree",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "scripts/workspace.py",
+        "--workspace",
+        "examples/sample-family",
+        "serve",
+        "--port",
+        "8766"
+      ],
+      "port": 8766
+    }
+  ]
+}

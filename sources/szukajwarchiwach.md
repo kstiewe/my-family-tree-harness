@@ -1,0 +1,66 @@
+# Szukaj w Archiwach
+
+[szukajwarchiwach.gov.pl](https://www.szukajwarchiwach.gov.pl) — scans published by the Polish
+state archives. There are no name indexes: you find the **fonds** (zespół) of a parish or civil
+registry office, then the **unit** (jednostka, one book), then the **scan**. Indexes that point to
+a book: Geneteka "Uwagi", the PomGenBaza "Księga" column.
+
+## From an office to a scan (verified 2026-11)
+
+1. **Search by the name of the office**, e.g. "Urząd Stanu Cywilnego w Przykładowie" (Prussian
+   partition: the Standesamt) or "Akta stanu cywilnego Parafii Rzymskokatolickiej w Przykładowie".
+   A signature (`10/0000/0/00`) gives 0 results. URLs such as `wyszukiwarka?q=…`,
+   `wyniki-wyszukiwania?q=…` or `_Wyszukiwarka_query=…` do **not** run a search: type into the field —
+   on the home page `_Wyszukiwarka_INSTANCE_…_keywords`, on the results page `_Result_keywords` and
+   the button `_Result_search_again`. The ids may change; find them via the "Szukaj" button.
+2. **Two kinds of hits.** A row like "Przykładowo, gmina …" is a description from the PRADZIAD
+   database (`_Zespol_id_zespolu=…`), without scans. The real fonds has the address
+   `/zespol/-/zespol/<id>`; on its page check "Liczba skanów" — 0 means nothing is online.
+3. **Units** (20 per page):
+   `https://www.szukajwarchiwach.gov.pl/zespol/-/zespol/<id>?_Zespol_javax.portlet.action=zmienWidok&_Zespol_nameofjsp=jednostki&_Zespol_delta=20&_Zespol_resetCur=false&_Zespol_cur=<page>`
+   (`_Zespol_delta=100` gives 100 per page; parse the `tr` rows with DOMParser).
+4. **A unit** (book): `/jednostka/-/jednostka/<id>`. Thumbnails are paged by 20:
+   `?_Jednostka_delta=20&_Jednostka_resetCur=false&_Jednostka_cur=<page>&_Jednostka_id_jednostki=<id>`.
+   In the DOM each thumbnail is `.jednostka-skan` with its number in `.number-of-scan` and the image
+   `photos.szukajwarchiwach.gov.pl/<hash>_mid`.
+5. **Full resolution**: replace `_mid` with `_max` (1058×1552 px; `_big` and `_full` give a thumbnail).
+   Open the image in its own tab and enlarge it with a style (`width:1600px;max-width:none;
+   position:absolute;left:-100px;top:-400px`), then move `top`. The built-in scan viewer zooms in
+   small steps and is slow.
+6. **Finding a record**: in civil registry books one record usually takes one scan, shifted by a few
+   scans (cover, microfilm cards). Estimate the position from the record number, then read the record
+   number on the scan. The slider order may differ from the thumbnail numbering — trust `.number-of-scan`.
+7. **Margin notes** can change the content of a record ("Muß heißen Sophie" — "should read Sophie")
+   or belong to the neighbouring record: always read the margin and check the record number next to it.
+
+Helpers: [szukajwarchiwach.js](szukajwarchiwach.js) — list the scans of a unit with their
+full-resolution URLs; show a strip of several scans in one screenshot.
+
+## Fonds IDs without the search
+
+In some archives the civil registry fonds have consecutive IDs in signature order. Knowing one pair
+(ID₀, signature₀) you can estimate ID ≈ ID₀ + (signature − signature₀), with gaps of up to ±5:
+fetch `/zespol/-/zespol/<id>` for a few neighbouring IDs and check "Sygnatura" and "Liczba skanów"
+in the text. Record the pairs you have verified in the workspace notes.
+
+## Coverage
+
+- Civil registry books are online only up to the 100/110-year limit **at the time of digitisation** —
+  for many offices about 1907, even when the description says 1874–1914.
+- A fonds with "Liczba skanów: 0" is described but not digitised: order a copy from the archive.
+
+## Reading old German handwriting (Kurrent)
+
+"Thomas" can look like "Ijomas": capital T resembles J or G. Compare with letters of known words
+(month names, "geboren", "katholisch") on the same page.
+
+## Outages
+
+The search sometimes answers "Portlety jest tymczasowo niedostępny" or "Brak wyników" for everything;
+a few hours later it works. Retry later and note the outage in the log.
+
+## Browser window and screenshots
+
+An agent's browser window may be 1024×768 with screenshots scaled to 800×600: size an image
+container to the window (e.g. a 1024×768 `div` with `overflow:hidden`), otherwise the screenshot
+shows only its top-left part.

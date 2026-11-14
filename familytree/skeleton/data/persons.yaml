@@ -1,0 +1,26 @@
+# PERSONS. Field reference: docs/data-format.md.
+#
+# Template (optional fields can be left out):
+#
+# - id: I0001
+#   given: Jan Józef                  # given names in the local form
+#   surname: Kowalski                 # surname at birth — for women the MAIDEN name
+#   married_surnames: []              # surnames taken at marriage, in order
+#   variants: [Kowalsky, Joannes]     # spelling variants, Latin/Russian/German forms
+#   sex: M                            # M | F | U
+#   living: false                     # living persons: true (never searched online, hidden by --public)
+#   religion: Roman Catholic
+#   birth:   {date: "~1850", place: P0001, sources: [S0001], note: "age from the death record"}
+#   baptism: {date: "1850-03-14", place: P0002, sources: [S0001]}
+#   death:   {date: "1910-01-05", place: P0001, age: 60, cause: "", sources: [S0002]}
+#   burial:  {date: "1910-01-07", place: P0002}
+#   occupation: [farmer]
+#   events:                           # residence | occupation | emigration | military | census | confirmation | education | other
+#     - {type: residence, date: "1880..1895", place: P0003, note: "from the children's birth records"}
+#   confidence: confirmed             # confirmed | probable | hypothesis
+#   notes: |
+#     Free notes.
+#   todo: ["check the population register of …"]
+#
+# Dates ALWAYS in quotes: "1850-03-12", "1850-03", "1850", "~1850" (about),
+# "<1870" (before), ">1845" (after), "1848..1852" (between).

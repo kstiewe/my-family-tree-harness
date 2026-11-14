@@ -1,0 +1,16 @@
+# Project settings. Field reference: docs/data-format.md.
+
+name: __NAME__
+author: ""                        # shown in the GEDCOM header
+language: __LANG__                # language of reports, the HTML tree and GEDCOM (en | pl)
+
+# The person ancestors are counted from (Kekule numbering: proband = 1,
+# father of person n = 2n, mother = 2n+1). Usually you or your child.
+proband: null
+
+# Researched surnames with spelling variants (they help when searching).
+# Example:  - {surname: Kowalski, variants: [Kowalsky, Kowalskij, Ковальскій]}
+surnames: []
+
+# Researched regions / parishes — for orientation, extended as the research goes on.
+regions: []

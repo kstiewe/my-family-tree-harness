@@ -1,0 +1,11 @@
+# Privacy guard settings for this workspace (read by the application's scripts/guard.py).
+# This file is private: it must never be copied into the public repository.
+
+# Extra terms to block, beyond what the guard derives from data/ (surnames, places, IDs …):
+# nicknames, informants, e-mail addresses, private URLs, house names …
+block: []
+
+# Phrases that the guard would block but that are generic and may appear in public docs,
+# e.g. the name of an archive in a city where the family also lived ("State Archive in X").
+# Prefer whole phrases over single words. Matching ignores case and diacritics.
+allow: []

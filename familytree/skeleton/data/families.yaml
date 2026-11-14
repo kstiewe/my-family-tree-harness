@@ -1,0 +1,16 @@
+# FAMILIES (unions). A child belongs to the family of its parents; a person can be a spouse
+# in several families (e.g. after being widowed). Field reference: docs/data-format.md.
+#
+# Template:
+#
+# - id: F0001
+#   husband: I0001                    # Jan Kowalski
+#   wife: I0002                       # Maria Nowak
+#   marriage: {date: "1875-11-20", place: P0002, husband_age: 25, wife_age: 19, witnesses: "", sources: [S0003]}
+#   divorce: {date: "", sources: []}
+#   children: [I0003, I0004]          # in order of birth
+#   confidence: confirmed             # confirmed | probable | hypothesis
+#   notes: ""
+#   todo: []
+#
+# Write a comment with the name next to every ID.

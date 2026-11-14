@@ -1,0 +1,27 @@
+# PLACES (gazetteer). A locality points to the parish it belonged to — that parish's books hold
+# the records. A parish is its own entry with type: parish. Field reference: docs/data-format.md.
+#
+# Template:
+#
+# - id: P0001
+#   name: Przykładowo
+#   type: village                     # village | town | manor | parish | commune | county | region | country …
+#   aliases: [Przykladowo, Beispielsdorf]   # historical / foreign names
+#   parish: P0002                     # the parish the locality belonged to
+#   partition: russian                # russian | prussian | austrian (Polish lands 1795–1918)
+#   admin:                            # administrative units over time
+#     - {period: "1867..1918", value: "gm. …, pow. …, gub. … (Congress Poland)"}
+#   today: "gm. …, pow. …, woj. …, Poland"
+#   country: PL
+#   coords: [52.53, 20.49]            # latitude, longitude
+#   geneteka_region: 07mz             # Geneteka region code: python3 scripts/geneteka.py --regions
+#   notes: ""
+#
+# - id: P0002
+#   name: Przykładowo
+#   type: parish
+#   denomination: Roman Catholic
+#   geneteka_region: 07mz
+#   records:                          # where the books are and which years (as far as known)
+#     - "State archive …: B/M/D 1808–1912 (duplicates)"
+#     - "Geneteka: B 1800–1915, M 1808–1935, D 1808–1920"

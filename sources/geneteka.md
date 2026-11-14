@@ -1,0 +1,58 @@
+# Geneteka
+
+[geneteka.genealodzy.pl](https://geneteka.genealodzy.pl) — the national index of births, marriages
+and deaths run by the Polish Genealogical Society (PTG), built by volunteers parish by parish.
+
+## Tool
+
+`scripts/geneteka.py` builds result links, lists parishes with their IDs and indexed years, and
+gives a surname overview per region:
+
+```bash
+python3 scripts/geneteka.py --regions                              # region codes
+python3 scripts/geneteka.py --parishes -w 07mz --filter wzorc      # parishes, years, ids B/M/D
+python3 scripts/geneteka.py --overview Kowalski --exact            # where the surname is indexed
+python3 scripts/geneteka.py --link Kowalski -i Jan -t B -w 07mz --from 1840 --to 1860
+python3 scripts/geneteka.py --link Kowalski --surname2 Nowak -t M -w 07mz --pair
+python3 scripts/geneteka.py --link Kowalski -t D -w 07mz --parish Wzorcowo --nearby
+```
+
+The gap report builds the same links automatically when places have `geneteka_region`.
+
+**Read result tables in a browser.** The results API (`api/getAct.php`) gives scripts random and
+repeated pages (checked 2026-11) — a protection of the service. Do not work around it.
+
+## URL parameters
+
+`bdm` = B/S/D (births/marriages/deaths), `w` = region code, `rid` = B/S/D for the whole region or a
+parish ID, `search_lastname`, `search_name`, `search_lastname2`, `search_name2`, `from_date`,
+`to_date`, `exac=1` (exact, no variants), `pair=1` (persons 1 and 2 as a couple), `near=1`
+(parishes within 15 km; needs a parish ID), `last=1&lastdays=N` (added in the last N days).
+
+**Every parish has separate IDs for B, M and D** — take them from `--parishes` (or store them in
+the workspace `places.yaml` notes).
+
+## Reading the results page
+
+- The visible table is `table.tablesearch`; the counter `.dataTables_info` says "Pozycje od 1 do N z N".
+- **"Uwagi" (remarks: age, year of birth, maiden name) are not cell text** but the `title` of an image
+  `img[title^="Uwagi"]` in the last column — `innerText` of the row does not show them (checked 2026-11).
+- The `title` of another icon says where the books are kept ("Miejsce przechowywania ksiąg"); the
+  link to a scan is an `<a>` containing `img[src*="/s.png"]`.
+- Helper: [geneteka-rows.js](geneteka-rows.js) returns rows with remarks and scan links.
+
+## Techniques
+
+- Without `exac=1` the search adds many spelling variants (Kowalski → Kowalewski …). For a surname
+  overview use the exact mode; for finding a person, try both.
+- A given name in the query also matches some foreign forms of the name.
+- 20th-century deaths often have the age or the year of birth in "Uwagi" (married women: the
+  maiden name). Listing all deaths of a surname in a region and period, without a given name,
+  finds children who died young.
+- A rare surname: first `--overview SURNAME --exact` (regions), then the regional databases with a
+  prefix, then narrow by years and parishes.
+- The surname overview also hints at origins: the regions where a surname is frequent tell where a
+  family with an uncertain place of origin may have come from.
+- Check the indexed years with `--parishes` before concluding anything: **no hit often means the
+  years are not indexed**, not that there is no record. Some parishes are indexed for a few years
+  only; in some regions other databases are much richer (see `sources/regions/`).

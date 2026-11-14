@@ -1,0 +1,327 @@
+<header>
+  <h1>__TITLE__</h1>
+  <span class="muted" id="stats"></span>
+  <div class="seg" id="views"><button type="button" data-view="full" class="on">⟦Whole tree⟧</button><button type="button" data-view="anc">⟦Ancestors of the proband⟧</button></div>
+  <input type="search" id="q" placeholder="⟦Search for a person…⟧" aria-label="⟦Search for a person⟧">
+  <div class="muted legend">
+    <span><i class="sw line"></i>⟦direct line of the proband⟧</span><span><i class="sw"></i>⟦collateral relatives⟧</span><span><i class="sw hyp"></i>⟦hypothesis⟧</span>
+    <span>⟦≈ probable · number in the corner = Kekule number · * birth · † death · ⚭ marriage · click a person to highlight their line⟧</span>
+  </div>
+</header>
+<main>
+  <div id="chart" tabindex="0" role="region" aria-label="⟦Tree diagram: drag to pan; the mouse wheel or + and − zooms⟧">
+    <div id="bands"></div>
+    <div id="world"><svg id="lines" aria-hidden="true"></svg></div>
+    <div id="labels" aria-hidden="true"></div>
+    <div class="ctrl">
+      <button type="button" data-z="in" title="⟦Zoom in⟧" aria-label="⟦Zoom in⟧">+</button>
+      <button type="button" data-z="out" title="⟦Zoom out⟧" aria-label="⟦Zoom out⟧">−</button>
+      <button type="button" data-z="fit" title="⟦Show the whole tree⟧" aria-label="⟦Show the whole tree⟧">⤢</button>
+      <button type="button" data-z="me" title="⟦Show the proband⟧" aria-label="⟦Show the proband⟧">◎</button>
+    </div>
+  </div>
+  <aside><div id="details"><p class="muted">⟦Click a person in the diagram or in the list.⟧</p></div><div id="list"></div></aside>
+</main>
+<script id="tree-data" type="application/json">__DATA__</script>
+<script>
+document.documentElement.lang = '__LANG__';
+const D = JSON.parse(document.getElementById('tree-data').textContent);
+const $ = s => document.querySelector(s);
+const chart = $('#chart'), world = $('#world'), lines = $('#lines'), bandsEl = $('#bands'), labelsEl = $('#labels');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fold = s => String(s).toLowerCase().replace(/ł/g, 'l').normalize('NFD').replace(/[̀-ͯ]/g, '');
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let view = 'full', selected = null, V = null, famById = {}, anim = 0;
+const T = { s: 1, x: 0, y: 0 };
+
+const ids = Object.keys(D.persons);
+$('#stats').textContent = `⟦${ids.length} persons · ${Object.keys(D.sources).length} sources · as of ${D.generated}⟧`;
+
+// ---- cards and drawing a view
+
+function cardText(pid) {
+  const p = D.persons[pid];
+  return [p.card.name + (p.card.maiden ? ' ' + p.card.maiden : ''), ...p.life].join('\n');
+}
+
+function cardHTML(pid) {
+  const p = D.persons[pid], c = p.card;
+  const conf = c.conf === 'probable' ? '<i title="⟦probable⟧">≈</i> ' : c.conf === 'hypothesis' ? '<i title="⟦hypothesis⟧">?</i> ' : '';
+  return `<span class="kn">${conf}${esc(p.kekule.slice(0, 2).join(', '))}</span><span class="nm">${esc(c.name)}</span>` +
+    (c.maiden ? `<span class="md">${esc(c.maiden)}</span>` : '') + p.life.slice(0, 2).map(l => `<span class="lf">${esc(l)}</span>`).join('');
+}
+
+function draw() {
+  V = D.views[view];
+  famById = Object.fromEntries((V?.fams || []).map(f => [f.id, f]));
+  world.querySelectorAll('.card, .pill').forEach(n => n.remove());
+  chart.querySelector('.empty')?.remove();
+  lines.innerHTML = bandsEl.innerHTML = labelsEl.innerHTML = '';
+  if (!V || !Object.keys(V.nodes).length) {
+    chart.insertAdjacentHTML('beforeend', `<p class="empty">${view === 'anc' ? '⟦No ancestors to show — set proband in data/project.yaml.⟧' : '⟦No persons in data/persons.yaml.⟧'}</p>`);
+    return;
+  }
+  const [cw, ch] = V.card, path = pts => 'M' + pts.map(p => p.join(' ')).join('L');
+  world.style.width = V.w + 'px'; world.style.height = V.h + 'px';
+  lines.setAttribute('width', V.w); lines.setAttribute('height', V.h); lines.setAttribute('viewBox', `0 0 ${V.w} ${V.h}`);
+  let svg = '';
+  for (const f of V.fams) {
+    const a = `data-f="${f.id}"`;
+    if (f.couple) svg += `<path class="ln" ${a} data-k="c" d="${path(f.couple)}"/>`;
+    if (f.drop) svg += `<path class="ln" ${a} d="${path(f.drop)}"/>`;
+    if (f.bar) svg += `<path class="ln" ${a} d="${path(f.bar)}"/>`;
+    for (const [c, pts] of Object.entries(f.stems)) svg += `<path class="ln" ${a} data-c="${c}" d="${path(pts)}"/>`;
+    for (const pts of f.extra) svg += `<path class="ln x" ${a} d="${path(pts)}"/>`;
+  }
+  lines.innerHTML = svg;
+  const frag = document.createDocumentFragment();
+  for (const [pid, [x, y]] of Object.entries(V.nodes)) {
+    const p = D.persons[pid], b = document.createElement('button');
+    b.type = 'button'; b.dataset.pid = pid;
+    b.className = `card ${p.sex}${p.kekule.length ? ' line' : ''}${p.card.conf === 'hypothesis' ? ' hyp' : ''}${pid === D.proband ? ' me' : ''}`;
+    Object.assign(b.style, { left: x + 'px', top: y + 'px', width: cw + 'px', height: ch + 'px' });
+    b.innerHTML = cardHTML(pid);
+    b.title = cardText(pid); b.setAttribute('aria-label', cardText(pid).replace(/\n/g, ', '));
+    frag.append(b);
+  }
+  for (const f of V.fams) if (f.pill) {
+    const s = document.createElement('div');
+    s.className = 'pill'; s.dataset.f = f.id; s.textContent = f.pill.t;
+    Object.assign(s.style, { left: f.pill.x + 'px', top: f.pill.y + 'px' });
+    frag.append(s);
+  }
+  world.append(frag);
+  bandsEl.innerHTML = V.lanes.map((l, i) => `<div class="band${i % 2 ? ' alt' : ''}"></div>`).join('');
+  labelsEl.innerHTML = V.lanes.map(l => `<div class="lab"><b>${esc(l.title)}</b><span>${esc(l.name)}</span>${l.years ? `<span>${esc(l.years)}</span>` : ''}</div>`).join('');
+  home(false);
+  if (selected) mark(selected, chart.classList.contains('focus'));
+}
+
+// ---- panning and zooming
+
+function apply() {
+  if (!V) return;
+  world.style.transform = `translate(${T.x}px, ${T.y}px) scale(${T.s})`;
+  const bands = bandsEl.children, labs = labelsEl.children;
+  V.lanes.forEach((l, i) => {
+    const top = T.y + l.y * T.s, h = l.h * T.s;
+    bands[i].style.transform = `translateY(${top}px)`;
+    bands[i].style.height = h + 'px';
+    labs[i].style.transform = `translateY(${top}px)`;
+    labs[i].classList.toggle('compact', h < 48);
+    labs[i].style.display = h < 20 ? 'none' : '';
+  });
+}
+
+function animateTo(t) {
+  cancelAnimationFrame(anim);
+  if (reduceMotion.matches) { Object.assign(T, t); apply(); return; }
+  const from = { ...T }, t0 = performance.now();
+  const step = now => {
+    const k = Math.min(1, (now - t0) / 280), e = 1 - Math.pow(1 - k, 3);
+    for (const key of ['s', 'x', 'y']) T[key] = from[key] + (t[key] - from[key]) * e;
+    apply();
+    if (k < 1) anim = requestAnimationFrame(step);
+  };
+  anim = requestAnimationFrame(step);
+}
+
+function zoomAt(f, px, py) {
+  const s = clamp(T.s * f, 0.06, 2.5), k = s / T.s;
+  T.x = px - (px - T.x) * k; T.y = py - (py - T.y) * k; T.s = s;
+  apply();
+}
+
+const labelW = () => 0;   // lane labels lie over the cards and take no width
+
+function fitTarget() {
+  const r = chart.getBoundingClientRect(), lw = labelW(), pad = 12;
+  const s = clamp(Math.min((r.width - lw - pad) / V.w, (r.height - 2 * pad) / V.h), 0.06, 1.1);
+  return { s, x: lw + (r.width - lw - pad - V.w * s) / 2, y: (r.height - V.h * s) / 2 };
+}
+const go = (t, animate) => animate ? animateTo(t) : (Object.assign(T, t), apply());
+const fitAll = (animate = true) => go(fitTarget(), animate);
+
+function centerOn(pid, minScale = 0) {
+  const n = V && V.nodes[pid];
+  if (!n) return false;
+  const r = chart.getBoundingClientRect(), lw = labelW(), s = Math.max(T.s, minScale);
+  animateTo({ s, x: lw + (r.width - lw) / 2 - (n[0] + V.card[0] / 2) * s, y: r.height / 2 - (n[1] + V.card[1] / 2) * s });
+  return true;
+}
+
+// Start: the whole tree, unless it would be unreadably small — then a readable scale centred on the proband.
+function home(animate = true) {
+  let t = fitTarget();
+  const n = D.proband && V.nodes[D.proband];
+  if (t.s < 0.55 && n) {
+    const r = chart.getBoundingClientRect(), lw = labelW(), s = 0.72;
+    t = { s, x: lw + (r.width - lw) / 2 - (n[0] + V.card[0] / 2) * s,
+          y: V.h * s <= r.height ? (r.height - V.h * s) / 2 : Math.min(12, r.height - 24 - (n[1] + V.card[1]) * s) };
+  }
+  go(t, animate);
+}
+
+chart.addEventListener('wheel', e => {
+  e.preventDefault();
+  const r = chart.getBoundingClientRect(), dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+  cancelAnimationFrame(anim);
+  zoomAt(Math.exp(-dy * 0.0016), e.clientX - r.left, e.clientY - r.top);
+}, { passive: false });
+
+const ptrs = new Map();
+let moved = 0, downEl = null, pinch = 0;
+chart.addEventListener('pointerdown', e => {
+  if (e.button !== 0 || e.target.closest('.ctrl')) return;
+  cancelAnimationFrame(anim);
+  ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+  if (ptrs.size === 1) { moved = 0; downEl = e.target; }
+  if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = Math.hypot(a[0] - b[0], a[1] - b[1]); }
+  chart.setPointerCapture(e.pointerId);
+});
+chart.addEventListener('pointermove', e => {
+  const prev = ptrs.get(e.pointerId);
+  if (!prev) return;
+  const cur = [e.clientX, e.clientY];
+  ptrs.set(e.pointerId, cur);
+  if (ptrs.size === 1) {
+    moved += Math.abs(cur[0] - prev[0]) + Math.abs(cur[1] - prev[1]);
+    if (moved > 4) { chart.classList.add('panning'); T.x += cur[0] - prev[0]; T.y += cur[1] - prev[1]; apply(); }
+  } else if (ptrs.size === 2) {
+    const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]), r = chart.getBoundingClientRect();
+    if (pinch) zoomAt(d / pinch, (a[0] + b[0]) / 2 - r.left, (a[1] + b[1]) / 2 - r.top);
+    pinch = d; moved = 99;
+  }
+});
+const release = e => {
+  if (!ptrs.delete(e.pointerId) || ptrs.size) return;
+  chart.classList.remove('panning');
+  if (moved <= 4 && e.type === 'pointerup') {
+    const card = downEl && downEl.closest('.card');
+    card ? select(card.dataset.pid, false) : chart.classList.remove('focus');
+  }
+};
+chart.addEventListener('pointerup', release);
+chart.addEventListener('pointercancel', release);
+world.addEventListener('click', e => {                 // keyboard: Enter/space on a card
+  const card = e.target.closest('.card');
+  if (card && e.detail === 0) select(card.dataset.pid, false);
+});
+chart.addEventListener('keydown', e => {
+  if (e.target.closest('input')) return;
+  const r = chart.getBoundingClientRect(), k = e.key;
+  if (k === '+' || k === '=') zoomAt(1.25, r.width / 2, r.height / 2);
+  else if (k === '-') zoomAt(0.8, r.width / 2, r.height / 2);
+  else if (k === '0') fitAll();
+  else if (k.startsWith('Arrow')) { T.x += k === 'ArrowLeft' ? 60 : k === 'ArrowRight' ? -60 : 0; T.y += k === 'ArrowUp' ? 60 : k === 'ArrowDown' ? -60 : 0; apply(); }
+  else return;
+  e.preventDefault();
+});
+chart.querySelector('.ctrl').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  const r = chart.getBoundingClientRect();
+  if (b.dataset.z === 'in') animateTo({ ...zoomed(1.35, r) });
+  else if (b.dataset.z === 'out') animateTo({ ...zoomed(1 / 1.35, r) });
+  else if (b.dataset.z === 'fit') fitAll();
+  else if (b.dataset.z === 'me' && D.proband) select(D.proband, true);
+});
+function zoomed(f, r) {
+  const s = clamp(T.s * f, 0.06, 2.5), k = s / T.s, px = r.width / 2, py = r.height / 2;
+  return { s, x: px - (px - T.x) * k, y: py - (py - T.y) * k };
+}
+new ResizeObserver(() => apply()).observe(chart);
+
+// ---- selection: person card + highlighting their line (ancestors, descendants, spouses)
+
+function lineage(pid) {
+  const set = new Set([pid]), P = D.persons;
+  const walk = next => { const st = [pid]; while (st.length) { for (const y of next(st.pop())) if (P[y] && !set.has(y)) { set.add(y); st.push(y); } } };
+  walk(x => P[x].parents);
+  walk(x => P[x].families.flatMap(f => f.children));
+  P[pid].families.forEach(f => f.spouse && set.add(f.spouse));
+  return set;
+}
+
+function mark(pid, lit = true) {
+  world.querySelectorAll('.card.sel').forEach(n => n.classList.remove('sel'));
+  const card = world.querySelector(`.card[data-pid="${pid}"]`);
+  if (!card) { chart.classList.remove('focus'); return null; }
+  card.classList.add('sel');
+  const set = lineage(pid);
+  world.querySelectorAll('.card').forEach(c => c.classList.toggle('on', set.has(c.dataset.pid)));
+  const famOn = f => f.parents.some(p => set.has(p)) && f.children.some(c => set.has(c));
+  const coupleOn = f => f.parents.length > 1 && f.parents.every(p => set.has(p));
+  lines.querySelectorAll('.ln').forEach(l => {
+    const f = famById[l.dataset.f];
+    l.classList.toggle('on', l.dataset.k === 'c' ? coupleOn(f) : l.dataset.c ? famOn(f) && set.has(l.dataset.c) : famOn(f));
+  });
+  world.querySelectorAll('.pill').forEach(s => s.classList.toggle('on', coupleOn(famById[s.dataset.f])));
+  chart.classList.toggle('focus', lit);
+  return card;
+}
+
+const plink = pid => pid && D.persons[pid] ? `<span class="link" tabindex="0" role="link" data-go="${pid}">${esc(D.persons[pid].name)}</span>` : '<span class="muted">?</span>';
+const srcs = list => (list || []).map(s => {
+  const x = D.sources[s] || {};
+  const title = esc([x.title, x.repository, x.signature, x.language && '⟦language⟧: ' + x.language].filter(Boolean).join(' · ') || s);
+  return x.url ? `<a class="src" href="${esc(x.url)}" target="_blank" rel="noopener" title="${title}">${s}</a>` : `<span class="src" title="${title}">${s}</span>`;
+}).join('');
+const onActivate = (el, fn) => {
+  el.addEventListener('click', fn);
+  el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } });
+};
+
+function select(pid, focus = true, lit = true) {
+  selected = pid;
+  const p = D.persons[pid];
+  const conf = { confirmed: '⟦confirmed⟧', probable: '⟦probable⟧', hypothesis: '⟦hypothesis⟧' };
+  let h = `<h2>${esc(p.name)}</h2><div class="badge">${pid}${p.kekule.length ? ' · ⟦no.⟧ ' + p.kekule.join(', ') : ''}` +
+    `${p.confidence ? ' · ' + conf[p.confidence] : ''}${p.religion ? ' · ' + esc(p.religion) : ''}${p.living ? ' · ⟦living person⟧' : ''}</div>`;
+  if (p.variants) h += `<div class="muted">⟦Variants:⟧ ${esc(p.variants.join(', '))}</div>`;
+  if (p.facts.length || p.occupation) {
+    h += '<h3>⟦Facts⟧</h3>' + p.facts.map(f => `<p class="fact"><b>${esc(f.label)}</b> ${esc(f.date)}${f.place ? ', ' + esc(f.place) : ''}` +
+      `${f.note ? ` <span class="muted">(${esc(f.note)})</span>` : ''}${srcs(f.sources)}</p>`).join('');
+    if (p.occupation) h += `<p class="fact"><b>⟦Occupation⟧</b> ${esc(p.occupation.join(', '))}</p>`;
+  }
+  h += '<h3>⟦Family⟧</h3>';
+  h += `<p class="fact"><b>⟦Parents⟧</b> ${p.parents.length ? p.parents.map(plink).join(' ⟦and⟧ ') : '<span class="muted">⟦unknown⟧</span>'}</p>`;
+  p.families.forEach(f => {
+    h += `<p class="fact"><b>⚭</b> ${plink(f.spouse)}${f.marriage ? ', ' + esc(f.marriage) : ''}${srcs(f.sources)}</p>`;
+    if (f.children.length) h += `<p class="fact" style="margin-left:14px">⟦Children:⟧ ${f.children.map(plink).join(', ')}</p>`;
+  });
+  if (p.notes) h += `<h3>⟦Notes⟧</h3><p class="notes">${esc(p.notes)}</p>`;
+  if (p.hints.length) {
+    h += '<h3>⟦To research⟧</h3>' + p.hints.map(x => `<div class="hint l${x.level}">${esc(x.text)}<ul>` +
+      x.details.map(d => `<li>${esc(d)}</li>`).join('') +
+      x.links.map(([label, url]) => `<li><a href="${esc(url)}" target="_blank" rel="noopener">${esc(label)}</a></li>`).join('') + '</ul></div>').join('');
+  }
+  const det = $('#details');
+  det.innerHTML = h; det.scrollTop = 0;
+  det.querySelectorAll('[data-go]').forEach(a => onActivate(a, () => select(a.dataset.go)));
+  document.querySelectorAll('#list div').forEach(d => d.classList.toggle('on', d.dataset.pid === pid));
+  if (mark(pid, lit) && focus) centerOn(pid, 0.7);
+}
+
+function renderList() {
+  const q = fold($('#q').value.trim());
+  const rows = ids.filter(id => !q || fold(D.persons[id].name + ' ' + (D.persons[id].variants || []).join(' ')).includes(q))
+    .sort((a, b) => D.persons[a].name.localeCompare(D.persons[b].name, '__LANG__'));
+  const list = $('#list');
+  list.innerHTML = rows.map(id => `<div data-pid="${id}" tabindex="0" role="button"><span>${esc(D.persons[id].name)}</span><span class="muted">${esc(D.persons[id].life.join(' '))}</span></div>`).join('')
+    || '<p class="muted" style="padding:0 16px">⟦No results.⟧</p>';
+  list.querySelectorAll('div[data-pid]').forEach(d => onActivate(d, () => select(d.dataset.pid)));
+}
+
+$('#views').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  view = b.dataset.view;
+  document.querySelectorAll('#views button').forEach(x => x.classList.toggle('on', x === b));
+  draw();
+});
+$('#q').addEventListener('input', renderList);
+renderList();
+draw();
+if (D.proband && D.persons[D.proband]) select(D.proband, false, false);
+</script>

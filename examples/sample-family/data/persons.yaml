@@ -1,0 +1,183 @@
+# PERSONS of the fictional sample family. Field reference: docs/data-format.md.
+
+# --- generation 1: proband and siblings ---
+
+- id: I0001
+  given: Anna
+  surname: Kowalska
+  sex: F
+  living: true
+  birth: {date: "1995-04-12", place: P0003, sources: [S0001]}
+
+- id: I0002
+  given: Tomasz
+  surname: Kowalski
+  sex: M
+  living: true
+  birth: {date: "1998", place: P0003, sources: [S0001]}
+
+# --- generation 2: parents ---
+
+- id: I0003
+  given: Piotr
+  surname: Kowalski
+  sex: M
+  living: true
+  birth: {date: "1965", sources: [S0001]}
+
+- id: I0004
+  given: Ewa
+  surname: Nowak
+  married_surnames: [Kowalska]
+  sex: F
+  living: true
+  birth: {date: "1967", sources: [S0001]}
+
+# --- generation 3: grandparents ---
+
+- id: I0005
+  given: Jan
+  surname: Kowalski
+  sex: M
+  living: false
+  religion: Roman Catholic
+  birth: {date: "1935-02-10", place: P0001, sources: [S0001]}
+  death: {date: "2010", place: P0003, sources: [S0007]}
+
+- id: I0006
+  given: Maria
+  surname: Wiśniewska
+  married_surnames: [Kowalska]
+  sex: F
+  living: false
+  birth: {date: "~1938", sources: [S0001]}
+  death: {date: "2015", place: P0003, sources: [S0007]}
+
+- id: I0007
+  given: Stanisław
+  surname: Nowak
+  sex: M
+  living: false
+  birth: {date: "1940", place: P0004, sources: [S0001]}
+  notes: "Died, according to the family (S0001); date unknown."
+
+- id: I0008
+  given: Zofia
+  surname: Zielińska
+  married_surnames: [Nowak]
+  sex: F
+  living: false
+  birth: {date: "~1942", sources: [S0001]}
+
+# --- generation 4: great-grandparents ---
+
+- id: I0009
+  given: Józef
+  surname: Kowalski
+  variants: [Josephus]
+  sex: M
+  living: false
+  birth: {date: "1905-03-19", place: P0001}
+  death: {date: "1970", place: P0001}
+  occupation: [farmer]
+  events:
+    - {type: military, date: "1926..1928", sources: [S0008], note: "served in the army"}
+
+- id: I0010
+  given: Helena
+  surname: Lewandowska
+  married_surnames: [Kowalska]
+  sex: F
+  living: false
+  birth: {date: "1910"}
+  death: {date: "1990", place: P0001}
+
+- id: I0011
+  given: Franciszek
+  surname: Wiśniewski
+  sex: M
+  living: false
+  birth: {date: "~1900"}
+  confidence: probable
+  notes: "Father of Maria according to the family; no record found yet."
+
+- id: I0013
+  given: Karol
+  surname: Nowak
+  sex: M
+  living: false
+  birth: {date: "1912", place: P0004, sources: [S0001]}
+  death: {date: "1975", place: P0004}
+  notes: "Born after his father's recorded death — the family's death date for August is doubtful (S0001)."
+
+- id: I0014
+  given: Marta
+  surname: Majewska
+  married_surnames: [Nowak]
+  sex: F
+  living: false
+  birth: {date: "~1915"}
+
+# --- generation 5 ---
+
+- id: I0015
+  given: Wojciech
+  surname: Kowalski
+  variants: [Adalbertus, Войцех Ковальский]
+  sex: M
+  living: false
+  religion: Roman Catholic
+  birth: {date: "~1870", note: "age 28 at marriage, 55 at death"}
+  death: {date: "1925-06-02", place: P0001, age: 55, sources: [S0004]}
+  occupation: [farmer]
+
+- id: I0016
+  given: Agnieszka
+  surname: Malinowska
+  married_surnames: [Kowalska]
+  variants: [Agnes, Агнешка Малиновская]
+  sex: F
+  living: false
+  birth: {date: "~1879"}
+
+- id: I0017
+  given: Stefan
+  surname: Kowalski
+  sex: M
+  living: false
+  birth: {date: "1901", place: P0001}
+  notes: "Brother of Józef; collateral line."
+
+- id: I0018
+  given: August
+  surname: Nowak
+  variants: [Augustus]
+  sex: M
+  living: false
+  birth: {date: "1880-03-01", place: P0004, sources: [S0005]}
+  baptism: {date: "1880-03-07", place: P0005, sources: [S0006]}
+  death: {date: "1910", place: P0004, sources: [S0001]}
+  religion: Roman Catholic
+
+- id: I0019
+  given: Paulina
+  sex: F
+  living: false
+  confidence: hypothesis
+  notes: "Wife of August; maiden name unknown — a hypothesis from the family account."
+  todo: ["find the marriage of August Nowak in Wzorki, about 1905–1911"]
+
+# --- generation 6 ---
+
+- id: I0020
+  given: Antoni
+  surname: Kowalski
+  sex: M
+  living: false
+  events:
+    - {type: residence, date: "1870..1898", place: P0006}
+
+- id: I0021
+  given: Marianna
+  sex: F
+  living: false

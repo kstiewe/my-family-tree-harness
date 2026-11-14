@@ -1,0 +1,23 @@
+# SOURCES. One source = one document (record, index entry, account, gravestone …).
+# Facts in persons/families point to sources by ID. Field reference: docs/data-format.md.
+#
+# Template:
+#
+# - id: S0001
+#   type: birth_record                # birth_record | baptism_record | marriage_record | death_record | burial_record |
+#                                     # civil_record | index | census | population_register | family_document | photo |
+#                                     # gravestone | oral | online_tree | publication | other
+#   title: "Birth record no. 58/1851, Roman Catholic parish of Przykładowo"
+#   parish: P0002
+#   year: 1851
+#   act: "58"
+#   repository: "State archive in …, branch …"
+#   signature: "fonds …, unit …"
+#   url: "https://metryki.genealodzy.pl/…"
+#   quality: image                    # original | image | transcription | index | derivative | oral
+#   language: pl                      # language of the ORIGINAL document: pl | la | de | ru | uk … (a list if mixed)
+#   accessed: "2026-01-02"
+#   informant: ""                     # for oral accounts: who said it, through whom, when
+#   transcription: |
+#     Działo się we wsi …
+#   notes: ""

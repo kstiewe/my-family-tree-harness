@@ -1,0 +1,51 @@
+# FAMILIES of the fictional sample family. Field reference: docs/data-format.md.
+
+- id: F0001
+  husband: I0003                    # Piotr Kowalski
+  wife: I0004                       # Ewa Nowak
+  children: [I0001, I0002]          # Anna, Tomasz
+
+- id: F0002
+  husband: I0005                    # Jan Kowalski
+  wife: I0006                       # Maria Wiśniewska
+  marriage: {date: "~1962", place: P0003}
+  children: [I0003]                 # Piotr
+
+- id: F0003
+  husband: I0007                    # Stanisław Nowak
+  wife: I0008                       # Zofia Zielińska
+  children: [I0004]                 # Ewa
+
+- id: F0004
+  husband: I0009                    # Józef Kowalski
+  wife: I0010                       # Helena Lewandowska
+  marriage: {date: "1932", place: P0002}
+  children: [I0005]                 # Jan
+
+- id: F0005
+  husband: I0011                    # Franciszek Wiśniewski
+  children: [I0006]                 # Maria
+  confidence: probable
+
+- id: F0006
+  husband: I0013                    # Karol Nowak
+  wife: I0014                       # Marta Majewska
+  children: [I0007]                 # Stanisław
+
+- id: F0007
+  husband: I0015                    # Wojciech Kowalski
+  wife: I0016                       # Agnieszka Malinowska
+  marriage: {date: "1898-11-27", place: P0002, husband_age: 28, wife_age: 19, sources: [S0002, S0003],
+             note: "15 November 1898 (Julian) in the record"}
+  children: [I0017, I0009]          # Stefan, Józef
+
+- id: F0008
+  husband: I0018                    # August Nowak
+  wife: I0019                       # Paulina
+  children: [I0013]                 # Karol
+  confidence: hypothesis
+
+- id: F0009
+  husband: I0020                    # Antoni Kowalski
+  wife: I0021                       # Marianna
+  children: [I0015]                 # Wojciech

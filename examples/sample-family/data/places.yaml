@@ -1,0 +1,65 @@
+# PLACES of the fictional sample family. The villages and parishes are invented; the region
+# codes and partitions are real values so that the reports show working links.
+
+- id: P0001
+  name: Przykładowo
+  type: village
+  aliases: [Przykladowo, Пшикладово]
+  parish: P0002
+  partition: russian
+  admin:
+    - {period: "1867..1918", value: "gm. Wzorcowo, pow. przykładowski, gub. płocka (Congress Poland)"}
+  country: PL
+  geneteka_region: 07mz
+  coords: [52.61, 20.38]
+
+- id: P0002
+  name: Wzorcowo
+  type: parish
+  denomination: Roman Catholic
+  partition: russian
+  country: PL
+  geneteka_region: 07mz
+  coords: [52.63, 20.41]
+  records:
+    - "Fictional state archive: B/M/D 1808–1912 (civil-religious duplicates)"
+    - "Geneteka: B 1810–1915, M 1810–1935, D 1810–1920"
+
+- id: P0003
+  name: Zmyślin
+  type: town
+  parish: P0002
+  partition: russian
+  country: PL
+  geneteka_region: 07mz
+  coords: [52.58, 20.45]
+
+- id: P0004
+  name: Wzorki
+  type: village
+  aliases: [Musterau]
+  parish: P0005
+  partition: prussian
+  admin:
+    - {period: "1874..1919", value: "Standesamt Musterau, Kreis Beispielsberg (Province of Posen)"}
+  country: PL
+  geneteka_region: 15wp
+  coords: [52.31, 17.02]
+
+- id: P0005
+  name: Wzorki
+  type: parish
+  denomination: Roman Catholic
+  partition: prussian
+  country: PL
+  geneteka_region: 15wp
+  records:
+    - "Catholic books in Latin: diocesan archive (fictional)"
+    - "Civil registration (Standesamt) from 1874 in German: state archive (fictional)"
+
+- id: P0006
+  name: Bezparafie
+  type: village
+  partition: russian
+  country: PL
+  notes: "Deliberately incomplete: parish, region and coordinates unknown (shows up in the gap report)."

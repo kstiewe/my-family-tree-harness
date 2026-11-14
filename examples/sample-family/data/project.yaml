@@ -1,0 +1,15 @@
+# Project settings of the FICTIONAL sample family (all persons, places and records are invented).
+# Field reference: docs/data-format.md.
+
+name: Sample family tree (fictional)
+author: "Example Author"
+language: en
+proband: I0001
+
+surnames:
+  - {surname: Kowalski, variants: [Kowalsky, Ковальский]}
+  - {surname: Nowak, variants: [Nowack]}
+  - {surname: Malinowski}
+  - {surname: Lewandowski}
+
+regions: ["Wzorcowo parish (Congress Poland)", "Wzorki parish (Province of Posen)"]
