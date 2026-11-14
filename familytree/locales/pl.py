@@ -304,4 +304,153 @@ MESSAGES = {
     "To research": "Do zbadania",
     "No results.": "Brak wyników.",
     "language": "język",
+
+    # ---- geography: the map page, clusters, migration trails, hints (familytree/geo.py, geomap.py)
+    "map.html": "mapa.html",
+    "map-artifact.html": "mapa-artefakt.html",
+    "geography.md": "geografia.md",
+    "geography.json": "geografia.json",
+    "{ctx}: {coords} lies outside Poland — latitude and longitude swapped?":
+        "{ctx}: {coords} leży poza Polską — zamienione szerokość i długość geograficzna?",
+    "coordinates (coords; the map uses the parish's for now)": "współrzędnych (coords; mapa używa na razie współrzędnych parafii)",
+    "N": "płn.",
+    "NE": "płn.-wsch.",
+    "E": "wsch.",
+    "SE": "płd.-wsch.",
+    "S": "płd.",
+    "SW": "płd.-zach.",
+    "W": "zach.",
+    "NW": "płn.-zach.",
+    "birth": "urodzenie",
+    "death": "zgon",
+    "marriage": "ślub",
+    "residence": "zamieszkanie",
+    "other event": "inne zdarzenie",
+    "Russian partition": "zabór rosyjski",
+    "Prussian partition": "zabór pruski",
+    "Austrian partition": "zabór austriacki",
+    "outside Poland": "poza Polską",
+    "partition not recorded": "zabór niewpisany",
+    "{place} and surroundings": "{place} i okolice",
+    "{place} ({km} km {direction})": "{place} ({km} km {direction})",
+    "place of birth of a sibling": "miejsce urodzenia rodzeństwa",
+    "place of the spouse": "miejsce współmałżonka",
+    "place of a parent": "miejsce rodzica",
+    "Map: parishes within {km} km of {place} ({basis}) — check their books too: {list}":
+        "Mapa: parafie w promieniu {km} km od {place} ({basis}) — sprawdź też ich księgi: {list}",
+    "Map: no other parish within {km} km of {place} is in places.yaml — look up the neighbouring parishes and add them with coords.":
+        "Mapa: w places.yaml nie ma innej parafii w promieniu {km} km od {place} — ustal sąsiednie parafie i dodaj je ze współrzędnymi (coords).",
+    "Nearest other family cluster: {cluster}, {km} km {direction} (events: {n}, {years}).":
+        "Najbliższe inne skupisko rodziny: {cluster}, {km} km {direction} (zdarzeń: {n}, {years}).",
+    "## 6. Geography": "## 6. Geografia",
+    "- events on the map: {n} (without coordinates: {missing})": "- zdarzeń na mapie: {n} (bez współrzędnych: {missing})",
+    "- cluster {id} {label}: events: {n}, {years}": "- skupisko {id} {label}: zdarzeń: {n}, {years}",
+    "- places to geocode (most events first): {list}": "- miejsca do zgeokodowania (najpierw te z największą liczbą zdarzeń): {list}",
+    "- clusters, migration trails and hints per ancestor: {file}; the map: {map}":
+        "- skupiska, szlaki migracji i wskazówki dla każdego przodka: {file}; mapa: {map}",
+    "# Geography of the family": "# Geografia rodziny",
+    "Context for research: where the family's events happened, clusters of places, migration trails along the lines of "
+    "ancestors and where to look for the missing ones. Distances are straight lines; a place without coordinates takes "
+    "those of its parish. Everything here is a heuristic for choosing where to search — never evidence. The same data as "
+    "JSON: geography.json; on a map: map.html.":
+        "Kontekst do poszukiwań: gdzie działy się zdarzenia z życia rodziny, skupiska miejsc, szlaki migracji wzdłuż linii "
+        "przodków i gdzie szukać brakujących. Odległości są w linii prostej; miejsce bez współrzędnych dostaje współrzędne "
+        "swojej parafii. Wszystko tutaj to heurystyka pomagająca wybrać, gdzie szukać — nigdy dowód. Te same dane jako "
+        "JSON: geografia.json; na mapie: mapa.html.",
+    "- places with coordinates: {own}, with the parish's coordinates: {parish}, without: {none}":
+        "- miejsca ze współrzędnymi: {own}, ze współrzędnymi parafii: {parish}, bez: {none}",
+    "- clusters (places within {km} km of a centre): {n}": "- skupiska (miejsca do {km} km od środka): {n}",
+    "- events by kind: {list}": "- zdarzenia według rodzaju: {list}",
+    "- events by partition: {list}": "- zdarzenia według zaboru: {list}",
+    "## Clusters": "## Skupiska",
+    "events: {n}": "zdarzeń: {n}",
+    "- centre {lat}, {lon}; radius {km} km": "- środek {lat}, {lon}; promień {km} km",
+    "- places: {list}": "- miejsca: {list}",
+    "- events: {list}": "- zdarzenia: {list}",
+    "- ancestors: {list}": "- przodkowie: {list}",
+    "- surnames: {list}": "- nazwiska: {list}",
+    "- partition: {list}": "- zabór: {list}",
+    "_No events with coordinates yet — add `coords` to the places in places.yaml._":
+        "_Brak zdarzeń ze współrzędnymi — dodaj `coords` do miejsc w places.yaml._",
+    "## Migration trails along the lines of ancestors": "## Szlaki migracji wzdłuż linii przodków",
+    "_From the oldest known ancestors of each line down to the proband; each person stands at the place of birth (else "
+    "marriage, residence, death); (est.) = estimated year._":
+        "_Od najstarszych znanych przodków każdej linii do probanta; każdą osobę reprezentuje miejsce urodzenia (a gdy go "
+        "brak: ślubu, zamieszkania, zgonu); (szac.) = rok szacunkowy._",
+    "(est.)": "(szac.)",
+    "; overall {km} km {direction}": "; łącznie {km} km {direction}",
+    "no. {n}": "nr {n}",
+    "## Largest moves": "## Największe przenosiny",
+    "_Changes of place of at least {km} km — where a line moved, the next generation's records are in another parish (or archive)._":
+        "_Zmiany miejsca o co najmniej {km} km — gdzie linia się przeniosła, akta następnego pokolenia są w innej parafii (lub archiwum)._",
+    "birth → death": "urodzenie → zgon",
+    "parent → child": "rodzic → dziecko",
+    "- {km} km {direction}: {a} ({ya}) → {b} ({yb}) — {who}, {what}": "- {km} km {direction}: {a} ({ya}) → {b} ({yb}) — {who}, {what}",
+    "## Where to look for missing ancestors": "## Gdzie szukać brakujących przodków",
+    "_For each deceased ancestor without a located birth or death or without parents. The reference place is the closest "
+    "located clue; neighbouring parishes are only those already in places.yaml — the diocese's list of parishes or "
+    "`scripts/geneteka.py --parishes` gives the others._":
+        "_Dla każdego zmarłego przodka bez umiejscowionego urodzenia lub zgonu albo bez rodziców. Miejsce odniesienia to "
+        "najbliższa umiejscowiona wskazówka; sąsiednie parafie to tylko te, które już są w places.yaml — pozostałe poda "
+        "wykaz parafii diecezji albo `scripts/geneteka.py --parishes`._",
+    "- missing: {list}": "- brakuje: {list}",
+    "estimated birth: {years}": "szacowany rok urodzenia: {years}",
+    "- no located clue: add coordinates to the places of this person and of the closest relatives":
+        "- brak umiejscowionej wskazówki: dodaj współrzędne miejsc tej osoby i najbliższych krewnych",
+    "- reference place: {place} `{id}` — {why}": "- miejsce odniesienia: {place} `{id}` — {why}",
+    "(coordinates of the parish)": "(współrzędne parafii)",
+    "- parishes within {km} km: {list}": "- parafie w promieniu {km} km: {list}",
+    "- family places within {km} km: {list}": "- miejsca rodziny w promieniu {km} km: {list}",
+    "- nearest clusters: {list}": "- najbliższe skupiska: {list}",
+    "- the same surname elsewhere in the data: {list}": "- to samo nazwisko gdzie indziej w danych: {list}",
+    "## Places to geocode": "## Miejsca do zgeokodowania",
+    "_Places used by events that the map cannot show: add `coords` (and the source of the coordinates in `notes`), or the "
+    "parish when it has coordinates._":
+        "_Miejsca zdarzeń, których mapa nie może pokazać: dodaj `coords` (a źródło współrzędnych w `notes`) albo parafię, "
+        "jeśli ona ma współrzędne._",
+    "- `{id}` {name} — events: {n}": "- `{id}` {name} — zdarzeń: {n}",
+    "parish unknown": "parafia nieznana",
+    "**Ancestors without any place on the map:** {list}": "**Przodkowie bez żadnego miejsca na mapie:** {list}",
+    "Family map": "Mapa rodziny",
+    "Map": "Mapa",
+    "Poland": "Polska",
+    "World": "Świat",
+    "Events": "Zdarzenia",
+    "Births": "Urodzenia",
+    "Deaths": "Zgony",
+    "Births and deaths": "Urodzenia i zgony",
+    "All events": "Wszystkie zdarzenia",
+    "From year": "Od roku",
+    "To year": "Do roku",
+    "Centuries": "Stulecia",
+    "all years": "wszystkie lata",
+    "undated": "bez daty",
+    "ancestors only": "tylko przodkowie",
+    "lines of ancestors": "linie przodków",
+    "partition borders": "granice zaborów",
+    "Map: drag to pan; the mouse wheel or + and − zooms; click a place to list the people recorded there":
+        "Mapa: przeciągnij, by przesunąć; kółko myszy albo + i − zmienia przybliżenie; kliknij miejsce, by zobaczyć zapisane tam osoby",
+    "No events with coordinates yet — add coords to the places in data/places.yaml (or to their parishes) and build again.":
+        "Brak zdarzeń ze współrzędnymi — dodaj coords do miejsc w data/places.yaml (albo do ich parafii) i zbuduj ponownie.",
+    "Show all events": "Pokaż wszystkie zdarzenia",
+    "fewer → more events": "mniej → więcej zdarzeń",
+    "place": "miejsce",
+    "region or country": "region lub kraj",
+    "partition border, approx. 1846–1914": "granica zaborów, przybliżona, 1846–1914",
+    "coordinates of the parish": "współrzędne parafii",
+    "Where the family lived": "Gdzie żyła rodzina",
+    "Click a place or a hot spot on the map to list the people recorded there. The colour shows how many of the chosen "
+    "events fall in the area; arrows lead from a parent's place to the child's along the lines of ancestors.":
+        "Kliknij miejsce albo gorący punkt na mapie, by zobaczyć zapisane tam osoby. Kolor pokazuje, ile wybranych zdarzeń "
+        "przypada na okolicę; strzałki prowadzą od miejsca rodzica do miejsca dziecka wzdłuż linii przodków.",
+    "Places on the map": "Miejsca na mapie",
+    "Back to the selected places": "Wróć do zaznaczonych miejsc",
+    "Places: ${ids.length}": "Miejsca: ${ids.length}",
+    "Outside the filters: ${hidden} more events": "Poza filtrami: jeszcze ${hidden} zdarzeń",
+    "Clusters of places": "Skupiska miejsc",
+    "None yet.": "Na razie brak.",
+    "Not on the map: places without coordinates: ${D.stats.geocode}, their events: ${D.stats.off} — see ${D.files.context}.":
+        "Poza mapą: miejsca bez współrzędnych: ${D.stats.geocode}, ich zdarzenia: ${D.stats.off} — zob. ${D.files.context}.",
+    "${D.title} · events on the map: ${D.stats.on} of ${D.stats.on + D.stats.off} · as of ${D.generated}":
+        "${D.title} · zdarzeń na mapie: ${D.stats.on} z ${D.stats.on + D.stats.off} · stan na ${D.generated}",
 }

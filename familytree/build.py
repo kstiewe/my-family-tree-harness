@@ -3,7 +3,7 @@
     python3 scripts/build.py               validate + all outputs in <workspace>/output/
     python3 scripts/build.py --check       validate only
     python3 scripts/build.py --find Kowal  find persons (duplicate check before adding someone)
-    python3 scripts/build.py --public      HTML and GEDCOM without data of living persons
+    python3 scripts/build.py --public      HTML, map and GEDCOM without data of living persons
     python3 scripts/build.py --json        machine-readable result (errors with codes and fixes, next free IDs)
     python3 scripts/build.py --schema      allowed fields and values of the data files, as JSON
 
@@ -20,6 +20,8 @@ from pathlib import Path
 
 from . import i18n
 from .gedcom import write_gedcom
+from .geo import write_geography
+from .geomap import write_map
 from .html import write_html
 from .i18n import tr
 from .model import FIXES, Tree
@@ -31,7 +33,8 @@ def output_names() -> dict[str, str]:
     """File names of the outputs in the active language, keyed by their English names."""
     return {"tree.html": tr("tree.html"), "tree-artifact.html": tr("tree-artifact.html"), "tree.mmd": tr("tree.mmd"),
             "ancestors.mmd": tr("ancestors.mmd"), "tree.ged": tr("tree.ged"), "gaps.md": tr("gaps.md"),
-            "ancestors.md": tr("ancestors.md")}
+            "ancestors.md": tr("ancestors.md"), "map.html": tr("map.html"), "map-artifact.html": tr("map-artifact.html"),
+            "geography.md": tr("geography.md"), "geography.json": tr("geography.json")}
 
 
 def write_outputs(tree: Tree, out: Path, public: bool) -> dict[str, Path]:
@@ -45,6 +48,10 @@ def write_outputs(tree: Tree, out: Path, public: bool) -> dict[str, Path]:
     write_gedcom(tree, names["tree.ged"], public)
     write_gaps(tree, names["gaps.md"])
     write_ancestors(tree, names["ancestors.md"])
+    geo = tree.geo(living=not public)
+    write_map(tree, geo, names["map.html"])
+    write_map(tree, geo, names["map-artifact.html"], artifact=True)
+    write_geography(geo, names["geography.md"], names["geography.json"])
     return names
 
 

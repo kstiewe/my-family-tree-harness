@@ -1,5 +1,6 @@
 # PLACES of the fictional sample family. The villages and parishes are invented; the region
-# codes and partitions are real values so that the reports show working links.
+# codes and partitions are real values so that the reports show working links. The coordinates are
+# invented too (they only put the places on the map); real places name the source in notes.
 
 - id: P0001
   name: Przykładowo
@@ -53,6 +54,7 @@
   partition: prussian
   country: PL
   geneteka_region: 15wp
+  coords: [52.32, 17.05]
   records:
     - "Catholic books in Latin: diocesan archive (fictional)"
     - "Civil registration (Standesamt) from 1874 in German: state archive (fictional)"

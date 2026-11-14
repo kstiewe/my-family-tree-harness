@@ -11,6 +11,7 @@ import yaml
 
 from .dates import TODAY, Date, Window, parse_date, safe_date, search_range, sort_key
 from .geneteka import REGIONS, kind_label, page_url
+from .geo import Geo, valid_coords
 from .i18n import tr
 from .schema import (CONFIDENCE, EVENT_KEYS, EVENT_TYPES, EXTRA_EVENT_KEYS, FAMILY_KEYS, LANGUAGES, LIFE_EVENTS,
                      MARRIAGE_KEYS, NO_PARISH_NEEDED, PARTITIONS, PERSON_KEYS, PLACE_KEYS, PROJECT_KEYS, SEXES,
@@ -61,6 +62,7 @@ FIXES = {
     "duplicate-child": "List each child once.",
     "missing-name": "Give the place a name.",
     "bad-coords": "Write coordinates as [latitude, longitude], e.g. [52.53, 20.49].",
+    "suspicious-coords": "Check the order: [latitude, longitude] (Poland is about [49..55, 14..24]) and the source in notes.",
     "bad-admin": "Write admin entries as {period: \"1867..1918\", value: \"…\"}.",
     "missing-title": "Give the source a title.",
     "unused-source": "Cite the source in some fact's `sources`, or remove it if it was a mistake.",
@@ -97,6 +99,7 @@ class Tree:
             for c in f.get("children") or []:
                 self.child_of.setdefault(c, []).append(fid)
         self._used_sources: set[str] = set()
+        self._geo: dict = {}
         self.validate()
         self.kekule = self._kekule() if not self.errors else {}
         if not self.errors:
@@ -251,8 +254,12 @@ class Tree:
             self._enum(f"{plid}.geneteka_region", pl.get("geneteka_region"), REGIONS)
             self._enum(f"{plid}.partition", pl.get("partition"), PARTITIONS)
             c = pl.get("coords")
-            if c is not None and not (isinstance(c, list) and len(c) == 2 and all(isinstance(x, (int, float)) for x in c)):
+            if c is not None and not valid_coords(c):
                 self.err("bad-coords", plid, tr("{ctx}: expected [latitude, longitude]", ctx=f"{plid}.coords"))
+            elif c is not None and (pl.get("country") or "PL") == "PL" and not (45 <= c[0] <= 58 and 12 <= c[1] <= 30) \
+                    and 45 <= c[1] <= 58 and 12 <= c[0] <= 30:
+                self.warn("suspicious-coords", plid, tr("{ctx}: {coords} lies outside Poland — latitude and longitude swapped?",
+                                                        ctx=f"{plid}.coords", coords=c))
             for i, a in enumerate(self._list(plid, pl, "admin"), 1):
                 if not isinstance(a, dict) or "value" not in a:
                     self.err("bad-admin", plid, tr("{ctx}: expected {{period: …, value: …}}", ctx=f"{plid}.admin[{i}]"))
@@ -364,6 +371,12 @@ class Tree:
             if f and f.get("wife") in self.persons:
                 queue.append((f["wife"], 2 * n + 1))
         return nums
+
+    def geo(self, living: bool = False) -> Geo:
+        """Geography of the tree (cached); living=False leaves living persons out."""
+        if living not in self._geo:
+            self._geo[living] = Geo(self, living=living)
+        return self._geo[living]
 
     def ancestral_families(self) -> list[str]:
         fids = {self.child_of[pid][0] for pid in self.kekule if self.child_of.get(pid)}
@@ -630,6 +643,7 @@ class Tree:
             w = self.birth_window(pid)
             places = self.search_places(pid, "birth")
             details = self._where(places, tr("Place unknown — marriage and death records or family accounts give it."))
+            details += self.geo().hint_lines(pid, "birth")
             if w:
                 details.append(tr("Estimated year of birth: {years} (evidence: {basis})", years=w.text(), basis=", ".join(w.basis))
                                + (" " + tr("— WARNING: the evidence is contradictory, check the dates") if w.conflict else ""))
@@ -654,6 +668,7 @@ class Tree:
             places = self.search_places(pid, "death")
             details = self._where(places, tr("Place unknown — search the parish of the last residence (e.g. where the "
                                              "youngest child was born)."))
+            details += self.geo().hint_lines(pid, "death")
             if rng:
                 details.append(tr("Years to search: {start}–{end}", start=rng[0], end=rng[1]))
                 if rng[1] >= TODAY.year - 80:
@@ -733,7 +748,8 @@ class Tree:
             if pl.get("country", "PL") == "PL" and not pl.get("partition") and kind != "region":
                 missing.append(tr("partition (partition)"))
             if not pl.get("coords"):
-                missing.append(tr("coordinates (coords)"))
+                missing.append(tr("coordinates (coords; the map uses the parish's for now)")
+                               if valid_coords((self.parish_of(plid) or {}).get("coords")) else tr("coordinates (coords)"))
             if missing:
                 out.append((plid, missing))
         return out

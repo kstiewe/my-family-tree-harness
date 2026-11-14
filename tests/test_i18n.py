@@ -81,12 +81,14 @@ class PageScript(unittest.TestCase):
             out = tmpdir()
             code, stdout, _ = run(build.main, ["--workspace", str(EXAMPLE), "--out", str(out), "--lang", lang])
             self.assertEqual(code, 0, stdout)
-            page = next(out.glob("*-*.html")).read_text(encoding="utf-8")          # the artifact variant
-            script = page.rsplit("<script>", 1)[1].split("</script>", 1)[0]
-            js = out / "page.js"
-            js.write_text(script, encoding="utf-8")
-            result = subprocess.run(["node", "--check", str(js)], capture_output=True, text=True)
-            self.assertEqual(result.returncode, 0, f"{lang}: {result.stderr}")
+            pages = sorted(out.glob("*-*.html"))                                  # the artifact variants: tree, map
+            self.assertEqual(len(pages), 2, pages)
+            for path in pages:
+                script = path.read_text(encoding="utf-8").rsplit("<script>", 1)[1].split("</script>", 1)[0]
+                js = out / "page.js"
+                js.write_text(script, encoding="utf-8")
+                result = subprocess.run(["node", "--check", str(js)], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, f"{lang} {path.name}: {result.stderr}")
 
 
 if __name__ == "__main__":

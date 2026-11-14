@@ -265,9 +265,11 @@ Every build regenerates `<workspace>/output/`. File names follow the report lang
 | 📈 Diagrams | `tree.mmd`, `ancestors.mmd` | `drzewo.mmd`, `przodkowie.mmd` | Mermaid: the whole tree and the line of ancestors |
 | 📜 Ancestor list | `ancestors.md` | `przodkowie.md` | Kekule numbering with completeness per generation |
 | 🕳️ Gap report | `gaps.md` | `luki.md` | missing facts with concrete research suggestions and Geneteka links |
+| 🗺️ Map | `map.html`, `map-artifact.html` | `mapa.html`, `mapa-artefakt.html` | heatmap of births and deaths on Poland (with the partition borders) and the world, year filter, lines of ancestors, people per place; the map geometry is embedded |
+| 🧭 Geography | `geography.md`, `geography.json` | `geografia.md`, `geografia.json` | clusters of places, migration trails along the lines of ancestors and where to look for missing ancestors — context for the agent |
 | 🧬 GEDCOM | `tree.ged` | `drzewo.ged` | GEDCOM 5.5.1 for Gramps, MyHeritage, Ancestry, FamilySearch |
 
-`--public` hides living persons in HTML and GEDCOM. A person counts as living unless `living: false`
+`--public` hides living persons in HTML, the map and GEDCOM. A person counts as living unless `living: false`
 is set or a death or burial is recorded, when born less than 100 years ago or with no birth date
 (great-grandparents and earlier excepted). The agent never searches for living people online.
 

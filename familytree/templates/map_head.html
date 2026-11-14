@@ -1,0 +1,108 @@
+<title>⟦Family map⟧</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap">
+<style>
+/* Layout: filters in one row above a canvas map (heat of events, places, lines of ancestors); on the right
+   the register of the selected places — the same index-card look as the tree. */
+:root {
+  --bg: #f2f4f3; --panel: #ffffff; --text: #1a2220; --muted: #5b6864; --border: #d9e0dd; --chip: #e9eeec;
+  --accent: #2f4f8a; --on-accent: #ffffff; --hl: #c98a00;
+  --sea: #dfe7ea; --land: #fbfcfb; --coast: #a9b7b3; --frontier: #c2ccc9; --partition: #7a5c9e;
+  --heat-1: #fde9b8; --heat-2: #f7c25c; --heat-3: #e48a2a; --heat-4: #bf5418; --heat-5: #82300f;
+  --dot: #2b3633; --trail: #2f4f8a; --halo: #fbfcfb;
+  --font-display: "Spectral", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121615; --panel: #1a1f1e; --text: #e4eae8; --muted: #9aa8a3; --border: #2d3533; --chip: #242b29;
+    --accent: #9db8f2; --on-accent: #0f1520; --hl: #f0b429;
+    --sea: #0d1214; --land: #1d2322; --coast: #4a5753; --frontier: #3a4542; --partition: #b9a0dc;
+    --heat-1: #4f240c; --heat-2: #8c3f12; --heat-3: #cf6a1e; --heat-4: #f0a242; --heat-5: #ffe08f;
+    --dot: #dfe7e4; --trail: #9db8f2; --halo: #1d2322;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121615; --panel: #1a1f1e; --text: #e4eae8; --muted: #9aa8a3; --border: #2d3533; --chip: #242b29;
+  --accent: #9db8f2; --on-accent: #0f1520; --hl: #f0b429;
+  --sea: #0d1214; --land: #1d2322; --coast: #4a5753; --frontier: #3a4542; --partition: #b9a0dc;
+  --heat-1: #4f240c; --heat-2: #8c3f12; --heat-3: #cf6a1e; --heat-4: #f0a242; --heat-5: #ffe08f;
+  --dot: #dfe7e4; --trail: #9db8f2; --halo: #1d2322;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { margin: 0; font: 14px/1.5 var(--font-body); background: var(--bg); color: var(--text); display: flex; flex-direction: column; }
+header { display: flex; flex-direction: column; gap: 8px; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+.row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+h1 { font: 600 19px/1.2 var(--font-display); margin: 0; text-wrap: balance; }
+.muted { color: var(--muted); font-size: 12px; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.seg button { border: 0; background: transparent; color: var(--text); padding: 5px 11px; font: inherit; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button.on { background: var(--accent); color: var(--on-accent); }
+button:focus-visible, input:focus-visible, [tabindex]:focus-visible, .link:focus-visible { outline: 2px solid var(--hl); outline-offset: 1px; }
+.years { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.years input[type=range] { width: 120px; accent-color: var(--accent); }
+.years output { font: 500 12.5px/1 var(--font-mono); min-width: 4ch; text-align: center; }
+.chips { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.chips button { font: 500 11.5px/1 var(--font-mono); padding: 5px 7px; border-radius: 5px; border: 1px solid var(--border);
+  background: var(--panel); color: var(--text); cursor: pointer; }
+.chips button.on { background: var(--chip); border-color: var(--accent); }
+.tog { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; cursor: pointer; }
+.tog input { accent-color: var(--accent); margin: 0; }
+main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 380px; grid-template-rows: minmax(0, 1fr); min-height: 0; }
+#map { position: relative; overflow: hidden; min-height: 0; background: var(--sea); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+#map.panning { cursor: grabbing; }
+#cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#map .empty { position: absolute; left: 16px; top: 16px; margin: 0; padding: 12px 14px; max-width: 460px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 8px; color: var(--muted); }
+.tip { position: absolute; pointer-events: none; padding: 5px 8px; border-radius: 6px; background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,.15); font-size: 12.5px; white-space: nowrap; transform: translate(12px, -50%); }
+.tip b { font-weight: 600; }
+.tip span { color: var(--muted); font-variant-numeric: tabular-nums; }
+.ctrl { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.ctrl button { width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--panel); color: var(--text); font: 600 16px/1 var(--font-body); cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.ctrl button:hover { background: var(--chip); }
+.legend { position: absolute; left: 12px; bottom: 12px; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; max-width: calc(100% - 24px);
+  padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, var(--panel) 90%, transparent); border: 1px solid var(--border); font-size: 12px; }
+.legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.ramp { display: inline-block; width: 90px; height: 10px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--heat-1), var(--heat-2), var(--heat-3), var(--heat-4), var(--heat-5)); }
+.k-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--dot); box-shadow: 0 0 0 1.5px var(--halo); }
+.k-ring { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--dot); }
+.k-trail { width: 22px; height: 0; border-top: 2px solid var(--trail); }
+.k-part { width: 22px; height: 0; border-top: 2px dashed var(--partition); }
+aside { background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+#sel { flex: 1 1 60%; overflow: auto; padding: 14px 16px; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+#side { flex: 1 1 40%; overflow: auto; padding: 4px 0 12px; }
+h2 { font: 600 21px/1.2 var(--font-display); margin: 0 0 4px; text-wrap: balance; }
+h3 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 16px 0 6px; }
+#side h3 { margin: 12px 16px 4px; }
+.pl { margin: 0 0 14px; }
+.pl > b { font-weight: 600; }
+.ev { display: grid; grid-template-columns: 2.2em 3.6em minmax(0, 1fr); gap: 0 6px; padding: 2px 0; }
+.ev .sym { color: var(--muted); text-align: center; }
+.ev .yr { font: 12px/1.6 var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.ev .yr.est { font-style: italic; }
+.kn { font: 500 11px/1 var(--font-mono); color: var(--muted); margin-left: 4px; }
+.link { color: var(--accent); cursor: pointer; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.cl { display: grid; grid-template-columns: 2.6em minmax(0, 1fr) auto; gap: 0 8px; padding: 5px 16px; cursor: pointer; align-items: baseline; }
+.cl:hover, .cl.on { background: var(--chip); }
+.cl .id { font: 500 11.5px/1.5 var(--font-mono); color: var(--muted); }
+.cl .n { font-variant-numeric: tabular-nums; text-align: right; color: var(--muted); font-size: 12.5px; }
+.note { margin: 8px 16px 0; color: var(--muted); font-size: 12px; }
+@media (max-width: 820px) {
+  body { display: block; height: auto; }
+  main { display: block; }
+  #map { height: 64vh; border-bottom: 1px solid var(--border); }
+  aside { border-left: 0; }
+  #sel, #side { overflow: visible; }
+  .years input[type=range] { width: 96px; }
+}
+</style>
