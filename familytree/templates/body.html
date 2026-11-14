@@ -2,6 +2,15 @@
   <h1>__TITLE__</h1>
   <span class="muted" id="stats"></span>
   <div class="seg" id="views"><button type="button" data-view="full" class="on">⟦Whole tree⟧</button><button type="button" data-view="anc">⟦Ancestors of the proband⟧</button></div>
+  <div class="pb" id="pb" hidden>
+    <label for="pb-q">⟦Proband⟧</label>
+    <div class="combo">
+      <input type="text" id="pb-q" role="combobox" aria-expanded="false" aria-controls="pb-list" aria-autocomplete="list"
+             autocomplete="off" spellcheck="false" placeholder="⟦Type a name…⟧">
+      <div id="pb-list" role="listbox" aria-label="⟦Persons⟧" hidden></div>
+    </div>
+    <label class="chk" title="⟦Unticked: also the siblings of the ancestors (with spouses) and the proband's descendants⟧"><input type="checkbox" id="pb-only" checked> ⟦only ancestors⟧</label>
+  </div>
   <input type="search" id="q" placeholder="⟦Search for a person…⟧" aria-label="⟦Search for a person⟧">
   <div class="muted legend">
     <span><i class="sw line"></i>⟦direct line of the proband⟧</span><span><i class="sw"></i>⟦collateral relatives⟧</span><span><i class="sw hyp"></i>⟦hypothesis⟧</span>
@@ -18,11 +27,18 @@
       <button type="button" data-z="out" title="⟦Zoom out⟧" aria-label="⟦Zoom out⟧">−</button>
       <button type="button" data-z="fit" title="⟦Show the whole tree⟧" aria-label="⟦Show the whole tree⟧">⤢</button>
       <button type="button" data-z="me" title="⟦Show the proband⟧" aria-label="⟦Show the proband⟧">◎</button>
+      <button type="button" data-z="png" title="⟦Save the tree as an image (PNG)⟧" aria-label="⟦Save the tree as an image (PNG)⟧">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+      </button>
     </div>
+    <p class="toast" id="toast" role="status" aria-live="polite" hidden></p>
   </div>
   <aside><div id="details"><p class="muted">⟦Click a person in the diagram or in the list.⟧</p></div><div id="list"></div></aside>
 </main>
 <script id="tree-data" type="application/json">__DATA__</script>
+<script>
+__LAYOUT__
+</script>
 <script>
 document.documentElement.lang = '__LANG__';
 const D = JSON.parse(document.getElementById('tree-data').textContent);
@@ -38,6 +54,20 @@ const T = { s: 1, x: 0, y: 0 };
 const ids = Object.keys(D.persons);
 $('#stats').textContent = `⟦${ids.length} persons · ${Object.keys(D.sources).length} sources · as of ${D.generated}⟧`;
 
+// ---- views: the diagram is laid out here, for the proband of the project or one picked in "Ancestors of the proband"
+
+const G = TreeLayout.graph(D), layouts = {};
+const PREFS = 'familytree:' + D.title;
+const prefs = (() => { try { return JSON.parse(localStorage.getItem(PREFS)) || {}; } catch { return {}; } })();
+const savePrefs = () => { try { localStorage.setItem(PREFS, JSON.stringify({ view, proband, onlyAnc })); } catch {} };
+let proband = D.persons[prefs.proband] ? prefs.proband : D.proband, onlyAnc = prefs.onlyAnc ?? true;
+if (prefs.view === 'anc') view = 'anc';
+
+function currentLayout() {
+  const pb = view === 'anc' ? proband : D.proband, mode = view !== 'anc' ? 'all' : onlyAnc ? 'anc' : 'kin', key = `${mode}:${pb}`;
+  return layouts[key] ??= TreeLayout.build(D, G, pb, mode);
+}
+
 // ---- cards and drawing a view
 
 function cardText(pid) {
@@ -48,18 +78,21 @@ function cardText(pid) {
 function cardHTML(pid) {
   const p = D.persons[pid], c = p.card;
   const conf = c.conf === 'probable' ? '<i title="⟦probable⟧">≈</i> ' : c.conf === 'hypothesis' ? '<i title="⟦hypothesis⟧">?</i> ' : '';
-  return `<span class="kn">${conf}${esc(p.kekule.slice(0, 2).join(', '))}</span><span class="nm">${esc(c.name)}</span>` +
+  return `<span class="kn">${conf}${esc((V.kek[pid] || []).slice(0, 2).join(', '))}</span><span class="nm">${esc(c.name)}</span>` +
     (c.maiden ? `<span class="md">${esc(c.maiden)}</span>` : '') + p.life.slice(0, 2).map(l => `<span class="lf">${esc(l)}</span>`).join('');
 }
 
 function draw() {
-  V = D.views[view];
-  famById = Object.fromEntries((V?.fams || []).map(f => [f.id, f]));
+  V = currentLayout();
+  famById = Object.fromEntries(V.fams.map(f => [f.id, f]));
+  $('#pb').hidden = view !== 'anc';
+  $('#pb-q').value = proband && D.persons[proband] ? D.persons[proband].name : '';
+  $('#pb-only').checked = onlyAnc;
   world.querySelectorAll('.card, .pill').forEach(n => n.remove());
   chart.querySelector('.empty')?.remove();
   lines.innerHTML = bandsEl.innerHTML = labelsEl.innerHTML = '';
-  if (!V || !Object.keys(V.nodes).length) {
-    chart.insertAdjacentHTML('beforeend', `<p class="empty">${view === 'anc' ? '⟦No ancestors to show — set proband in data/project.yaml.⟧' : '⟦No persons in data/persons.yaml.⟧'}</p>`);
+  if (!Object.keys(V.nodes).length) {
+    chart.insertAdjacentHTML('beforeend', `<p class="empty">${view === 'anc' ? '⟦Pick the proband in the field above (the default one is set in data/project.yaml).⟧' : '⟦No persons in data/persons.yaml.⟧'}</p>`);
     return;
   }
   const [cw, ch] = V.card, path = pts => 'M' + pts.map(p => p.join(' ')).join('L');
@@ -79,7 +112,7 @@ function draw() {
   for (const [pid, [x, y]] of Object.entries(V.nodes)) {
     const p = D.persons[pid], b = document.createElement('button');
     b.type = 'button'; b.dataset.pid = pid;
-    b.className = `card ${p.sex}${p.kekule.length ? ' line' : ''}${p.card.conf === 'hypothesis' ? ' hyp' : ''}${pid === D.proband ? ' me' : ''}`;
+    b.className = `card ${p.sex}${V.kek[pid] ? ' line' : ''}${p.card.conf === 'hypothesis' ? ' hyp' : ''}${pid === V.proband ? ' me' : ''}`;
     Object.assign(b.style, { left: x + 'px', top: y + 'px', width: cw + 'px', height: ch + 'px' });
     b.innerHTML = cardHTML(pid);
     b.title = cardText(pid); b.setAttribute('aria-label', cardText(pid).replace(/\n/g, ', '));
@@ -95,7 +128,7 @@ function draw() {
   bandsEl.innerHTML = V.lanes.map((l, i) => `<div class="band${i % 2 ? ' alt' : ''}"></div>`).join('');
   labelsEl.innerHTML = V.lanes.map(l => `<div class="lab"><b>${esc(l.title)}</b><span>${esc(l.name)}</span>${l.years ? `<span>${esc(l.years)}</span>` : ''}</div>`).join('');
   home(false);
-  if (selected) mark(selected, chart.classList.contains('focus'));
+  if (selected) select(selected, false, chart.classList.contains('focus'));   // Kekule numbers follow the proband
 }
 
 // ---- panning and zooming
@@ -154,7 +187,7 @@ function centerOn(pid, minScale = 0) {
 // Start: the whole tree, unless it would be unreadably small — then a readable scale centred on the proband.
 function home(animate = true) {
   let t = fitTarget();
-  const n = D.proband && V.nodes[D.proband];
+  const n = V.proband && V.nodes[V.proband];
   if (t.s < 0.55 && n) {
     const r = chart.getBoundingClientRect(), lw = labelW(), s = 0.72;
     t = { s, x: lw + (r.width - lw) / 2 - (n[0] + V.card[0] / 2) * s,
@@ -225,7 +258,8 @@ chart.querySelector('.ctrl').addEventListener('click', e => {
   if (b.dataset.z === 'in') animateTo({ ...zoomed(1.35, r) });
   else if (b.dataset.z === 'out') animateTo({ ...zoomed(1 / 1.35, r) });
   else if (b.dataset.z === 'fit') fitAll();
-  else if (b.dataset.z === 'me' && D.proband) select(D.proband, true);
+  else if (b.dataset.z === 'me' && V.proband) select(V.proband, true);
+  else if (b.dataset.z === 'png') savePNG(b);
 });
 function zoomed(f, r) {
   const s = clamp(T.s * f, 0.06, 2.5), k = s / T.s, px = r.width / 2, py = r.height / 2;
@@ -277,8 +311,10 @@ function select(pid, focus = true, lit = true) {
   selected = pid;
   const p = D.persons[pid];
   const conf = { confirmed: '⟦confirmed⟧', probable: '⟦probable⟧', hypothesis: '⟦hypothesis⟧' };
-  let h = `<h2>${esc(p.name)}</h2><div class="badge">${pid}${p.kekule.length ? ' · ⟦no.⟧ ' + p.kekule.join(', ') : ''}` +
+  const kek = V.kek[pid] || [];
+  let h = `<h2>${esc(p.name)}</h2><div class="badge">${pid}${kek.length ? ' · ⟦no.⟧ ' + kek.join(', ') : ''}` +
     `${p.confidence ? ' · ' + conf[p.confidence] : ''}${p.religion ? ' · ' + esc(p.religion) : ''}${p.living ? ' · ⟦living person⟧' : ''}</div>`;
+  if (!(view === 'anc' && proband === pid)) h += `<button type="button" class="go-anc" data-anc="${pid}">⟦Show the ancestors of this person⟧</button>`;
   if (p.variants) h += `<div class="muted">⟦Variants:⟧ ${esc(p.variants.join(', '))}</div>`;
   if (p.facts.length || p.occupation) {
     h += '<h3>⟦Facts⟧</h3>' + p.facts.map(f => `<p class="fact"><b>${esc(f.label)}</b> ${esc(f.date)}${f.place ? ', ' + esc(f.place) : ''}` +
@@ -300,6 +336,7 @@ function select(pid, focus = true, lit = true) {
   const det = $('#details');
   det.innerHTML = h; det.scrollTop = 0;
   det.querySelectorAll('[data-go]').forEach(a => onActivate(a, () => select(a.dataset.go)));
+  det.querySelector('[data-anc]')?.addEventListener('click', () => setProband(pid, 'anc'));
   document.querySelectorAll('#list div').forEach(d => d.classList.toggle('on', d.dataset.pid === pid));
   if (mark(pid, lit) && focus) centerOn(pid, 0.7);
 }
@@ -314,14 +351,242 @@ function renderList() {
   list.querySelectorAll('div[data-pid]').forEach(d => onActivate(d, () => select(d.dataset.pid)));
 }
 
-$('#views').addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  view = b.dataset.view;
-  document.querySelectorAll('#views button').forEach(x => x.classList.toggle('on', x === b));
+function setView(v) {
+  view = v;
+  document.querySelectorAll('#views button').forEach(x => x.classList.toggle('on', x.dataset.view === v));
+  savePrefs();
   draw();
+}
+
+function setProband(pid, v = view) {
+  proband = pid;
+  setView(v);
+  select(pid, false, false);
+}
+
+$('#views').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (b) setView(b.dataset.view);
 });
 $('#q').addEventListener('input', renderList);
+
+// ---- picking the proband: a text field that filters a list of every person (arrows, Enter, Esc)
+
+const pbQ = $('#pb-q'), pbList = $('#pb-list');
+let pbRows = [], pbActive = -1;
+
+function pbOpen(open) {
+  pbList.hidden = !open;
+  pbQ.setAttribute('aria-expanded', open);
+  if (!open) { pbQ.removeAttribute('aria-activedescendant'); pbQ.value = proband && D.persons[proband] ? D.persons[proband].name : ''; }
+}
+
+function pbRender(q) {
+  const f = fold(q.trim());
+  pbRows = ids.filter(id => !f || fold(`${D.persons[id].name} ${(D.persons[id].variants || []).join(' ')} ${id}`).includes(f))
+    .sort((a, b) => D.persons[a].name.localeCompare(D.persons[b].name, '__LANG__'));
+  pbActive = pbRows.length ? Math.max(0, pbRows.indexOf(proband)) : -1;
+  pbList.innerHTML = pbRows.map((id, i) => `<div role="option" id="pbo-${id}" data-pid="${id}" aria-selected="${id === proband}"${i === pbActive ? ' class="act"' : ''}>` +
+    `<span>${esc(D.persons[id].name)}${id === D.proband ? ' <i class="muted">⟦(default)⟧</i>' : ''}</span><span class="muted">${esc(D.persons[id].life.join(' '))}</span></div>`).join('')
+    || '<p class="muted">⟦No results.⟧</p>';
+  pbMove(0);
+}
+
+function pbMove(d) {
+  if (!pbRows.length) return;
+  pbActive = clamp(pbActive + d, 0, pbRows.length - 1);
+  pbList.querySelectorAll('[role=option]').forEach((o, i) => o.classList.toggle('act', i === pbActive));
+  const o = pbList.children[pbActive];
+  pbQ.setAttribute('aria-activedescendant', o.id);
+  o.scrollIntoView({ block: 'nearest' });
+}
+
+function pbChoose(pid) {
+  pbOpen(false);
+  if (pid && pid !== proband) setProband(pid);
+}
+
+pbQ.addEventListener('focus', () => { pbQ.select(); pbRender(''); pbOpen(true); });
+pbQ.addEventListener('input', () => { pbRender(pbQ.value); pbOpen(true); });
+pbQ.addEventListener('blur', () => pbOpen(false));
+pbQ.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { if (pbList.hidden) { pbRender(''); pbOpen(true); } else pbMove(e.key === 'ArrowDown' ? 1 : -1); }
+  else if (e.key === 'Enter') { pbChoose(pbRows[pbActive]); pbQ.blur(); }
+  else if (e.key === 'Escape') { pbOpen(false); pbQ.blur(); }
+  else return;
+  e.preventDefault();
+});
+pbList.addEventListener('pointerdown', e => e.preventDefault());   // keep the focus in the field
+pbList.addEventListener('click', e => { const o = e.target.closest('[data-pid]'); if (o) { pbChoose(o.dataset.pid); pbQ.blur(); } });
+$('#pb-only').addEventListener('change', e => { onlyAnc = e.target.checked; savePrefs(); draw(); });
+
+// ---- saving the current view as a PNG image, drawn on a canvas (cards, lines and lanes as on the screen)
+
+const downloads = window.claude?.use ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
+let toastTimer = 0;
+function toast(text, ms = 4000) {
+  const t = $('#toast');
+  t.textContent = text; t.hidden = false;
+  clearTimeout(toastTimer);
+  if (ms) toastTimer = setTimeout(() => { t.hidden = true; }, ms);
+}
+
+function viewCaption() {
+  const name = V.proband ? D.persons[V.proband].name : '';
+  if (view === 'anc') return onlyAnc ? `⟦Ancestors of ${name}⟧` : `⟦Ancestors of ${name} with their siblings⟧`;
+  return '⟦Whole tree⟧';
+}
+
+async function fontsReady() {
+  if (!document.fonts) return;
+  const css = getComputedStyle(document.documentElement), f = n => css.getPropertyValue('--font-' + n).trim();
+  const specs = [`600 20px ${f('display')}`, `600 13px ${f('display')}`, `600 13.5px ${f('body')}`, `11.5px ${f('body')}`,
+                 `500 10.5px ${f('mono')}`, `600 10.5px ${f('mono')}`];
+  await Promise.race([Promise.all(specs.map(s => document.fonts.load(s).catch(() => null))), new Promise(r => setTimeout(r, 3000))]);
+}
+
+function paintView(g, W, H, head) {
+  const css = getComputedStyle(document.documentElement), c = n => css.getPropertyValue('--' + n).trim();
+  const font = (spec, n) => { g.font = `${spec} ${c('font-' + n)}`; };
+  const fit = (text, max) => {                     // the text, shortened with an ellipsis to the width
+    if (g.measureText(text).width <= max) return text;
+    let lo = 0, hi = text.length;
+    while (lo < hi) { const m = (lo + hi + 1) >> 1; if (g.measureText(text.slice(0, m) + '…').width <= max) lo = m; else hi = m - 1; }
+    return text.slice(0, lo).trimEnd() + '…';
+  };
+  const rrect = (x, y, w, h, r) => {
+    g.beginPath();
+    if (g.roundRect) { g.roundRect(x, y, w, h, r); return; }
+    const [a, b, d, e] = Array.isArray(r) ? r : [r, r, r, r];
+    g.moveTo(x + a, y); g.arcTo(x + w, y, x + w, y + h, b); g.arcTo(x + w, y + h, x, y + h, d); g.arcTo(x, y + h, x, y, e); g.arcTo(x, y, x + w, y, a); g.closePath();
+  };
+  const focus = chart.classList.contains('focus'), dim = (el, alpha) => { g.globalAlpha = focus && !el?.classList.contains('on') ? alpha : 1; };
+  g.textBaseline = 'middle';
+  g.fillStyle = c('bg'); g.fillRect(0, 0, W, H);
+  g.fillStyle = c('panel'); g.fillRect(0, 0, W, head);
+  g.fillStyle = c('border'); g.fillRect(0, head - 1, W, 1);
+  g.fillStyle = c('text'); font('600 20px', 'display'); g.fillText(fit(D.title, W - 48), 24, 24);
+  g.fillStyle = c('muted'); font('13px', 'body');
+  g.fillText(fit(`${viewCaption()} · ⟦${Object.keys(V.nodes).length} persons · as of ${D.generated}⟧`, W - 48), 24, 46);
+  g.translate(0, head);
+
+  V.lanes.forEach((l, i) => {                      // lanes and their labels at the left edge
+    g.fillStyle = c(i % 2 ? 'lane-b' : 'lane-a'); g.fillRect(0, l.y, W, l.h);
+    g.fillStyle = c('lane-line'); g.fillRect(0, l.y, W, 1);
+  });
+  const svgLines = [...lines.querySelectorAll('.ln')];
+  g.lineJoin = 'round';
+  for (const pass of [false, true]) for (const el of svgLines) {      // highlighted lines on top
+    const on = focus && el.classList.contains('on');
+    if (on !== pass) continue;
+    dim(el, 0.18);
+    g.strokeStyle = on ? c('hl') : c('line'); g.lineWidth = on ? 2.6 : 1.6;
+    g.setLineDash(el.classList.contains('x') ? [5, 4] : []);
+    g.stroke(new Path2D(el.getAttribute('d')));
+  }
+  g.setLineDash([]);
+  const [cw, ch] = V.card;
+  for (const el of world.querySelectorAll('.card')) {
+    const pid = el.dataset.pid, p = D.persons[pid], [x, y] = V.nodes[pid], cl = el.classList;
+    const sex = c({ M: 'male', F: 'female' }[p.sex] || 'unk'), tint = c({ M: 'male-bg', F: 'female-bg' }[p.sex] || 'unk-bg');
+    dim(el, 0.28);
+    const a = g.globalAlpha;
+    if (cl.contains('me')) { g.globalAlpha = a * 0.3; g.fillStyle = sex; rrect(x - 4, y - 4, cw + 8, ch + 8, 12); g.fill(); g.globalAlpha = a; }
+    g.save();
+    g.shadowColor = 'rgba(0,0,0,.08)'; g.shadowBlur = 3; g.shadowOffsetY = 1;
+    g.fillStyle = cl.contains('line') ? tint : c('panel'); rrect(x, y, cw, ch, 8); g.fill();
+    g.restore();
+    g.save(); rrect(x, y, cw, ch, 8); g.clip(); g.fillStyle = sex; g.fillRect(x, y, 5, ch); g.restore();
+    const bw = cl.contains('hyp') ? 1.5 : 1;
+    g.strokeStyle = cl.contains('line') ? sex : c('border'); g.lineWidth = bw;
+    g.setLineDash(cl.contains('hyp') ? [4, 3] : []);
+    rrect(x + bw / 2, y + bw / 2, cw - bw, ch - bw, 8 - bw / 2); g.stroke();
+    g.setLineDash([]);
+    if (cl.contains('sel')) { g.strokeStyle = c('hl'); g.lineWidth = 3; rrect(x - 3.5, y - 3.5, cw + 7, ch + 7, 11); g.stroke(); }
+    const rows = [['600 13.5px', 'body', 'text', p.card.name, 17.55, 34]];
+    if (p.card.maiden) rows.push(['11.5px', 'body', 'muted', p.card.maiden, 14.95, 0]);
+    for (const l of p.life.slice(0, 2)) rows.push(['11.5px', 'body', 'text', l, 15.525, 0]);
+    let ty = y + (ch - rows.reduce((s, r) => s + r[4], 0) - (rows.length - 1)) / 2;
+    for (const [spec, face, color, text, lh, padR] of rows) {
+      font(spec, face); g.fillStyle = c(color);
+      g.fillText(fit(text, cw - 24 - padR), x + 14, ty + lh / 2);
+      ty += lh + 1;
+    }
+    const nums = (V.kek[pid] || []).slice(0, 2).join(', '), mark = { probable: '≈', hypothesis: '?' }[p.card.conf] || '';
+    g.fillStyle = c('muted'); g.textAlign = 'right';
+    font('500 10.5px', 'mono'); g.fillText(nums, x + cw - 8, y + 11.5);
+    if (mark) { const w = nums ? g.measureText(nums).width + 4 : 0; font('600 10.5px', 'mono'); g.fillText(mark, x + cw - 8 - w, y + 11.5); }
+    g.textAlign = 'left';
+  }
+  font('500 10.5px', 'mono'); g.textAlign = 'center';
+  for (const el of world.querySelectorAll('.pill')) {
+    const f = famById[el.dataset.f].pill, w = g.measureText(f.t).width + 14;
+    dim(el, 0.28);
+    g.fillStyle = c('pill-bg'); g.strokeStyle = c('pill-line'); g.lineWidth = 1;
+    rrect(f.x - w / 2, f.y - 9, w, 18, 9); g.fill(); g.stroke();
+    g.fillStyle = c('text'); g.fillText(f.t, f.x, f.y + 0.5);
+  }
+  g.textAlign = 'left'; g.globalAlpha = 1;
+  for (const l of V.lanes) {
+    font('600 13px', 'display'); const tw = g.measureText(l.title).width;
+    font('11.5px', 'body'); const rest = [l.name, l.years].filter(Boolean).map(t => '· ' + t), rw = rest.map(t => g.measureText(t).width);
+    const w = 11 + tw + rw.reduce((s, v) => s + 7 + v, 0) + 11, y = l.y + 1;
+    g.globalAlpha = 0.88; g.fillStyle = c('panel'); rrect(0, y, w, 24, [0, 0, 8, 0]); g.fill(); g.globalAlpha = 1;
+    g.strokeStyle = c('border'); g.lineWidth = 1; rrect(-1, y - 1, w + 0.5, 24.5, [0, 0, 8, 0]); g.stroke();
+    g.fillStyle = c('accent'); g.fillRect(0, y, 3, 24);
+    g.fillStyle = c('text'); font('600 13px', 'display'); g.fillText(l.title, 11, y + 12.5);
+    g.fillStyle = c('muted'); font('11.5px', 'body');
+    let x = 11 + tw;
+    rest.forEach((t, i) => { x += 7; g.fillText(t, x, y + 12.5); x += rw[i]; });
+  }
+}
+
+async function renderPNG() {
+  const head = 64, W = V.w, H = V.h + head;
+  let s = Math.min(3, 30000 / W, 30000 / H, Math.sqrt(80e6 / (W * H)));     // sharp, within the limits of browsers' canvases
+  for (let attempt = 0; attempt < 4; attempt++, s *= 0.7) {
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(W * s); canvas.height = Math.round(H * s);
+    const g = canvas.getContext('2d');
+    if (!g) continue;
+    g.scale(s, s);
+    paintView(g, W, H, head);
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    canvas.width = canvas.height = 0;
+    if (blob) return blob;
+  }
+  throw new Error('canvas');
+}
+
+async function savePNG(btn) {
+  if (btn.disabled || !Object.keys(V.nodes).length) return;
+  btn.disabled = true;
+  toast('⟦Preparing the image…⟧', 0);
+  try {
+    await fontsReady();
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r)));
+    const blob = await renderPNG();
+    const name = `${D.title} - ${viewCaption()}`.replace(/[\\/:*?"<>|\x00-\x1f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 150) + '.png';
+    const dl = await downloads;
+    if (dl) {
+      try { await dl.save({ filename: name, data: blob }); toast('⟦Image saved.⟧'); }
+      catch (e) { toast(e?.code === 'declined' ? '⟦Saving cancelled.⟧' : '⟦Saving files is not available in this view.⟧'); }
+    } else if (window.claude) {
+      toast('⟦Saving files is not available in this view.⟧');
+    } else {
+      const url = URL.createObjectURL(blob), a = Object.assign(document.createElement('a'), { href: url, download: name });
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      toast('⟦Image saved.⟧');
+    }
+  } catch {
+    toast('⟦The image could not be created — the tree may be too large for this browser.⟧');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 renderList();
-draw();
-if (D.proband && D.persons[D.proband]) select(D.proband, false, false);
+setView(view);
+if (V.proband) select(V.proband, false, false);
 </script>

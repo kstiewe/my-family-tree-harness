@@ -10,4 +10,6 @@
   (`scripts/workspace.py serve`), or open `<workspace>/output/` files directly.
 - Publishing the tree as an artifact: the URL and file are in the private instructions. If the
   artifact tool refuses a path outside the working directory, copy the file to your scratchpad
-  first and publish that copy to the same URL.
+  first and publish that copy to the same URL. The page's PNG button saves through the `downloads` capability:
+  declare `capabilities: {"downloads": true}` when publishing (later publishes that omit
+  `capabilities` keep it).

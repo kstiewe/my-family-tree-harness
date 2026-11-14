@@ -208,10 +208,11 @@ MESSAGES = {
     "peers of the proband's grandchildren": "rówieśnicy wnuków probanta",
     "peers of the proband's great-grandchildren": "rówieśnicy prawnuków probanta",
     "{n} generations back": "{n}. pokolenie wstecz",
-    "descendant generation {n}": "{n}. pokolenie potomków",
-    "Generation {n}": "Pokolenie {n}",
+    "${n} generations back": "${n}. pokolenie wstecz",
+    "descendant generation ${n}": "${n}. pokolenie potomków",
+    "Generation ${num}": "Pokolenie ${num}",
     "Younger generation": "Młodsze pokolenie",
-    "b. {years}": "ur. {years}",
+    "b. ${span}": "ur. ${span}",
     "- generation {n} ({name}): {have}/{total}": "- pokolenie {n} ({name}): {have}/{total}",
 
     # ---- reports
@@ -289,7 +290,8 @@ MESSAGES = {
     "Click a person in the diagram or in the list.": "Kliknij osobę na diagramie lub na liście.",
     "${ids.length} persons · ${Object.keys(D.sources).length} sources · as of ${D.generated}":
         "${ids.length} osób · ${Object.keys(D.sources).length} źródeł · stan na ${D.generated}",
-    "No ancestors to show — set proband in data/project.yaml.": "Brak przodków do pokazania — ustaw proband w data/project.yaml.",
+    "Pick the proband in the field above (the default one is set in data/project.yaml).":
+        "Wybierz probanta w polu powyżej (domyślnego ustawia się w data/project.yaml).",
     "No persons in data/persons.yaml.": "Brak osób w data/persons.yaml.",
     "no.": "nr",
     "living person": "osoba żyjąca",
@@ -303,6 +305,24 @@ MESSAGES = {
     "Notes": "Notatki",
     "To research": "Do zbadania",
     "No results.": "Brak wyników.",
+    "Proband": "Proband",
+    "Type a name…": "Wpisz imię lub nazwisko…",
+    "Persons": "Osoby",
+    "(default)": "(domyślny)",
+    "only ancestors": "tylko przodkowie",
+    "Unticked: also the siblings of the ancestors (with spouses) and the proband's descendants":
+        "Bez zaznaczenia: także rodzeństwo przodków (z małżonkami) i potomkowie probanta",
+    "Show the ancestors of this person": "Pokaż przodków tej osoby",
+    "Save the tree as an image (PNG)": "Zapisz drzewo jako obraz (PNG)",
+    "Ancestors of ${name}": "Przodkowie: ${name}",
+    "Ancestors of ${name} with their siblings": "Przodkowie z rodzeństwem: ${name}",
+    "${Object.keys(V.nodes).length} persons · as of ${D.generated}": "${Object.keys(V.nodes).length} osób · stan na ${D.generated}",
+    "Preparing the image…": "Przygotowuję obraz…",
+    "Image saved.": "Zapisano obraz.",
+    "Saving cancelled.": "Zapis anulowany.",
+    "Saving files is not available in this view.": "W tym widoku nie można zapisywać plików.",
+    "The image could not be created — the tree may be too large for this browser.":
+        "Nie udało się utworzyć obrazu — drzewo może być za duże dla tej przeglądarki.",
     "language": "język",
 
     # ---- geography: the map page, clusters, migration trails, hints (familytree/geo.py, geomap.py)

@@ -260,7 +260,7 @@ Every build regenerates `<workspace>/output/`. File names follow the report lang
 
 | Output | `language: en` | `language: pl` | What it is |
 |---|---|---|---|
-| 🌳 Interactive tree | `tree.html` | `drzewo.html` | generation lanes, line highlighting, zoom, search, facts, sources, research hints; works offline (web fonts aside) |
+| 🌳 Interactive tree | `tree.html` | `drzewo.html` | generation lanes, line highlighting, zoom, search, facts, sources, research hints; any person as the proband (only their ancestors, or also their ancestors' siblings and their own descendants); the current view saved as a sharp PNG; works offline (web fonts aside) |
 | 🧩 Embeddable tree | `tree-artifact.html` | `drzewo-artefakt.html` | the same page without the document skeleton, for hosts that add one (e.g. Claude artifacts) |
 | 📈 Diagrams | `tree.mmd`, `ancestors.mmd` | `drzewo.mmd`, `przodkowie.mmd` | Mermaid: the whole tree and the line of ancestors |
 | 📜 Ancestor list | `ancestors.md` | `przodkowie.md` | Kekule numbering with completeness per generation |
@@ -397,7 +397,7 @@ my-family-tree-harness/
 ├── CLAUDE.md            ← Claude Code specifics (imports AGENTS.md)
 ├── familytree/          ← Python package: model, validation, reports, HTML, GEDCOM, i18n, guard
 │   ├── locales/         ←   translations (pl.py); add a language by copying it
-│   ├── templates/       ←   the HTML page
+│   ├── templates/       ←   the HTML page and the diagram layout (layout.js, runs in the page)
 │   └── skeleton/        ←   what `workspace.py init` creates
 ├── scripts/             ← entry points: build · geneteka · workspace · guard
 ├── sources/             ← guides to services and regions, plus browser helpers (*.js)
