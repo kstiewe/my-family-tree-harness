@@ -8,7 +8,7 @@ Addresses checked in 2026-11. Detailed guides are linked where they exist.
 |---|---|---|
 | [Geneteka](https://geneteka.genealodzy.pl) | births, marriages, deaths from all of Poland and the former eastern lands | the basic tool; [guide](geneteka.md), `scripts/geneteka.py`; exact search, "as a couple", parishes within 15 km, recently added indexes |
 | [PomGenBaza](https://www.ptg.gda.pl/language/pl/pomgenbaza/przeszukiwanie-rejestrow-metrykalnych/) | Pomerania, Kashubia, former West Prussia: parish and civil (Standesamt) books, cemetery indexes | many books that Geneteka lacks; gives the archive signature and photo number; [guide](pomgenbaza.md) |
-| [Genealogia w Archiwach](https://www.genealogiawarchiwach.pl) | scans and indexes of the state archives of the Kuyavian-Pomeranian region | — |
+| [Genealogia w Archiwach](https://www.genealogiawarchiwach.pl) | scans and indexes of the state archives of the Kuyavian-Pomeranian region | person files with parents; [guide](genealogiawarchiwach.md) |
 | [Geneszukacz](https://geneszukacz.genealodzy.pl) | combined search over PTG databases | supplements Geneteka |
 | [Poznan Project](https://poznan-project.psnc.pl) | marriages from Greater Poland, mostly 19th century | excellent for the Prussian partition |
 | [BaSIA](https://www.basia.famula.pl) | Greater Poland, record indexes with a map | links to scans |

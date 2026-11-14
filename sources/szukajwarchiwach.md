@@ -13,6 +13,8 @@ a book: Geneteka "Uwagi", the PomGenBaza "Księga" column.
    `wyniki-wyszukiwania?q=…` or `_Wyszukiwarka_query=…` do **not** run a search: type into the field —
    on the home page `_Wyszukiwarka_INSTANCE_…_keywords`, on the results page `_Result_keywords` and
    the button `_Result_search_again`. The ids may change; find them via the "Szukaj" button.
+   From a script: set the value of the home-page field and call `form.requestSubmit()` on its form —
+   the results page lists the fonds as links `/zespol/-/zespol/<id>` (checked 2026-11).
 2. **Two kinds of hits.** A row like "Przykładowo, gmina …" is a description from the PRADZIAD
    database (`_Zespol_id_zespolu=…`), without scans. The real fonds has the address
    `/zespol/-/zespol/<id>`; on its page check "Liczba skanów" — 0 means nothing is online.
@@ -48,6 +50,12 @@ in the text. Record the pairs you have verified in the workspace notes.
 - Civil registry books are online only up to the 100/110-year limit **at the time of digitisation** —
   for many offices about 1907, even when the description says 1874–1914.
 - A fonds with "Liczba skanów: 0" is described but not digitised: order a copy from the archive.
+- **Check per unit, not per fonds**: a fonds with thousands of scans may have only some years online
+  (e.g. births of a few single years scanned, the years in between and the later decades not). The unit list (`delta=100`)
+  shows the number of scans of every book; books of the 1920s are often "rejestr boczny" (the duplicate)
+  without scans, while the main register is still in the civil registry office.
+- **Duplicate registers (Neben-Register) may have no name index** at the end of the year; one marriage
+  record then takes one double-page scan and the book has to be read record by record.
 
 ## Reading old German handwriting (Kurrent)
 
