@@ -39,6 +39,10 @@ books, open without a login). (Checked 2026-11.)
 - **Every book folder of a fonds at once**: in the signed-in tab, `fetch` the fonds page and read its links with
   `DOMParser` (`a[href*="/<fonds slug>/0"]`): one request gives the address code of each folder. Keep the codes of the
   family's offices in the workspace — they spare a page view per book later.
+- **Every fonds of an archive at once**: the archive's own page (`/metryki/<code>/<archive>`) lists all its fonds with
+  the number of photos and their address codes, so one `fetch` shows which offices are there at all. "No scans online" on
+  another site (e.g. Szukaj w Archiwach) says nothing about genbaza: check both. Leave out links with a query string
+  (`?ref=…`); they duplicate the folder links.
 - In many civil registry fonds the units run year by year as births, marriages, deaths (unit = first unit + 3 × years
   since the first year, + 1 for marriages, + 2 for deaths), so the unit of another year can be predicted. A year with an
   extra book breaks the pattern: check against the folder list.
@@ -51,3 +55,12 @@ books, open without a login). (Checked 2026-11.)
 - Thumbnails are IIIF images (`…/full/!400,400/0/default.jpg`); larger sizes requested directly answer 403. Use the
   site's viewer, not a workaround.
 - Record the viewer address (book folder and number) in the source's `url` and the photo number in `notes`.
+- Interwar Polish civil forms (1920s–1930s) say a lot: a marriage record gives each party's exact date and place of
+  birth, residence and religion, and the parents as *zmarły* or *żyjący* (deceased or living) with their residence. A death
+  record names the birthplace and the parents, but the declarant may not know them well ("syn Kowalskiego (imię mu
+  niewiadome) i Katarzyny" for a man whose own marriage record names his mother Józefina).
+- Read the margins of marriage records too: later births and deaths of the couple's children were noted there. Notes
+  added under the German occupation (1939–1945) are in German and use the occupation names of the places and offices
+  ("1. Kind Maria Kowalski den 3. Mai 1941 in Musterwalde geboren, Geburtenbuch 51/41, Standesamt Bergfelde"). These
+  names often differ from the pre-1920 German ones; German Wikipedia articles on the commune ("Gmina …") list each
+  village's German names with their years ("1939–45 Musterwalde"), and a search for the name there finds the village.

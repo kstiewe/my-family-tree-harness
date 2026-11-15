@@ -118,6 +118,10 @@ Akt Zabużańskich). Abroad: Lviv (CDIAL), Vilnius (LVIA), Minsk (NIAB).
   a person's own marriage record is the best witness to the parents' names. A parent called *verstorben*
   (deceased) in a child's record died before that date, one given with a residence was alive — together
   they bound the search for the parent's death.
+- A widow marries under her late husband's surname: the record gives her as "Anna Nowak geb. Kowalska", an index row
+  as surname "Nowak ur. Kowalska", often with the maiden name spelled by ear (Kowalska, Kowalka). When a marriage you
+  expect is missing under the groom's surname, list every marriage of the office for the likely years without names and
+  read the given names: the index may misspell the groom's surname too ("Kowasky" for Kowalsky).
 - Online trees can merge two namesakes of similar age: when the age or birthplace in a death record does
   not fit the tree, look for a second person of that name (two August Kowalskis: the tree gives one's
   birth and the other's death and wife). Check every date taken from a tree against a record.
