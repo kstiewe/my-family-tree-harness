@@ -108,6 +108,13 @@ Akt Zabużańskich). Abroad: Lviv (CDIAL), Vilnius (LVIA), Minsk (NIAB).
   mother's name alone: her other children (half-siblings) and her own birth, with her parents.
 - Read the margins of civil birth records: a book kept in the office for decades may note the person's
   marriage or death with the office and record number — a way to a death whose place nobody knew.
+- Weigh who spoke: names given by a neighbour or co-worker who reported a death are the least reliable;
+  a person's own marriage record is the best witness to the parents' names. A parent called *verstorben*
+  (deceased) in a child's record died before that date, one given with a residence was alive — together
+  they bound the search for the parent's death.
+- Online trees can merge two namesakes of similar age: when the age or birthplace in a death record does
+  not fit the tree, look for a second person of that name (two August Kowalskis: the tree gives one's
+  birth and the other's death and wife). Check every date taken from a tree against a record.
 - A Prussian civil record gives the hour and place of birth, occupation, religion and whether the
   declarant could write; a parish record usually does not.
 - Family accounts can be wrong about names. When a later account agrees with another relative's and

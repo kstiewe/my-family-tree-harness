@@ -34,6 +34,12 @@ books, open without a login). (Checked 2026-11.)
 - A PomGenBaza "Nr zdjęcia" such as `10_1234_0_56_0007` reads: archive 10, fonds 1234, series 0, unit 56, photo 0007.
   Open the book folder `0056_…`; photo 0007 is number 8 in the viewer (the viewer counts from 1, the photos from 0000).
   Photo file names may carry the year (`…_0007_1888.JPG`).
+- **Every book folder of a fonds at once**: in the signed-in tab, `fetch` the fonds page and read its links with
+  `DOMParser` (`a[href*="/<fonds slug>/0"]`): one request gives the address code of each folder. Keep the codes of the
+  family's offices in the workspace — they spare a page view per book later.
+- In many civil registry fonds the units run year by year as births, marriages, deaths (unit = first unit + 3 × years
+  since the first year, + 1 for marriages, + 2 for deaths), so the unit of another year can be predicted. A year with an
+  extra book breaks the pattern: check against the folder list.
 
 ## Reading a photo
 

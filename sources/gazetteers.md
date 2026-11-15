@@ -21,6 +21,10 @@ The parish decides where the records are. Record it in `places.yaml` (`parish`, 
 - `python3 scripts/geneteka.py --parishes -w CODE --filter NAME`: whether Geneteka knows the parish,
   its indexed years and IDs.
 
+Records spell places in German, Polish, Kashubian or by ear, and the same village may appear under two
+unrelated German names. A record that writes two forms side by side ("Musterdorf (Przykładowo)") settles
+the identification — note such a record in the place's `notes`.
+
 A place you cannot identify yet: record it with what is known (`notes`: the spelling in the source,
 the candidates) and add a `todo` — the gap report lists places without a parish.
 
