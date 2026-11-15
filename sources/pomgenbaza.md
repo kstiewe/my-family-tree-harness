@@ -68,6 +68,10 @@ applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only
   gap. Find the parish of the village independently — the [Meyers Gazetteer](german-sources.md) gives the
   Catholic and the Protestant parish — and check that parish's coverage: births may be indexed only from a
   later year than marriages and deaths. A wedding was usually held in the bride's parish.
+- **A whole year of one office**: leave both name fields empty, choose the office and one year. Rows beyond 50 are on the
+  next pages (buttons "2", "Następna" under the table). When the number of rows equals the number of the last record, the
+  year is indexed completely — a list of every adult woman without a maiden name, say, then finds a person under any
+  spelling. Use it where the books themselves have no name index.
 - **Coverage of many parishes at once**: `fetch` each parish page in the console and read its `table tr`
   rows — the last three cells of a row are the years indexed for births, marriages and deaths.
 

@@ -101,7 +101,7 @@ Steps:
   use their own signed-in browser (through a browser extension they have connected), only read there, one
   record at a time, and stop at any check or login form. Otherwise give the user the exact link, book and
   image number, ask them to save the image into the workspace (or paste it into the chat) and read it from
-  there; see `sources/metryki-genbaza.md`.
+  there; see `sources/metryki-genbaza.md` and `sources/familysearch.md`.
 
 ## 5. Data conventions (short)
 

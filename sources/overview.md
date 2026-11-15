@@ -15,7 +15,7 @@ Addresses checked in 2026-11. Detailed guides are linked where they exist.
 | [Lubgens](https://lubgens.eu) | Lublin region and surroundings | needs a browser (bot protection) |
 | [JRI-Poland](https://jri-poland.org) | Jewish records | — |
 | [Gesher Galicia](https://www.geshergalicia.org) | Galicia: cadastral maps, censuses, records | — |
-| [FamilySearch](https://www.familysearch.org) | microfilms and scans from Poland, Germany, the USA and more; indexes | free account (the user logs in); Catalog → search by place; scripts get 403 |
+| [FamilySearch](https://www.familysearch.org) | microfilms and scans from Poland, Germany, the USA and more; indexes | free account (the user logs in); Catalog → search by place; scripts get 403; [guide](familysearch.md) |
 | MyHeritage, Ancestry, Geni | other people's trees and records | only a hint (`online_tree`), always verify |
 | Family associations (Familienverbände) | databases of one surname, often TNG | whole families, also illegitimate children with their mothers; a lead (`online_tree`); TNG addresses in [regions/pomerania.md](regions/pomerania.md) |
 

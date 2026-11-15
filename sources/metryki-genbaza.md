@@ -21,6 +21,8 @@ books, open without a login). (Checked 2026-11.)
   `research/scans/` folder, the file named after the photo number), or pastes it into the chat; the agent reads the image
   from there, transcribes it and records the file name in the source's `notes`.
 - Read every photo of a record in one go: a marriage record usually takes two.
+- The duplicate registers ("Neben-Register") often have no name index — only the cover, the title page and the records.
+  Use the complete year list from PomGenBaza instead (see [pomgenbaza.md](pomgenbaza.md)).
 
 ## Finding a book and a photo
 
