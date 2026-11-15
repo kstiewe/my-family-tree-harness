@@ -55,7 +55,11 @@ use them.
 
 - **Archion** (archion.de, paid passes): Protestant church books kept in the Evangelisches Zentralarchiv in
   Berlin, among them many West Prussian parishes, often up to about 1900–1910 — years that the court duplicates
-  in the Polish archives (and so PomGenBaza) do not cover.
+  in the Polish archives (and so PomGenBaza) do not cover. The parish pages are public without a login and list
+  every book with its years and an id (e.g. `Taufen 1700–1790`, `Namensverzeichnisse Trauungen 1700–1880`):
+  check there how far back a parish goes. FamilySearch may index only the later books of a parish (from the
+  1770s in some West Prussian parishes) while Archion has the images of the older ones; the old name indexes
+  (Namensverzeichnisse) are the quickest way into such a book.
 - **GenWiki district pages** (`https://wiki.genealogy.net/Kreis_<name>`) list per parish which years are on
   Archion and which on FamilySearch, with the FamilySearch catalog numbers — the quickest way to learn where
   the books of a parish ended up.
@@ -69,7 +73,11 @@ use them.
 - **Family association sites**: rare surnames of the region often have a family association with a TNG database
   (`…/search.php?mylastname=<surname>&myfirstname=<given>&mybool=AND`, person pages `getperson.php?personID=…`, families
   `familygroup.php?familyID=…`). They can give the whole family of a couple and illegitimate children with their
-  mothers — a lead (`online_tree`), to be checked against civil records.
+  mothers — a lead (`online_tree`), to be checked against civil records. Some association sites are framesets: the
+  TNG folder is linked from the navigation frame, and the `tree` value (`tree=tree1` …) is in the links of the TNG
+  start page. `search.php?mylastname=<surname>&lnqualify=equals&mybool=AND&tree=<tree>&order=birth` lists the
+  bearers of a surname oldest first. Empty "Vater" and "Mutter" fields mean the association does not know the
+  parents either; its notes (godparents, quotations from church books) and its source list are worth reading.
 - **FamilySearch**: the catalog itself needs a login now; take the catalog numbers from GenWiki and give
   them to the user.
 
@@ -95,7 +103,14 @@ use them.
 - Grave databases cover few rural cemeteries here: deaths after the end of the indexes are often only
   known from the family or the USC.
 - Religion matters: a Protestant family will not be in the Catholic books of the same village, and the
-  Protestant parish may be in another place.
+  Protestant parish may be in another place. Exception: the 18th century, below.
+- **Protestant children in Catholic books before about 1775**: in villages of Protestant settlers on Catholic
+  (e.g. monastic) estates of Royal Prussia, the Catholic parish priest often baptised the children of Lutheran
+  families, in Latin. Indexers then garble the German surname: one Kowalski couple came out as "Kowalsky",
+  "Kowalk", "Kawalke" and "Gowalski" in four baptisms. Search the Catholic parish of the village by the parents'
+  given names without a surname (see [pomgenbaza.md](../pomgenbaza.md)) and compare the birth years with the
+  ages the children give at their later Protestant weddings. The Protestant parish may have kept its own book
+  for the same years as well: look in both.
 - **Mixed marriages**: a Catholic wedding and Catholic baptisms of the children do not make the father
   Catholic — the children of a mixed marriage were often raised in the mother's church. Civil records give
   each parent's religion; when the father is "evangelisch" in several of them, look for his own baptism in

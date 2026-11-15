@@ -48,6 +48,12 @@ applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only
   parents, to be checked against the parish and the years.
 - **Siblings by the father's given name**: surname + `fatherFirstName` collects the children of one man
   across parishes when the mother's maiden name is still unknown; the result then gives the maiden name.
+- **A couple under a surname no prefix catches**: leave both name fields empty and give only the parents'
+  given names, one parish and the years of the children
+  (`pgSearch('', '', 1750, 1775, {parish: '<id>', fatherFirstName: 'Jan', motherFirstName: 'Mar'})`). The surname column
+  then shows how the indexer read the name each time — the Latin entries of one German Protestant family in a Catholic
+  book came out in four different forms. Birth years known from elsewhere (ages at later weddings, an online tree)
+  pick out the right rows; other couples with the same given names stay in the list, so check the years.
 - **Short prefixes catch variants** ("Kowal" → Kowalski/Kowalsky/Kowalska); clerks of civil offices
   often misspelled Polish names.
 - **Language of names**: Catholic books are in Latin (Sophia, Joannes, Maximilianus), the Standesamt
