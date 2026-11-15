@@ -11,7 +11,8 @@ search, reading an index or a scan, recording a finding, the build, updating the
 and documenting a general technique. Ask the user only for what you cannot or may not do yourself:
 - signing in;
 - paying;
-- downloading a file;
+- downloading a file, unless the user has allowed downloads (record that in the private
+  instructions);
 - visiting an archive or a FamilySearch center;
 - choosing between conflicting family accounts;
 - consent to an `allow:` entry.
