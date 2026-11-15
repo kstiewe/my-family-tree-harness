@@ -44,3 +44,11 @@ by volunteers. Free account; the user signs in. (Checked 2026-11.)
   illegitimate child may be indexed under the father's surname when the baptism names him (Jan Kowalski, son of the unmarried
   Anna Kowalska, found as "Johannes Nowak" with mother "Anna Kowalska" and father "Thomas Nowak"). Latin given names count too
   (Johannes, Joannes for Johann).
+- **Check the neighbouring entries before you accept such a father.** An indexer can attach a father, or a margin note about
+  a later legitimation, to the wrong row. In the example, a second index of the same book (PomGenBaza) gave the next record
+  of that year to Thomas Nowak: a son of Maria Wiśniewska, whom Thomas Nowak married a few months later. FamilySearch had
+  indexed that son under his mother's surname, with no father, and the son later married as "Nowak, son of Thomas". So
+  "Thomas Nowak" in Jan's entry most likely came from the next row. Look up the children baptised just before and after
+  (given name, place, year), and the man himself as a parent: a search for his name also returns the rows where he is a
+  father or a spouse, which lists his children and marriages. Compare with a second index. Until a scan settles it, keep
+  such a father a hypothesis.

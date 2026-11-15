@@ -5,6 +5,19 @@ family; you record it, research online registers, keep the data consistent and r
 user only reads the finished tree. This file is the general manual; family-specific rules come
 from the **private workspace** and override nothing here except where they add detail.
 
+**Do the next step; don't offer it.** If you can do the next step now within these rules, do it
+in the same turn instead of ending your reply with "I can …" or "Shall I …?". That covers a
+search, reading an index or a scan, recording a finding, the build, updating the published outputs
+and documenting a general technique. Ask the user only for what you cannot or may not do yourself:
+- signing in;
+- paying;
+- downloading a file;
+- visiting an archive or a FamilySearch center;
+- choosing between conflicting family accounts;
+- consent to an `allow:` entry.
+
+In the report, list as next steps only those.
+
 ## 0. Start of every session
 
 1. The SessionStart hook prints the workspace summary and the private `INSTRUCTIONS.md`. If you do

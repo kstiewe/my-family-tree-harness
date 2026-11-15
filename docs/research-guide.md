@@ -107,6 +107,9 @@ Akt Zabużańskich). Abroad: Lviv (CDIAL), Vilnius (LVIA), Minsk (NIAB).
   may call the mother *Arbeiterfrau* (working woman), which does not prove a marriage. Then search the
   mother's name alone: her other children (half-siblings) and her own birth, with her parents. The baptism may still name the
   natural father, and an index may then file the child under his surname — search by given name and date, without a surname.
+  A father who appears only in an index is not proof. Indexers attach names and margin notes to the neighbouring entry, so
+  check the children baptised just before and after, a second index of the same book and the man's own marriage
+  (sources/familysearch.md).
   A Protestant mother's child may be baptised in the Catholic parish of the birthplace, especially where the Protestant
   parish was founded later.
 - Read the margins of civil birth records: a book kept in the office for decades may note the person's

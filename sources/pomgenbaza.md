@@ -74,6 +74,14 @@ applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only
   spelling. Use it where the books themselves have no name index.
 - **Coverage of many parishes at once**: `fetch` each parish page in the console and read its `table tr`
   rows — the last three cells of a row are the years indexed for births, marriages and deaths.
+- **The coverage table is not complete.** It lists only books with a signature. Entries indexed from another copy, with no
+  signature and no photo number, can still be found by a search but are missing from the table. When the table shows no
+  births for the years you need, run the search anyway before you call it a coverage gap.
+- **An illegitimate child may have no surname in the index**: only the given name and the mother's name. A search by surname
+  then misses him. Query the given name alone with the parish and the year, or the mother's surname as `motherMaidenName`.
+  The mother's surname can be misread as well; in old German hand *St* is easily read as *Śl* or *Sl*. The same baptism in
+  another index (e.g. FamilySearch) may carry a father and a different surname. Compare the record numbers: the two indexes
+  may attach the father to neighbouring entries (see [familysearch.md](familysearch.md)).
 
 ## The "Księga" (book) column
 
