@@ -38,3 +38,9 @@ by volunteers. Free account; the user signs in. (Checked 2026-11.)
 - Indexes make mistakes: one marriage index may give a father's name that the baptism contradicts. Prefer the entry closest
   to the fact (the baptism for the parents, the burial for the death) and record the conflict in `notes`.
 - Negative results count only for the indexed years and places of that collection — note which ones were searched.
+- A film's own index is searched with `q.filmNumber=<DGS number>` (the "Search the index" link of a catalog row), also when
+  its images are restricted.
+- **A child not found under the family surname**: search the given name and the exact year in the film, with no surname. An
+  illegitimate child may be indexed under the father's surname when the baptism names him (Jan Kowalski, son of the unmarried
+  Anna Kowalska, found as "Johannes Nowak" with mother "Anna Kowalska" and father "Thomas Nowak"). Latin given names count too
+  (Johannes, Joannes for Johann).

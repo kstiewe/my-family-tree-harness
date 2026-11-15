@@ -105,7 +105,10 @@ Akt Zabużańskich). Abroad: Lviv (CDIAL), Vilnius (LVIA), Minsk (NIAB).
   search: the child bears the mother's surname and the father is usually not named ("Sohn der
   unverehelichten Anna Kowalski", "syn niezamężnej Anny Kowalskiej", *filius illegitimus*). A later record
   may call the mother *Arbeiterfrau* (working woman), which does not prove a marriage. Then search the
-  mother's name alone: her other children (half-siblings) and her own birth, with her parents.
+  mother's name alone: her other children (half-siblings) and her own birth, with her parents. The baptism may still name the
+  natural father, and an index may then file the child under his surname — search by given name and date, without a surname.
+  A Protestant mother's child may be baptised in the Catholic parish of the birthplace, especially where the Protestant
+  parish was founded later.
 - Read the margins of civil birth records: a book kept in the office for decades may note the person's
   marriage or death with the office and record number — a way to a death whose place nobody knew.
 - Weigh who spoke: names given by a neighbour or co-worker who reported a death are the least reliable;
