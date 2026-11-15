@@ -54,6 +54,13 @@ the place name alone (the books themselves are titled in German, e.g. "Geburts-H
   GenBaza has from the State Archive in Gdańsk. A missing page title gives an empty page — use the wiki's full-text search
   (`/index.php?search=<word>&fulltext=1`). A script's fetch may get a bot-check page instead; the browser passes it.
   (Verified 2026-11.)
+- [Archion](https://www.archion.de): scans of Protestant church books. This includes the books of the former eastern provinces
+  kept by the Evangelisches Zentralarchiv in Berlin: "Alle Archive" → "Evangelisches Zentralarchiv in Berlin" → the Kreis
+  (with its province) → the parish. The catalog shows every book with its years without an account. A book marked as having
+  no digital copy is not online. Name lists (indexes of baptisms, marriages, burials) are separate books, useful before
+  reading a year page by page. Viewing needs a paid pass (2026-11: one month 19.90 € with 50 PDF downloads, three months
+  52.20 €, a year 178.80 €). The user buys it and signs in; the agent then reads in the user's browser.
+  (Verified 2026-11.)
 - [territorial.de](https://www.territorial.de) (Rolf Jehke): administrative history of German
   districts down to Amtsbezirke and Standesämter. (Not yet used in sessions.)
 

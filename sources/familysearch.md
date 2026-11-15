@@ -7,10 +7,16 @@ by volunteers. Free account; the user signs in. (Checked 2026-11.)
 
 - The catalog, the images and the record search need a signed-in account. The agent never signs in. When the user asks for
   it, the agent reads in the user's own signed-in browser through a browser extension the user has connected — only reading:
-  never "Attach" a record to the Family Tree, never edit the tree, sources or account, no downloads.
+  never "Attach" a record to the Family Tree, never edit the tree, sources or account, no downloads unless the private
+  instructions allow them.
 - Images with a padlock are restricted ("available to members of supporting organizations"): they can be seen only in a
   FamilySearch center or an affiliate library. Their index is often still searchable (below) — tell the user which film to
-  look at there.
+  look at there. `locations.familysearch.org` lists the centers and affiliate libraries of a country; centers may open by
+  appointment only, and affiliates include public libraries and museums.
+- Before sending the user to a center, read the catalog entry's notes: they say where the film was made ("filmed from
+  manuscripts in …", a parish archive, a state archive). The same books may be elsewhere. Protestant books of the former German
+  eastern provinces are often scanned on Archion ([german-sources.md](german-sources.md)). Catholic books are in the parish
+  or the diocesan archive. Duplicate registers may sit in a state archive with scans on [Metryki GenBaza](metryki-genbaza.md).
 - Profiles in the FamilySearch Family Tree are other people's work: a lead (`online_tree`), never a source.
 
 ## From the catalog to an image

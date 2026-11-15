@@ -86,7 +86,9 @@ applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only
 ## The "Księga" (book) column
 
 - `10/XXXX/0/YY` — the State Archive in Gdańsk (fonds / series / unit): civil registry books, often with
-  scans on [Szukaj w Archiwach](szukajwarchiwach.md).
+  scans on [Szukaj w Archiwach](szukajwarchiwach.md), and also duplicates of parish registers (e.g. a Protestant parish's
+  books of the first half of the 19th century). On Metryki GenBaza the fonds appears as "<parish> ew_XXXX" or
+  "<parish> kat_XXXX", with one folder per unit.
 - `ADP/W…` — the Diocesan Archive in Pelplin; no scans online.
 - A plain number (e.g. `831`) — a book kept in the parish; its PomGenBaza page gives no archive signature.
 - "Nr zdjęcia" is PTG's photo number; on Szukaj w Archiwach it is **not** the scan number. Many of these
