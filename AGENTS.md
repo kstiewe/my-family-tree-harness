@@ -116,6 +116,9 @@ Steps:
   record at a time, and stop at any check or login form. Otherwise give the user the exact link, book and
   image number, ask them to save the image into the workspace (or paste it into the chat) and read it from
   there; see `sources/metryki-genbaza.md` and `sources/familysearch.md`.
+- A lead that only a paid service can settle (e.g. an Archion pass) goes into a register in the workspace `research/`: the
+  book (id, signature), the record sought, what it would settle, what free indexes already give. The user buys access once
+  the list is long enough; see `sources/german-sources.md`.
 
 ## 5. Data conventions (short)
 
