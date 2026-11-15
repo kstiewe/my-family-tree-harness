@@ -32,6 +32,9 @@ a book: Geneteka "Uwagi", the PomGenBaza "Księga" column.
 6. **Finding a record**: in civil registry books one record usually takes one scan, shifted by a few
    scans (cover, microfilm cards). Estimate the position from the record number, then read the record
    number on the scan. The slider order may differ from the thumbnail numbering — trust `.number-of-scan`.
+   Marriage records usually take **two scans** (two pages: the couple, then the witnesses), so record N sits
+   near scan 2N + offset. A strip of the top of several scans (the helper `swaStrip`) shows the record
+   numbers at a glance; start the strip lower when the number is printed below the page header.
 7. **Margin notes** can change the content of a record ("Muß heißen Sophie" — "should read Sophie")
    or belong to the neighbouring record: always read the margin and check the record number next to it.
 
@@ -44,6 +47,10 @@ In some archives the civil registry fonds have consecutive IDs in signature orde
 (ID₀, signature₀) you can estimate ID ≈ ID₀ + (signature − signature₀), with gaps of up to ±5:
 fetch `/zespol/-/zespol/<id>` for a few neighbouring IDs and check "Sygnatura" and "Liczba skanów"
 in the text. Record the pairs you have verified in the workspace notes.
+
+The same works for **units inside one fonds**: their IDs often follow the signatures (unit ID ≈ ID₀ +
+(signature − signature₀)). Fetch `/jednostka/-/jednostka/<id>` and check the "Sygnatura" in its text before
+relying on it. (Verified 2026-11.)
 
 ## Coverage
 
@@ -71,4 +78,7 @@ a few hours later it works. Retry later and note the outage in the log.
 
 An agent's browser window may be 1024×768 with screenshots scaled to 800×600: size an image
 container to the window (e.g. a 1024×768 `div` with `overflow:hidden`), otherwise the screenshot
-shows only its top-left part.
+shows only its top-left part. Size the container from `innerWidth`/`innerHeight` rather than fixed numbers.
+When the browser pane is narrow, an emulated window size is shrunk to fit and the handwriting becomes
+unreadable: clear the emulation, show the scan 1.3–1.5× wider than the window and take a region screenshot
+(the `zoom` action), which keeps the pixels unscaled. (Verified 2026-11.)

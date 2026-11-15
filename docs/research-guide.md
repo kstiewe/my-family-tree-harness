@@ -91,10 +91,23 @@ Akt Zabużańskich). Abroad: Lviv (CDIAL), Vilnius (LVIA), Minsk (NIAB).
   Hedvigis = Jadwiga, Agnes = Agnieszka; *legitimus/illegitimus* = born in/out of wedlock,
   *viduus/vidua* = widower/widow, *agricola* = farmer, *hortulanus* = smallholder,
   *inquilinus* = landless tenant.
+- German (Standesamt): *unverehelicht* = unmarried, *unehelich* = illegitimate, *Arbeiter* = labourer,
+  *Knecht*/*Magd* = farmhand/maid, *Einwohner*, *Instmann* = landless (estate) labourer, *Käthner* =
+  cottager, *Besitzer*/*Eigentümer* = farm owner, *Altsitzer* = retired farmer, *Abbau X* = an outlying
+  farmstead belonging to village X. Short forms of given names: Mina/Minna = Wilhelmine, Guste = Auguste,
+  Fritz = Friedrich, Hans = Johann, Lene = Helene.
 - Ages in death records are often exaggerated or rounded, by 5–10 years. Ages at marriage are
   usually more accurate.
 - When an ancestor's own record is missing, the siblings help: the same parents, and relatives often
-  appear as witnesses.
+  appear as witnesses. The declarant of a death names his relation to the dead (*Sohn*, *Schwiegersohn*
+  …): a son-in-law leads to a daughter's marriage.
+- **When no married couple fits the parents' names**, consider an illegitimate birth before widening the
+  search: the child bears the mother's surname and the father is usually not named ("Sohn der
+  unverehelichten Anna Kowalski", "syn niezamężnej Anny Kowalskiej", *filius illegitimus*). A later record
+  may call the mother *Arbeiterfrau* (working woman), which does not prove a marriage. Then search the
+  mother's name alone: her other children (half-siblings) and her own birth, with her parents.
+- Read the margins of civil birth records: a book kept in the office for decades may note the person's
+  marriage or death with the office and record number — a way to a death whose place nobody knew.
 - A Prussian civil record gives the hour and place of birth, occupation, religion and whether the
   declarant could write; a parish record usually does not.
 - Family accounts can be wrong about names. When a later account agrees with another relative's and

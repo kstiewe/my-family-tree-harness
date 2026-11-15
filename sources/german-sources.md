@@ -41,8 +41,28 @@ the place name alone (the books themselves are titled in German, e.g. "Geburts-H
 ## Gazetteers and administrative units
 
 - [Meyers Gazetteer](https://www.meyersgaz.org): places of the German Empire (~1912) with the Catholic
-  and Protestant parish and the civil registry office.
+  and Protestant parish and the civil registry office. Search with `https://www.meyersgaz.org/search?search=<name>`
+  (the parameter `q` does nothing); the list gives every place of that name with its Kreis — pick the one in
+  the right district. A place page `/place/<id>` shows the type (Dorf, Rittergut …), population, Amtsgericht
+  and Standesamt; the parishes are in the "Ecclesiastical" section, opened by the page's own
+  `showSection('divEcclesiastical')` (then read `#divEcclesiastical`). The parishes are those of about 1912.
+  (Verified 2026-11.)
 - [GenWiki](https://wiki.genealogy.net): pages for places, districts (Kreis), parishes (Kirchspiel)
-  and civil registry offices (Standesamt), often with the location of the books. (Not yet used in sessions.)
+  and civil registry offices (Standesamt), often with the location of the books. District pages
+  (`/Kreis_<name>`) list the church books of each parish available on Archion and on FamilySearch, with
+  FamilySearch catalog numbers; the pages whose titles start with "Metryki.GenBaza/" list what Metryki
+  GenBaza has from the State Archive in Gdańsk. A missing page title gives an empty page — use the wiki's full-text search
+  (`/index.php?search=<word>&fulltext=1`). A script's fetch may get a bot-check page instead; the browser passes it.
+  (Verified 2026-11.)
 - [territorial.de](https://www.territorial.de) (Rolf Jehke): administrative history of German
   districts down to Amtsbezirke and Standesämter. (Not yet used in sessions.)
+
+## Regional histories in library repositories
+
+Articles of historical societies and Festschriften about the districts of West and East Prussia often
+name the inhabitants of each village from 18th-century surveys. Library repositories (e.g. the document
+server of the MGH library) host them as scanned PDFs with an OCR layer, which a page-fetching tool may
+fail to read: save the PDF into a fresh folder in the scratchpad, extract it with `pdftotext -layout` and
+search for the surname loosely (OCR errors: [digital-libraries.md](digital-libraries.md)). A namesake a
+century earlier is a lead to where the surname lived, not an ancestor, until a chain of records connects
+them. (Verified 2026-11.)

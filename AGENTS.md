@@ -97,6 +97,11 @@ Steps:
   `research/log.md`. Record negative results in the log too.
 - No mass downloading: single, targeted queries (the scripts pause between requests).
 - Use the browser for sites that need it; decline non-essential cookies.
+- A scan behind a login or a bot check: never sign in or tick the check yourself. When the user asks you to
+  use their own signed-in browser (through a browser extension they have connected), only read there, one
+  record at a time, and stop at any check or login form. Otherwise give the user the exact link, book and
+  image number, ask them to save the image into the workspace (or paste it into the chat) and read it from
+  there; see `sources/metryki-genbaza.md`.
 
 ## 5. Data conventions (short)
 

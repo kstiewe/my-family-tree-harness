@@ -17,6 +17,7 @@ Addresses checked in 2026-11. Detailed guides are linked where they exist.
 | [Gesher Galicia](https://www.geshergalicia.org) | Galicia: cadastral maps, censuses, records | — |
 | [FamilySearch](https://www.familysearch.org) | microfilms and scans from Poland, Germany, the USA and more; indexes | free account (the user logs in); Catalog → search by place; scripts get 403 |
 | MyHeritage, Ancestry, Geni | other people's trees and records | only a hint (`online_tree`), always verify |
+| Family associations (Familienverbände) | databases of one surname, often TNG | whole families, also illegitimate children with their mothers; a lead (`online_tree`); TNG addresses in [regions/pomerania.md](regions/pomerania.md) |
 
 **Reading a Geneteka hit**: results include surname variants unless the search is exact; the
 "Uwagi" column links to the scan and says where the books are kept. A missing result often means
@@ -26,6 +27,9 @@ the years are not indexed, not that the record does not exist.
 
 - [Metryki](https://metryki.genealodzy.pl): scans of books published by PTG.
 - [Szukaj w Archiwach](https://www.szukajwarchiwach.gov.pl): scans from the state archives; [guide](szukajwarchiwach.md).
+- [Metryki GenBaza](https://metryki.genbaza.pl): photos of parish and civil books from the state archives, also of years
+  without scans on Szukaj w Archiwach; free account and a bot check: the user signs in, and the agent reads the photos in
+  the user's browser or from copies the user saved; [guide](metryki-genbaza.md).
 - **Diocesan archives**: original parish books, especially before 1808 and from the Austrian and
   Prussian partitions. Contact by e-mail; searches are often paid.
 - **Parishes**: younger books, or books never deposited in an archive.

@@ -51,6 +51,28 @@ use them.
 5. German sources: loss lists 1914–1919 (place of origin of soldiers), Meyers Gazetteer (parish and
    Standesamt of a village), GenWiki pages of districts and parishes.
 
+## Church books and civil registers behind a login (verified 2026-11)
+
+- **Archion** (archion.de, paid passes): Protestant church books kept in the Evangelisches Zentralarchiv in
+  Berlin, among them many West Prussian parishes, often up to about 1900–1910 — years that the court duplicates
+  in the Polish archives (and so PomGenBaza) do not cover.
+- **GenWiki district pages** (`https://wiki.genealogy.net/Kreis_<name>`) list per parish which years are on
+  Archion and which on FamilySearch, with the FamilySearch catalog numbers — the quickest way to learn where
+  the books of a parish ended up.
+- **Metryki GenBaza** (metryki.genbaza.pl, free account; a bot check at the entrance): PTG's own photos of
+  civil registers and some Protestant registers from the State Archive in Gdańsk, including offices that have
+  no scans on Szukaj w Archiwach. GenWiki lists them on pages whose titles start with "Metryki.GenBaza/"
+  (one for civil registers, one for Protestant church books; find them with the wiki's full-text search).
+  The "Nr zdjęcia" of a PomGenBaza entry is the photo there (unit = the last part of the signature). The bot check may
+  not pass in an agent's own browser: read the photos in the user's signed-in browser (when the user asks for it) or
+  let the user save them, see [metryki-genbaza.md](../metryki-genbaza.md).
+- **Family association sites**: rare surnames of the region often have a family association with a TNG database
+  (`…/search.php?mylastname=<surname>&myfirstname=<given>&mybool=AND`, person pages `getperson.php?personID=…`, families
+  `familygroup.php?familyID=…`). They can give the whole family of a couple and illegitimate children with their
+  mothers — a lead (`online_tree`), to be checked against civil records.
+- **FamilySearch**: the catalog itself needs a login now; take the catalog numbers from GenWiki and give
+  them to the user.
+
 ## More sources for the region (not yet used in sessions — verify and extend)
 
 - **Pomorska Biblioteka Cyfrowa** (pbc.gda.pl) and **Kujawsko-Pomorska Biblioteka Cyfrowa**
@@ -74,3 +96,11 @@ use them.
   known from the family or the USC.
 - Religion matters: a Protestant family will not be in the Catholic books of the same village, and the
   Protestant parish may be in another place.
+- **Mixed marriages**: a Catholic wedding and Catholic baptisms of the children do not make the father
+  Catholic — the children of a mixed marriage were often raised in the mother's church. Civil records give
+  each parent's religion; when the father is "evangelisch" in several of them, look for his own baptism in
+  the Protestant books (e.g. a Protestant Kowalski married to a Catholic Nowak: Catholic wedding and
+  children, but the father's own baptism in the Protestant parish).
+- **Parishes change**: the Meyers Gazetteer gives the parishes of about 1912. A parish founded later
+  (books starting in the 1890s) did not serve the village decades earlier — check when its books begin and
+  look in the older neighbouring parish.
