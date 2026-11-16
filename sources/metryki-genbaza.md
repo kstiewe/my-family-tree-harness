@@ -35,7 +35,12 @@ books, open without a login). (Checked 2026-11.)
   the archives). Fonds folders are titled "<office>_<fonds number>", e.g. "Przykładowo_1234".
 - A PomGenBaza "Nr zdjęcia" such as `10_1234_0_56_0007` reads: archive 10, fonds 1234, series 0, unit 56, photo 0007.
   Open the book folder `0056_…`; photo 0007 is number 8 in the viewer (the viewer counts from 1, the photos from 0000).
-  Photo file names may carry the year (`…_0007_1888.JPG`).
+  Photo file names may carry the year (`…_0007_1888.JPG`). In a book that spans decades (e.g. marriages 1825–1905 in one
+  folder) every name ends with the year or years of its page (`…_0127_1860_1861`), and the folder page's HTML holds the
+  names of all photos: search it for the year (`document.documentElement.innerHTML.match(/_\d{4}_1861\b/g)`) and open the
+  first photo of that year instead of paging through hundreds.
+- Small duplicate registers of civil deaths (one book per year) often hold two records per double page after a cover and
+  a title page: record N is then near viewer number 3 + N/2. Check the record number printed on the page.
 - **Every book folder of a fonds at once**: in the signed-in tab, `fetch` the fonds page and read its links with
   `DOMParser` (`a[href*="/<fonds slug>/0"]`): one request gives the address code of each folder. Keep the codes of the
   family's offices in the workspace — they spare a page view per book later.
@@ -69,5 +74,10 @@ books, open without a login). (Checked 2026-11.)
   marriage record. Such a note gives the date, the place and the number of a death record from the 1950s–1970s, which is
   neither online nor in most indexes (they often end around 1970). Read the margins and the space under every birth and
   marriage record of the person, a first marriage of a widower included.
+- Tabular 19th-century parish marriage registers (German or Latin headings) give ages, residences and the bride's
+  status, but the columns after the wedding date name the **witnesses**, not the parents: "der Käthner Jan Nowak zu Abbau
+  Przykładowo" there is a witness. A witness with the bride's surname is often her brother.
+- A margin note "Ein Wort gestrichen" (one word struck out) belongs to a correction in the record. When a name was struck
+  and rewritten, the signature line shows the form the clerk kept ("+++ Handzeichen der Marianna Kowalski").
 - A record from a civil register can settle a guess made from a parish index: a widower's remarriage names his birthplace,
   his parents and their last residence, so a candidate baptism and a candidate death found by year alone become facts.
