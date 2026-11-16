@@ -273,7 +273,8 @@ def scan_text(T: Terms, text: str, where: str) -> list[Finding]:
         tokens = TOKEN.findall(folded)
         joined = " " + " ".join(tokens) + " "
         for a in T.allow_phrases:
-            if a:
+            # Repeat: str.replace skips the second of two adjacent matches, which share a space.
+            while a and " " + a + " " in joined:
                 joined = joined.replace(" " + a + " ", " ")
         for ph, kinds in T.phrases.items():
             if " " + ph + " " in joined:
