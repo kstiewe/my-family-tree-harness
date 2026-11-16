@@ -80,6 +80,14 @@ line of every record instead of every page:
   reporting a birth in a town was often the midwife ("die Hebamme …"), not the father.
 - **Left and right pages** of a book are offset differently (binding margin): calibrate the band on one odd and one even
   scan, and on scans of each new book — the image size can differ between offices and years.
+- **Calibrate every year's book anew.** Render four consecutive scans at full width first and read off where the line you
+  need starts on the odd and on the even scans. In one office the shift between odd and even scans was about a quarter of
+  the page width, the line moved by one line height from year to year, and the side that is shifted swapped between years.
+  Position the image by its real proportions (natural width and height), not by an assumed page size.
+- **When the band shows the wrong line**, the clerk's wording changed: a midwife's "in ihrer Gegenwart von der …" pushes the
+  mother's name to the end of the line and into the next one. Use a two-line band for those records, or re-read them singly.
+- **Spellings vary within one family** (a Kowalski written "Kowalewski", a Przykładowski written "Przikladowsky" in a
+  child's record): watch for the first letters and the given names of the parents, not for one exact spelling.
 - Example: a death in the Kowalski family was indexed elsewhere with a page number that pointed to the wrong scan; a band
   review of the whole book found the record near the end, together with other records of the family the index had missed.
 
