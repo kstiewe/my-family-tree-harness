@@ -20,6 +20,7 @@ helpers live next to the guide (`*.js` for the browser's JavaScript console, Pyt
 | [graves.md](graves.md) | grave databases (Grobonet, eCmentarze …) |
 | [gazetteers.md](gazetteers.md) | finding villages and their parishes |
 | [regions/pomerania.md](regions/pomerania.md) | Pomerania / former West Prussia |
+| [regions/congress-poland.md](regions/congress-poland.md) | Congress Poland / Russian partition: parish civil-status books, Russian indexes, Szukaj w Archiwach and Skanoteka coverage |
 
 ## Writing a guide
 
