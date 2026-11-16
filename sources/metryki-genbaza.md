@@ -64,3 +64,10 @@ books, open without a login). (Checked 2026-11.)
   ("1. Kind Maria Kowalski den 3. Mai 1941 in Musterwalde geboren, Geburtenbuch 51/41, Standesamt Bergfelde"). These
   names often differ from the pre-1920 German ones; German Wikipedia articles on the commune ("Gmina …") list each
   village's German names with their years ("1939–45 Musterwalde"), and a search for the name there finds the village.
+- Post-war Polish offices noted a person's death on that person's own birth and marriage records, often decades later:
+  "Zmarł 12 marca 1958 r. w Przykładowie, U.S.C. Przykładowo Nr 31/1958" in the margin, or "Żona zmarła dnia …" under a
+  marriage record. Such a note gives the date, the place and the number of a death record from the 1950s–1970s, which is
+  neither online nor in most indexes (they often end around 1970). Read the margins and the space under every birth and
+  marriage record of the person, a first marriage of a widower included.
+- A record from a civil register can settle a guess made from a parish index: a widower's remarriage names his birthplace,
+  his parents and their last residence, so a candidate baptism and a candidate death found by year alone become facts.

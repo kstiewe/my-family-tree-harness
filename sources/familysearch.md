@@ -52,6 +52,13 @@ by volunteers. Free account; the user signs in. (Checked 2026-11.)
 - Indexes make mistakes: one marriage index may give a father's name that the baptism contradicts. Prefer the entry closest
   to the fact (the baptism for the parents, the burial for the death) and record the conflict in `notes`.
 - Negative results count only for the indexed years and places of that collection — note which ones were searched.
+- **West Prussia: the Catholic and Lutheran church books collection, 1537–1981** (in Polish "Niemcy, Prusy, Prusy
+  Zachodnie, Zapisy Kościoła katolickiego i luterańskiego"; take its id from a record page, the link "O tej kolekcji" /
+  "About this collection") indexes parish books of the province, often with the exact date of a wedding that the
+  regional indexes give only as year and record number. Coverage differs per parish (for one parish it held the
+  19th-century baptisms and the weddings up to about 1918 only). Most of its images are restricted, but the record page
+  ("Informacje o dokumencie" / "Document information") still shows the digital folder number and the image number: record
+  both, so the image can be read at a FamilySearch center or an affiliate library.
 - **Burial or death**: the index names the event type ("Burial", "Death"). Online trees often copy a burial date as the date
   of death. Record the burial separately (`burial`, with the age) and keep the death to the month when only the burial is
   known.

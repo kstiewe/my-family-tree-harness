@@ -56,6 +56,11 @@ applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only
   pick out the right rows; other couples with the same given names stay in the list, so check the years.
 - **Short prefixes catch variants** ("Kowal" → Kowalski/Kowalsky/Kowalska); clerks of civil offices
   often misspelled Polish names.
+- **Polish letters in German spelling**: civil registrars wrote ę and ą as en/em and on/om (Wąsowicz → Wonsowicz,
+  Zięba → Ziemba), cz as z and -yk as -ik (Kowalczyk → Kowalzik, Kowalczik), and the index keeps the record's spelling.
+  A prefix with the Polish letter ("Wąs") then misses the civil record that "Wons" finds. When a parish entry has no
+  civil counterpart in the index, repeat the search in the German spelling, or with the spouse's surname alone
+  (`spouseLastName`) and no surname for the person sought.
 - **Language of names**: Catholic books are in Latin (Sophia, Joannes, Maximilianus), the Standesamt
   in German (Sophie, Johann, Max). A search for "Zof" misses "Sophia" — search without a given name
   or in both forms.
