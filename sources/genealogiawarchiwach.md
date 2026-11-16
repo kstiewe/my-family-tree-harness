@@ -60,6 +60,13 @@ cover the State Archive in Gdańsk; for Pomerania see [pomgenbaza.md](pomgenbaza
   viewer; read single records this way, not whole books.
 - **"Przepraszamy plik niedostępny"** ("file unavailable") can affect a single book for a day or longer while other books
   load normally. Note the book and the record in the log and retry later; the record is not lost.
+- **Page numbers in brackets** ("…/2.3/1088 (8)") are this site's own numbering; they need not match the scan numbers of
+  the same book on [Szukaj w Archiwach](szukajwarchiwach.md), and the indexed name can belong to any person of the record
+  (the deceased, a parent, the person reporting). When the scan does not open here, find the record there by reading the
+  book (see "Reading a whole book without an index" in that guide).
+- **The other copy of a register**: a main register held by one of the two archives (its fonds number starts with that
+  archive's code) whose file is unavailable may exist as the duplicate ("Neben-Register", series 3.x) of the same office in
+  the other archive on Szukaj w Archiwach — search the office's name there. The duplicate lacks later margin notes (e.g. post-war notes of death).
 - **Interwar books marked "wtóropis (odtworzony)"** (reconstructed duplicate) may be German translations made during the
   occupation ("Beglaubigte Übersetzung aus dem in polnischer Sprache geführten Heiratsregister …"): the content follows the
   Polish original, but names and places are in German forms (Johann, Martha, occupation-era place names). They are often the

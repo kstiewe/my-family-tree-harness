@@ -38,6 +38,14 @@ usually named "Urząd Stanu Cywilnego w X, pow. Y". If the full name gives "Brak
 the place name alone (the books themselves are titled in German, e.g. "Geburts-Haupt-Register X").
 20th-century books are usually without scans.
 
+- **Stillbirths** ("ein totes Mädchen/Knabe geboren") were entered only in the death register (Sterberegister) of the
+  Prussian civil registry, not among the births: a family's child missing from the birth register may be found there, and
+  such a record proves where the parents lived in that year (example: "Johann Kowalski, Arbeiter, wohnhaft in Przykładowo,
+  reported that his wife gave birth to a dead boy").
+- **Post-war Polish notes on Prussian birth records**: from the 1950s the civil registry offices stamped notes of death on
+  the main birth registers ("Zmarł(a) dnia … w …, USC … nr …"). The duplicate register (Neben-Register) usually has no
+  such notes — when the main register is not online, the note can only be asked for at the archive holding it.
+
 ## Gazetteers and administrative units
 
 - [Meyers Gazetteer](https://www.meyersgaz.org): places of the German Empire (~1912) with the Catholic

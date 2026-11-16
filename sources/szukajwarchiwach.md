@@ -64,6 +64,25 @@ relying on it. (Verified 2026-11.)
 - **Duplicate registers (Neben-Register) may have no name index** at the end of the year; one marriage
   record then takes one double-page scan and the book has to be read record by record.
 
+## Reading a whole book without an index (verified 2026-11)
+
+When a register has no name index and the record you need could be anywhere in a year (or in several years), read one
+line of every record instead of every page:
+
+- **Collect the scan list inside the site.** Requests from a script outside the browser get a bot-protection page instead of
+  the unit page; `fetch` from a tab of the site works (the unit pages, 20 thumbnails each). The image host
+  (`photos.szukajwarchiwach.gov.pl/<hash>_max`) also answers plain downloads, but slowly — load images in the browser.
+- **Show a mosaic of cropped bands**: replace the page with boxes (`overflow:hidden`), each holding one scan positioned so that
+  only the line you need is visible, with the scan number as a label. At about half size, 60–120 records fit in one
+  screenshot and names remain readable; re-render a doubtful box at full size before deciding.
+- **Which line**: a death register — the line "und zeigte an, daß [name of the deceased]"; a marriage — two bands, the groom
+  ("1. der …") and the bride ("2. die …"); a birth — the parents' lines ("daß von der … Ehefrau des …"), because the person
+  reporting a birth in a town was often the midwife ("die Hebamme …"), not the father.
+- **Left and right pages** of a book are offset differently (binding margin): calibrate the band on one odd and one even
+  scan, and on scans of each new book — the image size can differ between offices and years.
+- Example: a death in the Kowalski family was indexed elsewhere with a page number that pointed to the wrong scan; a band
+  review of the whole book found the record near the end, together with other records of the family the index had missed.
+
 ## Reading old German handwriting (Kurrent)
 
 "Thomas" can look like "Ijomas": capital T resembles J or G. Compare with letters of known words
