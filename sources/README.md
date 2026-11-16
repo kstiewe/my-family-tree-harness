@@ -10,6 +10,8 @@ helpers live next to the guide (`*.js` for the browser's JavaScript console, Pyt
 | [geneteka.md](geneteka.md) | Geneteka (PTG): national index of births, marriages, deaths; `scripts/geneteka.py` |
 | [pomgenbaza.md](pomgenbaza.md) | PomGenBaza (Pomeranian Genealogical Society): parish and civil books of Pomerania |
 | [szukajwarchiwach.md](szukajwarchiwach.md) | Szukaj w Archiwach: scans from the Polish state archives |
+| [familysearch.md](familysearch.md) | FamilySearch: catalog, image viewer with a per-image index, searching a collection's index when the images are restricted |
+| [metryki-genbaza.md](metryki-genbaza.md) | Metryki GenBaza: photos of parish and civil books behind a free login; how the user and the agent share the work |
 | [genealogiawarchiwach.md](genealogiawarchiwach.md) | Genealogia w Archiwach: scans and indexes of the Kuyavian-Pomeranian state archives |
 | [digital-libraries.md](digital-libraries.md) | dLibra digital libraries (KPBC, PBC, Polona): full text of interwar newspapers, civil registry reports, address books |
 | [arolsen.md](arolsen.md) | Arolsen Archives: wartime and post-war documents on foreigners in Germany, DP files, camps |
@@ -18,6 +20,7 @@ helpers live next to the guide (`*.js` for the browser's JavaScript console, Pyt
 | [graves.md](graves.md) | grave databases (Grobonet, eCmentarze …) |
 | [gazetteers.md](gazetteers.md) | finding villages and their parishes |
 | [regions/pomerania.md](regions/pomerania.md) | Pomerania / former West Prussia |
+| [regions/congress-poland.md](regions/congress-poland.md) | Congress Poland / Russian partition: parish civil-status books, Russian indexes, Szukaj w Archiwach and Skanoteka coverage |
 
 ## Writing a guide
 

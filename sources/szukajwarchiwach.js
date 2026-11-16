@@ -1,5 +1,6 @@
 // Szukaj w Archiwach helpers. Run in a tab on www.szukajwarchiwach.gov.pl (same origin for fetch).
 // The technique was verified 2026-11 (see szukajwarchiwach.md); these functions package it.
+//   swaRotate('<url _max>', x, y, w, h)  // a margin note turned by 90° on a canvas
 //
 //   await swaScans('<unit id>', 1, 3)      // scans of thumbnail pages 1..3: number → full-resolution URL
 //   swaStrip(['<url _max>', …], 300, 700)  // in a tab of photos.szukajwarchiwach.gov.pl: 3–4 scans in one view
@@ -34,4 +35,24 @@ window.swaStrip = (urls, top = 300, height = 180, width = 1000) => {
     document.body.append(box);
   }
   return `${urls.length} strips`;
+};
+
+// Replace the page with one region of a scan, turned by 90° on a canvas — for notes written along the margin.
+// `x, y, w, h` = the region in the image's own pixels (naturalWidth/naturalHeight), `dir` = -1 (counter-clockwise,
+// for text running top to bottom) or 1 (clockwise). Find the region first with a scaled view of the whole scan.
+window.swaRotate = (url, x, y, w, h, scale = 1.5, dir = -1) => {
+  document.body.innerHTML = '';
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = h * scale;
+    c.height = w * scale;
+    const g = c.getContext('2d');
+    g.translate(dir < 0 ? 0 : c.width, dir < 0 ? c.height : 0);
+    g.rotate(dir * Math.PI / 2);
+    g.drawImage(img, x, y, w, h, 0, 0, w * scale, h * scale);
+    document.body.append(c);
+  };
+  img.src = url;
+  return 'drawing';
 };

@@ -32,6 +32,9 @@ a book: Geneteka "Uwagi", the PomGenBaza "Księga" column.
 6. **Finding a record**: in civil registry books one record usually takes one scan, shifted by a few
    scans (cover, microfilm cards). Estimate the position from the record number, then read the record
    number on the scan. The slider order may differ from the thumbnail numbering — trust `.number-of-scan`.
+   Marriage records usually take **two scans** (two pages: the couple, then the witnesses), so record N sits
+   near scan 2N + offset. A strip of the top of several scans (the helper `swaStrip`) shows the record
+   numbers at a glance; start the strip lower when the number is printed below the page header.
 7. **Margin notes** can change the content of a record ("Muß heißen Sophie" — "should read Sophie")
    or belong to the neighbouring record: always read the margin and check the record number next to it.
 
@@ -45,6 +48,10 @@ In some archives the civil registry fonds have consecutive IDs in signature orde
 fetch `/zespol/-/zespol/<id>` for a few neighbouring IDs and check "Sygnatura" and "Liczba skanów"
 in the text. Record the pairs you have verified in the workspace notes.
 
+The same works for **units inside one fonds**: their IDs often follow the signatures (unit ID ≈ ID₀ +
+(signature − signature₀)). Fetch `/jednostka/-/jednostka/<id>` and check the "Sygnatura" in its text before
+relying on it. (Verified 2026-11.)
+
 ## Coverage
 
 - Civil registry books are online only up to the 100/110-year limit **at the time of digitisation** —
@@ -56,6 +63,25 @@ in the text. Record the pairs you have verified in the workspace notes.
   without scans, while the main register is still in the civil registry office.
 - **Duplicate registers (Neben-Register) may have no name index** at the end of the year; one marriage
   record then takes one double-page scan and the book has to be read record by record.
+
+## Reading a whole book without an index (verified 2026-11)
+
+When a register has no name index and the record you need could be anywhere in a year (or in several years), read one
+line of every record instead of every page:
+
+- **Collect the scan list inside the site.** Requests from a script outside the browser get a bot-protection page instead of
+  the unit page; `fetch` from a tab of the site works (the unit pages, 20 thumbnails each). The image host
+  (`photos.szukajwarchiwach.gov.pl/<hash>_max`) also answers plain downloads, but slowly — load images in the browser.
+- **Show a mosaic of cropped bands**: replace the page with boxes (`overflow:hidden`), each holding one scan positioned so that
+  only the line you need is visible, with the scan number as a label. At about half size, 60–120 records fit in one
+  screenshot and names remain readable; re-render a doubtful box at full size before deciding.
+- **Which line**: a death register — the line "und zeigte an, daß [name of the deceased]"; a marriage — two bands, the groom
+  ("1. der …") and the bride ("2. die …"); a birth — the parents' lines ("daß von der … Ehefrau des …"), because the person
+  reporting a birth in a town was often the midwife ("die Hebamme …"), not the father.
+- **Left and right pages** of a book are offset differently (binding margin): calibrate the band on one odd and one even
+  scan, and on scans of each new book — the image size can differ between offices and years.
+- Example: a death in the Kowalski family was indexed elsewhere with a page number that pointed to the wrong scan; a band
+  review of the whole book found the record near the end, together with other records of the family the index had missed.
 
 ## Reading old German handwriting (Kurrent)
 
@@ -71,4 +97,7 @@ a few hours later it works. Retry later and note the outage in the log.
 
 An agent's browser window may be 1024×768 with screenshots scaled to 800×600: size an image
 container to the window (e.g. a 1024×768 `div` with `overflow:hidden`), otherwise the screenshot
-shows only its top-left part.
+shows only its top-left part. Size the container from `innerWidth`/`innerHeight` rather than fixed numbers.
+When the browser pane is narrow, an emulated window size is shrunk to fit and the handwriting becomes
+unreadable: clear the emulation, show the scan 1.3–1.5× wider than the window and take a region screenshot
+(the `zoom` action), which keeps the pixels unscaled. (Verified 2026-11.)

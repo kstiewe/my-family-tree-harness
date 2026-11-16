@@ -66,6 +66,9 @@ the workspace `places.yaml` notes).
 - An oral account with an unusual maiden name ("Nowaczna or something like that"): run the overview
   with the variants; if the surname exists, the regions and parishes where it clusters are the next
   place to look — but a surname cluster alone links nobody.
+- Two readings of a handwritten surname ("Kowalna" or "Kowalska"?): run the exact overview for each. A reading that
+  occurs nowhere, or once, is probably a misreading; the frequent one is the likely surname — confirm it in a record or
+  in the family's account.
 - A rare surname: first `--overview SURNAME --exact` (regions), then the regional databases with a
   prefix, then narrow by years and parishes.
 - The surname overview also hints at origins: the regions where a surname is frequent tell where a

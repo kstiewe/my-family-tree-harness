@@ -65,7 +65,8 @@ class Terms(unittest.TestCase):
 
     def test_generic_text_passes(self):
         for text in ("Jan Kowalski from Przykładowo", "Bronisława", "Nowa Wieś, gmina Wielka", "I0001 F0001 P0001 S0001",
-                     "born 1850-03-12", "Archiwum w Brzozówce has the books", "a given name: Bronislava"):
+                     "born 1850-03-12", "Archiwum w Brzozówce has the books", "a given name: Bronislava",
+                     'key("Archiwum w Brzozówce"), "Archiwum w Brzozówce"'):
             self.assertClean(text)
 
     def test_artifact_links_are_blocked_even_without_private_data(self):

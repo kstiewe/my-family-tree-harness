@@ -5,6 +5,20 @@ family; you record it, research online registers, keep the data consistent and r
 user only reads the finished tree. This file is the general manual; family-specific rules come
 from the **private workspace** and override nothing here except where they add detail.
 
+**Do the next step; don't offer it.** If you can do the next step now within these rules, do it
+in the same turn instead of ending your reply with "I can …" or "Shall I …?". That covers a
+search, reading an index or a scan, recording a finding, the build, updating the published outputs
+and documenting a general technique. Ask the user only for what you cannot or may not do yourself:
+- signing in;
+- paying;
+- downloading a file, unless the user has allowed downloads (record that in the private
+  instructions);
+- visiting an archive or a FamilySearch center;
+- choosing between conflicting family accounts;
+- consent to an `allow:` entry.
+
+In the report, list as next steps only those.
+
 ## 0. Start of every session
 
 1. The SessionStart hook prints the workspace summary and the private `INSTRUCTIONS.md`. If you do
@@ -97,6 +111,14 @@ Steps:
   `research/log.md`. Record negative results in the log too.
 - No mass downloading: single, targeted queries (the scripts pause between requests).
 - Use the browser for sites that need it; decline non-essential cookies.
+- A scan behind a login or a bot check: never sign in or tick the check yourself. When the user asks you to
+  use their own signed-in browser (through a browser extension they have connected), only read there, one
+  record at a time, and stop at any check or login form. Otherwise give the user the exact link, book and
+  image number, ask them to save the image into the workspace (or paste it into the chat) and read it from
+  there; see `sources/metryki-genbaza.md` and `sources/familysearch.md`.
+- A lead that only a paid service can settle (e.g. an Archion pass) goes into a register in the workspace `research/`: the
+  book (id, signature), the record sought, what it would settle, what free indexes already give. The user buys access once
+  the list is long enough; see `sources/german-sources.md`.
 
 ## 5. Data conventions (short)
 

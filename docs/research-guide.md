@@ -91,10 +91,51 @@ Akt Zabużańskich). Abroad: Lviv (CDIAL), Vilnius (LVIA), Minsk (NIAB).
   Hedvigis = Jadwiga, Agnes = Agnieszka; *legitimus/illegitimus* = born in/out of wedlock,
   *viduus/vidua* = widower/widow, *agricola* = farmer, *hortulanus* = smallholder,
   *inquilinus* = landless tenant.
+- German (Standesamt): *unverehelicht* = unmarried, *unehelich* = illegitimate, *Arbeiter* = labourer,
+  *Knecht*/*Magd* = farmhand/maid, *Einwohner*, *Instmann* = landless (estate) labourer, *Käthner* =
+  cottager, *Besitzer*/*Eigentümer* = farm owner, *Altsitzer* = retired farmer, *Abbau X* = an outlying
+  farmstead belonging to village X. Short forms of given names: Mina/Minna = Wilhelmine, Guste = Auguste,
+  Fritz = Friedrich, Hans = Johann, Lene = Helene.
 - Ages in death records are often exaggerated or rounded, by 5–10 years. Ages at marriage are
   usually more accurate.
 - When an ancestor's own record is missing, the siblings help: the same parents, and relatives often
-  appear as witnesses.
+  appear as witnesses. The declarant of a death names his relation to the dead (*Sohn*, *Schwiegersohn*
+  …): a son-in-law leads to a daughter's marriage.
+- **When no married couple fits the parents' names**, consider an illegitimate birth before widening the
+  search: the child bears the mother's surname and the father is usually not named ("Sohn der
+  unverehelichten Anna Kowalski", "syn niezamężnej Anny Kowalskiej", *filius illegitimus*). A later record
+  may call the mother *Arbeiterfrau* (working woman), which does not prove a marriage. Then search the
+  mother's name alone: her other children (half-siblings) and her own birth, with her parents. The baptism may still name the
+  natural father, and an index may then file the child under his surname — search by given name and date, without a surname.
+  A father who appears only in an index is not proof. Indexers attach names and margin notes to the neighbouring entry, so
+  check the children baptised just before and after, a second index of the same book and the man's own marriage
+  (sources/familysearch.md).
+  A Protestant mother's child may be baptised in the Catholic parish of the birthplace, especially where the Protestant
+  parish was founded later.
+- Read the margins of civil birth records: a book kept in the office for decades may note the person's
+  marriage or death with the office and record number — a way to a death whose place nobody knew.
+- Weigh who spoke: names given by a neighbour or co-worker who reported a death are the least reliable;
+  a person's own marriage record is the best witness to the parents' names. A parent called *verstorben*
+  (deceased) in a child's record died before that date, one given with a residence was alive — together
+  they bound the search for the parent's death.
+- A widow marries under her late husband's surname: the record gives her as "Anna Nowak geb. Kowalska", an index row
+  as surname "Nowak ur. Kowalska", often with the maiden name spelled by ear (Kowalska, Kowalka). When a marriage you
+  expect is missing under the groom's surname, list every marriage of the office for the likely years without names and
+  read the given names: the index may misspell the groom's surname too ("Kowasky" for Kowalsky).
+- An unclear word: compare its letters with words the same clerk wrote in the same record — a month, the religion line,
+  the town of the office. A birthplace that reads as no known village often becomes a real one once its letters match the
+  clerk's own spelling of a word you know; then look the village up in a gazetteer (sources/gazetteers.md).
+- A widow (*Wittwe*, *wdowa*) in a civil death record dates her husband's death before it — useful when his own death is
+  indexed under a spelling you did not try (search the first letters of the surname for adult men of those years:
+  "Kowal…" finds "Kowalsky" and "Kowalk"). When the civil and the parish record of one death disagree on the given name
+  or the age, weigh the declarant: a daughter-in-law who could not write may give a wrong first name and a rounded age.
+  Identify the person by the married and the maiden surname, the place, widowhood and the absence of a second couple with
+  those surnames in the indexes, and record both versions.
+- An age at marriage outweighs a baptism chosen by name: a groom aged 27 in 1840 is not the boy baptised in 1816, even when
+  the parents' names fit. Look for his own earlier baptism — perhaps before his parents' wedding.
+- Online trees can merge two namesakes of similar age: when the age or birthplace in a death record does
+  not fit the tree, look for a second person of that name (two August Kowalskis: the tree gives one's
+  birth and the other's death and wife). Check every date taken from a tree against a record.
 - A Prussian civil record gives the hour and place of birth, occupation, religion and whether the
   declarant could write; a parish record usually does not.
 - Family accounts can be wrong about names. When a later account agrees with another relative's and

@@ -35,3 +35,39 @@ cover the State Archive in Gdańsk; for Pomerania see [pomgenbaza.md](pomgenbaza
   with the same archive number), where the unit list shows which years have scans.
 - In November 2026 the site warned about network reconfiguration; searches worked after the dialogs
   were closed.
+
+## Books, scans and the "related indexes" (checked 2026-11)
+
+- **Search parameters in the address work once the page is loaded**: setting `location.hash` in a tab where the site is
+  already open runs the search; a fresh load of the same link does not. Useful keys: `query.query`, `query.type` (`ALL` for
+  scans with indexes, `UNIT` for books), `query.city` (the place filter, e.g. `query.city=Przykładowo`).
+- **All books of one office**: `query.type=UNIT` with the fonds number as the query (e.g. `query.query=1234` for fonds
+  `6/1234`) lists every book of that civil registry office with its years and number of scans. The archive's other catalogue,
+  [Szukaj w Archiwach](szukajwarchiwach.md), may show "Liczba skanów 0" for the same fonds — for the two archives covered
+  by this site always check here too.
+- **"Powiązane indeksy" name more than the couple.** On a marriage scan they usually list the groom, his parents, the bride
+  and her parents. That is enough to rule out a namesake: if the only baptism of a "Marta Kowalska" born in the right years
+  belongs to a woman who, by these indexes, married someone else with the same parents' names, she is not the ancestor. The
+  same works with a death scan of a child (age, parents). Only volunteers' indexes: many scans have none or only some names.
+- **Opening a scan**: the book icon of a result card opens the viewer in the same tab and puts `modal=<scan id>` into the
+  address; setting that hash in a loaded tab opens the scan again later. "Pokaż skan w nowej karcie" opens a popup with
+  `externalmodal=<scan id>`; when a browser blocks the popup, the id can be read from the address the page tries to open.
+- **Table of contents of a book** ("Spis treści dla księgi", the tab on the left of the viewer): a year selector and the
+  scans of that year numbered from 0 (0 is often a title page), each with "Przejdź". In civil registers one record is usually
+  one scan, so record 5 of a year is item 5 — check the record number on the scan.
+- **Images** come from the site's own IIIF service (`…/loris/<id>/full/,896/0/default.jpg` in the viewer). For reading one
+  record, the same address with a larger width (`full/1600,/0/default.jpg`) opened in a tab gives a sharper image than the
+  viewer; read single records this way, not whole books.
+- **"Przepraszamy plik niedostępny"** ("file unavailable") can affect a single book for a day or longer while other books
+  load normally. Note the book and the record in the log and retry later; the record is not lost.
+- **Page numbers in brackets** ("…/2.3/1088 (8)") are this site's own numbering; they need not match the scan numbers of
+  the same book on [Szukaj w Archiwach](szukajwarchiwach.md), and the indexed name can belong to any person of the record
+  (the deceased, a parent, the person reporting). When the scan does not open here, find the record there by reading the
+  book (see "Reading a whole book without an index" in that guide).
+- **The other copy of a register**: a main register held by one of the two archives (its fonds number starts with that
+  archive's code) whose file is unavailable may exist as the duplicate ("Neben-Register", series 3.x) of the same office in
+  the other archive on Szukaj w Archiwach — search the office's name there. The duplicate lacks later margin notes (e.g. post-war notes of death).
+- **Interwar books marked "wtóropis (odtworzony)"** (reconstructed duplicate) may be German translations made during the
+  occupation ("Beglaubigte Übersetzung aus dem in polnischer Sprache geführten Heiratsregister …"): the content follows the
+  Polish original, but names and places are in German forms (Johann, Martha, occupation-era place names). They are often the
+  only copy of the 1920s in the archive, because the original register stayed in the civil registry office.
