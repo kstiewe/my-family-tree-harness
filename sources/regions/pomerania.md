@@ -102,6 +102,21 @@ use them.
 - Margin notes in civil registers correct names and dates — always read them.
 - Grave databases cover few rural cemeteries here: deaths after the end of the indexes are often only
   known from the family or the USC.
+- **Civil registers that stop in 1916**: for some offices the State Archive in Gdańsk holds the books only up to
+  1916, and then the PomGenBaza index of the office and the photos on Metryki GenBaza stop there too. The books from
+  1917 on are still in the civil registry office that took over the district (often a neighbouring town's USC),
+  and no site has them. Before planning to read a civil record of 1917–1930s, open the unit list of the fonds on
+  Szukaj w Archiwach (`_Zespol_nameofjsp=jednostki`, see [szukajwarchiwach.md](../szukajwarchiwach.md)) and look at
+  the last unit. For those years use the parish indexes in PomGenBaza (marriages and deaths of the 1920s–1940s,
+  deaths with the age), and leave the civil record to a request at the office. (Checked 2026-11.)
+- **Newcomers after the First World War**: a surname that is absent from every index of a parish before 1917 and
+  then appears as a cluster (a wedding, baptisms, adult siblings marrying, an old man dying at 70-odd) marks a
+  family that moved in during or just after the war, often farm workers from the province of Posen or from Congress
+  Poland. Example: no Kowalski in Przykładowo before 1917; from 1919 Jan Kowalski baptises children there, a
+  Kowalska marries, and Franciszek Kowalski dies in 1936 aged 72 — a candidate for Jan's father, recorded as a
+  hypothesis only. Search the man's birth nationwide (Geneteka region by region, BaSIA, FamilySearch, the
+  Verlustlisten in [german-sources.md](../german-sources.md)); a common surname gives several equally good
+  candidates, and only a record that names the birthplace (the marriage, the death) can decide between them.
 - Religion matters: a Protestant family will not be in the Catholic books of the same village, and the
   Protestant parish may be in another place. Exception: the 18th century, below.
 - **Protestant children in Catholic books before about 1775**: in villages of Protestant settlers on Catholic
