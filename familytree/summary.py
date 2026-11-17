@@ -563,7 +563,7 @@ class Summary:
                 row.append(self.item(self.t.place_name(o["place"]), place=o["place"]))
             more.append(self.line("occupation", row, when=o["date"].text() if o["date"] else ", ".join(map(str, o["years"])),
                                   note=o["note"], sources=o["sources"]))
-        ranked = [o for o in occ if o["rank"]]
+        ranked = [o for o in occ if o["rank"] and o["years"]]          # only dated entries tell a change in time
         if len(ranked) >= 2 and ranked[0]["rank"] != ranked[-1]["rank"]:
             a, b = ranked[0], ranked[-1]
             ends = [o["main"] + (f" ({', '.join(map(str, o['years']))})" if o["years"] else "") for o in (a, b)]
