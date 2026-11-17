@@ -14,8 +14,8 @@ from .geneteka import REGIONS, kind_label, page_url
 from .geo import Geo, valid_coords
 from .i18n import tr
 from .schema import (CONFIDENCE, EVENT_KEYS, EVENT_TYPES, EXTRA_EVENT_KEYS, FAMILY_KEYS, LANGUAGES, LIFE_EVENTS,
-                     MARRIAGE_KEYS, NO_PARISH_NEEDED, PARTITIONS, PERSON_KEYS, PLACE_KEYS, PROJECT_KEYS, SEXES,
-                     SOURCE_KEYS, SOURCE_QUALITY, SOURCE_TYPES, event_type_label, place_kind)
+                     MARRIAGE_KEYS, NO_PARISH_NEEDED, PARTITIONS, PERSON_KEYS, PLACE_KEYS, PROJECT_KEYS, QUOTE_KEYS,
+                     SEXES, SIGNATURES, SOURCE_KEYS, SOURCE_QUALITY, SOURCE_TYPES, event_type_label, place_kind)
 
 
 def fold(text: str) -> str:
@@ -70,6 +70,7 @@ FIXES = {
     "cycle": "A person is their own ancestor: check children/parents in families.yaml.",
     "chronology": "Check the dates and ages involved; mark doubtful facts with confidence and notes.",
     "assumed-living": "Set `living: false` if the person has died (even without a date), or add dates.",
+    "bad-quote": "Write the quote as {text: \"one short sentence\", source: S0001}.",
 }
 
 
@@ -196,6 +197,20 @@ class Tree:
         for k in ("age", "husband_age", "wife_age"):
             if ev.get(k) is not None and not isinstance(ev[k], int):
                 self.err("bad-age", ctx, tr("{ctx}.{key}: age must be an integer", ctx=ctx, key=k))
+        self._enum(f"{ctx}.confidence", ev.get("confidence"), CONFIDENCE)
+        for k in ("godparents", "witnesses"):
+            if ev.get(k) is not None and not isinstance(ev[k], (str, list)):
+                self.err("not-a-list", ctx, tr("{ctx}.{key}: expected a list [..]", ctx=ctx, key=k))
+
+    def _quote(self, ctx: str, q) -> None:
+        if not isinstance(q, dict) or not isinstance(q.get("text"), str):
+            self.err("bad-quote", ctx, tr("{ctx}: expected {{text: \"…\", source: S0001}}", ctx=ctx))
+            return
+        self._keys(ctx, q, QUOTE_KEYS)
+        if q.get("source") in self.sources:
+            self._used_sources.add(q["source"])
+        elif q.get("source"):
+            self.err("unknown-source", ctx, tr("{ctx}: unknown source {id}", ctx=ctx, id=q["source"]))
 
     def validate(self) -> None:
         self._keys("project.yaml", self.project, PROJECT_KEYS)
@@ -217,6 +232,10 @@ class Tree:
                     self._enum(f"{pid}.events[{i}].type", e.get("type"), EVENT_TYPES)
                     if not e.get("type"):
                         self.err("missing-event-type", pid, tr("{ctx}: missing type field", ctx=f"{pid}.events[{i}]"))
+                    if e.get("type") == "signature":
+                        self._enum(f"{pid}.events[{i}].value", e.get("value"), SIGNATURES)
+            if "quote" in p:
+                self._quote(f"{pid}.quote", p["quote"])
             for k in ("married_surnames", "variants", "occupation", "todo"):
                 self._list(pid, p, k)
             if len(self.child_of.get(pid, [])) > 1:

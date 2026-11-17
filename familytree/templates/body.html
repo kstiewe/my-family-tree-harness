@@ -310,6 +310,47 @@ const onActivate = (el, fn) => {
   el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } });
 };
 
+// ---- "At a glance": who the person was, where they lived, whom they lived with … (computed in familytree/summary.py)
+
+const CONF = { probable: '⟦probably⟧', hypothesis: '⟦hypothesis⟧' };
+const fnote = (r, refs, link = true) => (r || []).map(n => {         // footnotes; in a <summary> without links
+  const sid = refs[n - 1], x = D.sources[sid] || {};
+  const title = esc([sid, x.title, x.repository, x.signature].filter(Boolean).join(' · '));
+  return x.url && link ? `<a class="fn" href="${esc(x.url)}" target="_blank" rel="noopener" title="${title}">${n}</a>` : `<span class="fn" title="${title}">${n}</span>`;
+}).join('');
+function gItem(it, refs, long) {
+  let t = esc(it.t);
+  if (it.pl && gm?.geomap?.hasPlace?.(it.pl)) t = `<span class="link pl" tabindex="0" role="link" data-pl="${it.pl}" title="⟦Show on the map⟧">${t}</span>`;
+  else if (it.p && D.persons[it.p]) t = `<span class="link" tabindex="0" role="link" data-go="${it.p}">${t}</span>`;
+  const conf = !it.c ? '' : long ? ` <i class="cf">${CONF[it.c]}</i>` : `<i class="cf" title="${CONF[it.c]}">${it.c === 'probable' ? '≈' : '?'}</i>`;
+  return `<span class="gi">${t}${it.y ? ` <span class="yr">${esc(it.y)}</span>` : ''}${conf}${fnote(it.r, refs, long)}</span>`;
+}
+const gShort = (row, refs) => row.items.map(it => it.t === '…' ? '<span class="gi muted">…</span>' : gItem(it, refs)).join(`<span class="sep">${row.sep === '→' ? ' → ' : ' · '}</span>`)
+  + row.tail.map(it => `<span class="sep"> · </span>${gItem(it, refs)}`).join('');
+function gLine(ln, refs) {
+  const items = ln.items.map(it => gItem(it, refs, true)).join(ln.k === 'info' ? '<span class="sep"> · </span>' : ', ');
+  const conf = ln.c ? ` <i class="cf">${CONF[ln.c]}</i>` : '';
+  const note = ln.n ? ` <span class="nt">${esc(ln.n)}</span>` : '';
+  if (ln.k === 'move') return `<li class="g-move"><span class="when"></span><span class="what">${esc(ln.n)}</span></li>`;
+  return `<li class="g-${ln.k}"><span class="when">${esc(ln.y || '')}</span><span class="what">${ln.num ? `<b class="num">${ln.num}.</b> ` : ''}` +
+    `${ln.k === 'marriage' ? '⚭ ' : ln.k === 'link' ? '↳ ' : ''}${items}${conf}${fnote(ln.r, refs)}${note}</span></li>`;
+}
+const gSources = s => s.refs.length ? `<details class="g-src"><summary>⟦Sources⟧ (${s.refs.length})</summary><ol>${s.refs.map(sid => {
+  const x = D.sources[sid] || {}, t = esc([x.title, x.repository, x.signature].filter(Boolean).join(' · ') || sid);
+  return `<li>${x.url ? `<a href="${esc(x.url)}" target="_blank" rel="noopener">${t}</a>` : t} <span class="muted">${sid}</span></li>`;
+}).join('')}</ol></details>` : '';
+const gQuote = s => s.quote ? `<blockquote class="g-quote"><p>${esc(s.quote.t)}</p><footer>${esc(s.quote.by)}${fnote(s.quote.r, s.refs)}</footer></blockquote>` : '';
+
+// One labelled row per question; the short line is the <summary>, the details open under it.
+function glance(p) {
+  const s = p.summary;
+  if (!s) return '';
+  return `<section class="glance" aria-label="⟦At a glance⟧"><h3 class="g-head">⟦At a glance⟧</h3>${s.rows.map(row => `<details class="g-row" data-k="${row.key}">` +
+    `<summary><span class="gl">${esc(row.label)}</span><span class="gs">${gShort(row, s.refs)}</span></summary>` +
+    `${row.more.length ? `<ol class="g-more">${row.more.map(ln => gLine(ln, s.refs)).join('')}</ol>` : ''}</details>`).join('')}` +
+    `${gQuote(s)}${gSources(s)}</section>`;
+}
+
 function select(pid, focus = true, lit = true) {
   selected = pid;
   const p = D.persons[pid];
@@ -317,8 +358,10 @@ function select(pid, focus = true, lit = true) {
   const kek = V.kek[pid] || [];
   let h = `<h2>${esc(p.name)}</h2><div class="badge">${pid}${kek.length ? ' · ⟦no.⟧ ' + kek.join(', ') : ''}` +
     `${p.confidence ? ' · ' + conf[p.confidence] : ''}${p.religion ? ' · ' + esc(p.religion) : ''}${p.living ? ' · ⟦living person⟧' : ''}</div>`;
+  h += glance(p);
   if (!(view === 'anc' && proband === pid)) h += `<button type="button" class="go-anc" data-anc="${pid}">⟦Show the ancestors of this person⟧</button>`;
   if (gm?.geomap?.has(pid)) h += `<button type="button" class="go-anc" data-map="${pid}">⟦Show on the map⟧</button>`;
+  if (p.summary) h += `<button type="button" class="go-anc" data-card="${pid}" title="⟦Save this card as an image (PNG)⟧">⟦Save the card (PNG)⟧</button>`;
   if (p.variants) h += `<div class="muted">⟦Variants:⟧ ${esc(p.variants.join(', '))}</div>`;
   if (p.facts.length || p.occupation) {
     h += '<h3>⟦Facts⟧</h3>' + p.facts.map(f => `<p class="fact"><b>${esc(f.label)}</b> ${esc(f.date)}${f.place ? ', ' + esc(f.place) : ''}` +
@@ -340,8 +383,10 @@ function select(pid, focus = true, lit = true) {
   const det = $('#details');
   det.innerHTML = h; det.scrollTop = 0;
   det.querySelectorAll('[data-go]').forEach(a => onActivate(a, () => select(a.dataset.go)));
+  det.querySelectorAll('[data-pl]').forEach(a => onActivate(a, e => { e?.preventDefault?.(); setPage('map'); gm.geomap.showPlace(a.dataset.pl); }));
   det.querySelector('[data-anc]')?.addEventListener('click', () => setProband(pid, 'anc'));
   det.querySelector('[data-map]')?.addEventListener('click', () => { setPage('map'); gm.geomap.showPerson(pid); });
+  det.querySelector('[data-card]')?.addEventListener('click', e => saveCard(pid, e.currentTarget));
   document.querySelectorAll('#list div').forEach(d => d.classList.toggle('on', d.dataset.pid === pid));
   if (mark(pid, lit) && focus) centerOn(pid, 0.7);
 }
@@ -575,6 +620,23 @@ async function renderPNG() {
   throw new Error('canvas');
 }
 
+const fileName = text => text.replace(/[\\/:*?"<>|\x00-\x1f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 150) + '.png';
+
+async function saveBlob(blob, name) {
+  const dl = await downloads;
+  if (dl) {
+    try { await dl.save({ filename: name, data: blob }); toast('⟦Image saved.⟧'); }
+    catch (e) { toast(e?.code === 'declined' ? '⟦Saving cancelled.⟧' : '⟦Saving files is not available in this view.⟧'); }
+  } else if (window.claude) {
+    toast('⟦Saving files is not available in this view.⟧');
+  } else {
+    const url = URL.createObjectURL(blob), a = Object.assign(document.createElement('a'), { href: url, download: name });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    toast('⟦Image saved.⟧');
+  }
+}
+
 async function savePNG(btn) {
   if (btn.disabled || !Object.keys(V.nodes).length) return;
   btn.disabled = true;
@@ -582,22 +644,107 @@ async function savePNG(btn) {
   try {
     await fontsReady();
     await new Promise(r => requestAnimationFrame(() => setTimeout(r)));
-    const blob = await renderPNG();
-    const name = `${D.title} - ${viewCaption()}`.replace(/[\\/:*?"<>|\x00-\x1f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 150) + '.png';
-    const dl = await downloads;
-    if (dl) {
-      try { await dl.save({ filename: name, data: blob }); toast('⟦Image saved.⟧'); }
-      catch (e) { toast(e?.code === 'declined' ? '⟦Saving cancelled.⟧' : '⟦Saving files is not available in this view.⟧'); }
-    } else if (window.claude) {
-      toast('⟦Saving files is not available in this view.⟧');
-    } else {
-      const url = URL.createObjectURL(blob), a = Object.assign(document.createElement('a'), { href: url, download: name });
-      document.body.append(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
-      toast('⟦Image saved.⟧');
-    }
+    await saveBlob(await renderPNG(), fileName(`${D.title} - ${viewCaption()}`));
   } catch {
     toast('⟦The image could not be created — the tree may be too large for this browser.⟧');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ---- saving a person's card as an image: the name, "At a glance" with every row open, the quote and the sources
+
+function cardLayout(pid) {
+  const p = D.persons[pid], s = p.summary, css = getComputedStyle(document.documentElement);
+  const c = n => css.getPropertyValue('--' + n).trim(), face = n => c('font-' + n);
+  const F = { title: `600 27px ${face('display')}`, sub: `12px ${face('mono')}`, label: `600 10.5px ${face('body')}`,
+    body: `13.5px ${face('body')}`, small: `12.5px ${face('body')}`, mono: `500 11.5px ${face('mono')}`, sup: `600 9px ${face('mono')}`,
+    it: `italic 12px ${face('body')}`, quote: `italic 500 16px ${face('display')}`, foot: `11.5px ${face('body')}` };
+  const W = 720, pad = 34, labelW = 118, gap = 14, whenW = 78, ops = [], meas = document.createElement('canvas').getContext('2d');
+  let y = pad;
+  const run = (t, f = 'body', col = 'text', sup = false) => ({ t, f, col, sup });
+  const refRuns = r => r?.length ? [run(r.join(','), 'sup', 'accent', true)] : [];
+  const itemRuns = (it, f) => [run(it.t, f, it.pl || it.p ? 'accent' : 'text'), ...(it.y ? [run(' ' + it.y, 'mono', 'muted')] : []),
+    ...(it.c ? [run(' ' + CONF[it.c], 'it', 'muted')] : []), ...refRuns(it.r)];
+  function flow(runs, x0, width, lh) {                     // words wrapped to the width; returns nothing, moves y
+    let x = x0;
+    for (const r of runs) for (const w of r.sup ? [r.t] : r.t.split(/(\s+)/).filter(Boolean)) {
+      meas.font = F[r.f];
+      const space = /^\s+$/.test(w), ww = meas.measureText(w).width;
+      if (space && x === x0) continue;
+      if (!space && x > x0 && x + ww > x0 + width) { y += lh; x = x0; }
+      if (!space) ops.push(['t', w, x, y + (r.sup ? -5 : 0), F[r.f], c(r.col)]);
+      x += ww;
+    }
+    y += lh;
+  }
+  const rule = () => { ops.push(['r', pad, y, W - 2 * pad, 1, c('border')]); };
+  ops.push(['r', 0, 0, 6, 0, c({ M: 'male', F: 'female' }[p.sex] || 'unk')]);           // the stripe of the sex, as on the tree cards
+  y += 26; ops.push(['t', p.card.name, pad, y, F.title, c('text')]);
+  y += 22;
+  const nums = (V.kek[pid] || []).length ? ['⟦no.⟧ ' + V.kek[pid].join(', ')] : [];
+  flow([run([p.card.maiden, ...p.life, ...nums].filter(Boolean).join('  ·  '), 'sub', 'muted')], pad, W - 2 * pad, 18);
+  y += 14; ops.push(['t', '⟦At a glance⟧'.toUpperCase(), pad, y, F.label, c('muted'), '.08em']); y += 10;
+  for (const row of s.rows) {
+    rule(); y += 21;
+    const top = y, cx = pad + labelW + gap, cw = W - pad - cx;
+    flow([run(row.label.toUpperCase(), 'label', 'muted')], pad, labelW, 14);
+    const after = y; y = top;
+    flow(row.items.flatMap((it, i) => [...(i ? [run(row.sep === '→' ? ' → ' : ' · ', 'body', 'muted')] : []), ...itemRuns(it, 'body')])
+      .concat(row.tail.flatMap(it => [run(' · ', 'body', 'muted'), ...itemRuns(it, 'body')])), cx, cw, 20);
+    if (row.more.length) y += 4;
+    for (const ln of row.more) {
+      const start = y;
+      if (ln.y) ops.push(['t', ln.y, cx, y, F.mono, c('muted')]);
+      const runs = [...(ln.num ? [run(ln.num + '. ', 'small', 'text')] : []), ...(ln.k === 'marriage' ? [run('⚭ ', 'small')] : ln.k === 'link' ? [run('↳ ', 'small')] : ln.k === 'move' ? [run('↓ ', 'small', 'muted')] : [])];
+      ln.items.forEach((it, i) => runs.push(...(i ? [run(ln.k === 'info' ? ' · ' : ', ', 'small', 'muted')] : []), ...itemRuns(it, ['info', 'end', 'note', 'move', 'divorce'].includes(ln.k) ? 'foot' : 'small')));
+      if (ln.c) runs.push(run(' ' + CONF[ln.c], 'it', 'muted'));
+      runs.push(...refRuns(ln.r));
+      if (ln.n) runs.push(run(' ' + ln.n, 'foot', 'muted'));
+      y = start; flow(runs, cx + whenW, cw - whenW, 18);
+    }
+    y = Math.max(y, after) + 6;
+  }
+  rule();
+  if (s.quote) {
+    y += 30; const top = y - 20;
+    flow([run('„' + s.quote.t + '”', 'quote', 'text')], pad + 18, W - 2 * pad - 18, 23);
+    flow([run(s.quote.by, 'foot', 'muted'), ...refRuns(s.quote.r)], pad + 18, W - 2 * pad - 18, 17);
+    ops.push(['r', pad, top, 3, y - top - 8, c('hl')]);
+  }
+  if (s.refs.length) {
+    y += 22; ops.push(['t', '⟦Sources⟧'.toUpperCase(), pad, y, F.label, c('muted'), '.08em']); y += 18;
+    s.refs.forEach((sid, i) => {
+      const x = D.sources[sid] || {};
+      flow([run(`${i + 1}. `, 'foot', 'muted'), run([x.title, x.repository, x.signature].filter(Boolean).join(' · ') || sid, 'foot', 'text'), run(`  ${sid}`, 'sup', 'muted')], pad, W - 2 * pad, 16);
+    });
+  }
+  y += 16; rule(); y += 20;
+  ops.push(['t', `${D.title} · ${D.generated}`, pad, y, F.foot, c('muted')]);
+  return { W, H: y + pad - 6, ops, bg: c('panel') };
+}
+
+async function saveCard(pid, btn) {
+  if (btn.disabled) return;
+  btn.disabled = true;
+  try {
+    await fontsReady();
+    const { W, H, ops, bg } = cardLayout(pid), s = 2, canvas = document.createElement('canvas');
+    canvas.width = W * s; canvas.height = H * s;
+    const g = canvas.getContext('2d');
+    g.scale(s, s); g.fillStyle = bg; g.fillRect(0, 0, W, H); g.textBaseline = 'alphabetic';
+    for (const [kind, ...a] of ops) {
+      if (kind === 'r') { g.fillStyle = a[4]; g.fillRect(a[0], a[1], a[2], a[3] || H); continue; }
+      const [t, x, y, font, color, spacing] = a;
+      g.font = font; g.fillStyle = color;
+      if ('letterSpacing' in g) g.letterSpacing = spacing || '0px';
+      g.fillText(t, x, y);
+    }
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    if (!blob) throw new Error('canvas');
+    await saveBlob(blob, fileName(`${D.persons[pid].name} - ${D.title}`));
+  } catch {
+    toast('⟦The image could not be created.⟧');
   } finally {
     btn.disabled = false;
   }

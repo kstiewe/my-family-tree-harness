@@ -104,7 +104,7 @@ function prepare(v) {
 // ---- state
 const S = {view: "poland", mode: "both", y0: 0, y1: 0, und: true, anc: false, trl: true, prt: true, k: 1, tx: 0, ty: 0, sel: null};
 const cv = $("cv"), ctx = cv.getContext("2d"), map = $("map");
-let cw = 0, ch = 0, dpr = 1, raf = 0, TOK = {}, LUT = null, started = false, pending = null;
+let cw = 0, ch = 0, dpr = 1, raf = 0, TOK = {}, LUT = null, started = false, pending = null, pendingPlace = null;
 const view = () => VIEWS[S.view];
 const scr = (v, id) => { const [x, y] = v.pts[id]; return [x * S.k + S.tx, y * S.k + S.ty]; };
 
@@ -475,6 +475,7 @@ function start(r) {
   setView(!D.events.length || inPoland * 2 >= D.events.length ? "poland" : "world");
   if (D.events.length) fitCore();
   if (pending) { const pid = pending; pending = null; showPerson(pid); }
+  if (pendingPlace) { const id = pendingPlace; pendingPlace = null; showPlace(id); }
   redraw();
 }
 /** Selects a person (from the tree page): their places on the map, the route between them and their card. */
@@ -487,7 +488,16 @@ function showPerson(pid) {
   if (ids.length && S.view !== want) setView(want);
   fitPlaces(ids, 40); renderSel(); redraw();
 }
-root.geomap = {has: pid => !!D.persons[pid], showPerson};
+/** Selects a place (from a person's card on the tree page): the people recorded there and the place centred. */
+function showPlace(id) {
+  if (!D.places[id]) return;
+  if (!started) { pendingPlace = id; return; }
+  const want = inPL(D.places[id].c) ? "poland" : "world";
+  if (S.view !== want) setView(want);
+  S.sel = {places: new Set([id]), title: null};
+  fitPlaces([id], 25); renderSel(); redraw();
+}
+root.geomap = {has: pid => !!D.persons[pid], showPerson, hasPlace: id => !!D.places[id], showPlace};
 
 readTheme();
 setMode("both");

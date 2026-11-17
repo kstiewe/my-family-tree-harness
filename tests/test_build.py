@@ -22,7 +22,7 @@ class BuildSampleFamily(unittest.TestCase):
         self.assertEqual(code, 0, stdout)
         for name in ("tree.html", "tree-artifact.html", "tree.mmd", "ancestors.mmd", "tree.ged", "gaps.md", "ancestors.md"):
             self.assertTrue((out / name).is_file(), name)
-        self.assertIn("Next free IDs: I0022 F0010 P0007 S0010", stdout)
+        self.assertIn("Next free IDs: I0030 F0013 P0007 S0019", stdout)
         self.assertIn("# Gaps in the data and research suggestions", (out / "gaps.md").read_text())
         self.assertNotIn("⟦", (out / "tree.html").read_text())
 
@@ -41,7 +41,7 @@ class BuildSampleFamily(unittest.TestCase):
         self.assertEqual(code, 0)
         result = json.loads(stdout)
         self.assertTrue(result["ok"])
-        self.assertEqual(result["next_ids"], {"person": "I0022", "family": "F0010", "place": "P0007", "source": "S0010"})
+        self.assertEqual(result["next_ids"], {"person": "I0030", "family": "F0013", "place": "P0007", "source": "S0019"})
         codes = {(w["code"], w["record"]) for w in result["warnings"]}
         self.assertIn(("unused-source", "S0009"), codes)
         self.assertIn(("chronology", "I0013"), codes)

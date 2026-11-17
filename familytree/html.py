@@ -1,6 +1,6 @@
 """Interactive HTML page: a standalone file and a variant without the document skeleton (for hosts
 such as Claude artifacts, which add <html>/<head>/<body> themselves). Besides the tree, the page carries the
-family map (geomap.py) as its "Map" view."""
+family map (geomap.py) as its "Map" view. Each person card opens with "At a glance" (summary.py)."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ from .geomap import component
 from .i18n import fill, language, tr
 from .model import Tree
 from .schema import LIFE_EVENTS, event_label, event_type_label, language_names
+from .summary import person_summary
 
 TEMPLATES = Path(__file__).parent / "templates"
 
@@ -55,6 +56,8 @@ def html_data(tree: Tree, public: bool) -> dict:
                                      "note": e.get("note") or "", "sources": e.get("sources") or []})
             rec.update({k: p.get(k) for k in ("variants", "occupation", "religion", "notes", "confidence") if p.get(k)})
             rec["hints"] = [{"level": h.level, "text": h.text, "details": h.details, "links": h.links} for h in tree.person_hints(pid)]
+            if summary := person_summary(tree, pid, public):
+                rec["summary"] = summary
         persons[pid] = rec
     families = {}
     for fid, f in tree.families.items():

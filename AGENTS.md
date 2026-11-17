@@ -127,6 +127,10 @@ Steps:
 - Women: `surname` = maiden name, surnames after marriage in `married_surnames`.
 - Always record ages from records (`death.age`, `marriage.husband_age` / `wife_age`).
 - Latin, Russian and German forms of names and surnames in `variants`.
+- From every record, also the parents' records in a child's baptism, take into the structure what it says about each
+  person: an `occupation` event (value as written, date, source), a `residence` event (house number in `value`), the
+  cause of death, `godparents`, `witnesses`, a `signature` event (signed / mark). The card's "At a glance" is computed
+  from these fields, not from notes (docs/data-format.md).
 
 ## 6. Commands
 

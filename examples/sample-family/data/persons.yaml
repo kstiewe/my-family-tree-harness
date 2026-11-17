@@ -181,3 +181,83 @@
   given: Marianna
   sex: F
   living: false
+
+# --- generation 5, collateral: Jakub Kowalski, brother of Wojciech — a widower married three times, from
+# farmhand to farmer, who left the home parish late in life (the "At a glance" part of the card shows all this) ---
+
+- id: I0022
+  given: Jakub
+  surname: Kowalski
+  variants: [Jacobus, Якуб Ковальский]
+  sex: M
+  living: false
+  religion: Roman Catholic
+  birth: {date: "1873-05-02", place: P0006, sources: [S0015]}
+  baptism: {date: "1873-05-04", sources: [S0015], godparents: ["Jan Malinowski", "Franciszka Nowak"]}
+  death: {date: "1931-03-03", place: P0004, age: 57, cause: pneumonia, sources: [S0013]}
+  events:
+    - {type: occupation, date: "1893-11-20", place: P0001, value: "parobek (farmhand)", sources: [S0010]}
+    - {type: signature, date: "1893-11-20", value: mark, sources: [S0010], note: "the record says the groom cannot write"}
+    - {type: occupation, date: "1896-03-03", value: komornik, sources: [S0011], note: "at the baptism of his daughter Maria"}
+    - {type: residence, date: "1896-03-03", place: P0001, value: "house no. 12", sources: [S0011]}
+    - {type: occupation, date: "1903-10-04", place: P0003, value: "gospodarz (farmer)", sources: [S0012]}
+    - {type: residence, date: "1903-10-04", place: P0003, value: "house no. 4", sources: [S0012]}
+    - {type: residence, date: "1926", place: P0004, sources: [S0014], note: "moved to Wzorki after the death of his second wife"}
+    - {type: signature, date: "1926-04-11", value: signed, sources: [S0014]}
+    - {type: occupation, date: "1931-03-03", value: wycużnik, sources: [S0013]}
+  quote: {text: "He used to say that the soil in Wzorki was better than in Zmyślin.", source: S0016}
+
+- id: I0023
+  given: Rozalia
+  surname: Nowicka
+  married_surnames: [Kowalska]
+  sex: F
+  living: false
+  death: {date: "1899-02-10", place: P0001, age: 25, cause: puerperal fever, sources: [S0018]}
+
+- id: I0024
+  given: Katarzyna
+  surname: Lis
+  married_surnames: [Kowalska]
+  sex: F
+  living: false
+  death: {date: "1925-01-20", place: P0003, age: 55, sources: [S0013]}
+  notes: "A widow when she married Jakub (S0017); her first husband is not known."
+
+- id: I0025
+  given: Weronika
+  surname: Wzorkowska
+  married_surnames: [Kowalska]
+  sex: F
+  living: false
+  birth: {date: "~1868", sources: [S0016]}
+
+- id: I0026
+  given: Jan
+  surname: Kowalski
+  sex: M
+  living: false
+  birth: {date: "1894-08-15", place: P0001, sources: [S0018]}
+  death: {date: "1894-11-20", place: P0001, sources: [S0018]}
+
+- id: I0027
+  given: Maria
+  surname: Kowalska
+  sex: F
+  living: false
+  birth: {date: "1896-03-03", place: P0001, sources: [S0011]}
+
+- id: I0028
+  given: Józefa
+  surname: Kowalska
+  sex: F
+  living: false
+  birth: {date: "1899-02-05", place: P0001, sources: [S0018]}
+  death: {date: "1899-03-01", place: P0001, sources: [S0018]}
+
+- id: I0029
+  given: Franciszek
+  surname: Kowalski
+  sex: M
+  living: false
+  birth: {date: "1903-10-04", place: P0003, sources: [S0012]}

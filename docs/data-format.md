@@ -50,9 +50,25 @@ that validates the data, so it is always current). Annotated templates are in
 | `sex` | `M`, `F`, `U` |
 | `living` | `true` / `false` (see above) |
 | `religion`, `occupation` (list) | free text |
-| `birth`, `baptism`, `death`, `burial` | event: `{date, place, sources, note, age, cause}` |
-| `events` | list of `{type, date, place, value, note, sources}`; `type`: residence, occupation, emigration, military, census, confirmation, education, other |
+| `birth`, `baptism`, `death`, `burial` | event: `{date, place, sources, note, age, cause, confidence, godparents}` |
+| `events` | list of `{type, date, place, value, note, sources, age, confidence}`; `type`: residence, occupation, emigration, military, census, confirmation, education, signature, other |
+| `quote` | optional `{text, source, note}`: one short sentence the person card shows as a quote |
 | `confidence`, `notes`, `todo` | research state |
+
+All of these are optional; data written before a field existed stays valid.
+
+- **Occupation and standing**: one `occupation` event per record that states it (a child's
+  baptism, a marriage, a death), with its date and source; `value` is the occupation or status as
+  the record writes it (`komornik (Einlieger)`, `gospodarz`, `wycużnik`). The free-text list
+  `occupation` still works; a year written in an entry (`komornik (1889)`) dates it.
+- **Residence**: `value` holds the house number or the address when the record gives one
+  (`house no. 12`).
+- **Signature**: `{type: signature, value: signed}` when the person signed the record, `value: mark`
+  when they made a cross instead (could not write).
+- **godparents** (birth, baptism) and **witnesses** (marriage): names as the record writes them,
+  as text or a list.
+- **confidence** on one event marks that fact alone as `probable` or `hypothesis`; the card then
+  says "probably".
 
 ## families.yaml
 
@@ -91,6 +107,25 @@ online_tree, publication, other), `title`, `parish`, `year`, `act`, `repository`
 (unknown fields, unused sources, chronology: death before birth, a mother aged over 52 at a birth,
 a child born after the father's death, marriage before 14/16 …). `--json` gives each issue a stable
 `code`, the `record` it concerns and a `fix` suggestion.
+
+## "At a glance" on the person card
+
+The card of every person in `tree.html` opens with a short portrait computed from the data only
+(`familytree/summary.py`; nothing is invented). Each row is one line and opens to the details:
+
+| Row | From |
+|---|---|
+| Who they were | occupation events and the `occupation` list in time order (`parobek 1893 → gospodarz 1903`), the rise or fall in standing on the rural ladder (servant, landless, cottager, farmer), the religion |
+| Where they lived | birth, residence/census/emigration events, places of occupation records, the births of the children and the death, in order; consecutive records of one place merged (`1850–1872 Przykładowo`), the distance of each move in km, a click shows the place on the map; a wedding in a parish church is told with the place of residence of its time |
+| Whom they lived with | each marriage: date and place, ages of both, children (and how many died in childhood), how long it lasted and how it ended, how long until the next marriage (`widowed on …; remarried 5 months later`), witnesses |
+| Worth knowing | age at death and its cause (and the age the record gives when it differs), children who died in childhood, ages at the first and the last child, place among the siblings, the longest-lived of a surname line or of the proband's ancestors, the first of a line to leave the home area (≥ 50 km), military service, emigration, signature, godparents, spellings, languages of the records |
+| The times they lived in | the partition of the person's places and the great events of history during the life, with the age (a general list in `familytree/history.py`) |
+
+A quote follows: the person's `quote`, else a sentence of a family account (`type: oral`) or of
+the person's own record that names them. Every item carries footnote numbers of its sources;
+`probable` and `hypothesis` facts are marked. Rows without data are left out. Living persons get
+no summary in `--public` outputs, and there family accounts, informants, and witnesses or
+godparents of records younger than 100 years are left out. The card can be saved as a PNG image.
 
 ## How the research hints are made (gap report)
 
