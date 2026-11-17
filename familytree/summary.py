@@ -109,6 +109,8 @@ def age_text(a: Age) -> str:
     """An age as a phrase: "aged 54", "aged 3 months", "aged 9 days"."""
     if a.years == 0 and a.months is not None:
         return trn("aged {n} month|aged {n} months", a.months) if a.months else trn("aged {n} day|aged {n} days", a.days or 0)
+    if a.years == 0:
+        return tr("under a year old")
     return trn("aged {n}", a.years, n=number(a))
 
 
@@ -792,6 +794,8 @@ class Summary:
             else:
                 text = trn(self.g("He died aged {n} day|He died aged {n} days", "She died aged {n} day|She died aged {n} days",
                                   "Died aged {n} day|Died aged {n} days"), life.days or 0)
+        elif life.years == 0:
+            text = tr(self.g("He died under a year old", "She died under a year old", "Died under a year old"))
         else:
             text = trn(self.g("He lived {n} year|He lived {n} years", "She lived {n} year|She lived {n} years",
                               "Lived {n} year|Lived {n} years"), life.years, n=number(life))

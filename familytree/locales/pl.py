@@ -551,6 +551,10 @@ MESSAGES = {
     "aged {n}": "w wieku {n} roku|w wieku {n} lat|w wieku {n} lat",
     "aged {n} month|aged {n} months": "w wieku {n} miesiąca|w wieku {n} miesięcy|w wieku {n} miesięcy",
     "aged {n} day|aged {n} days": "w wieku {n} dnia|w wieku {n} dni|w wieku {n} dni",
+    "under a year old": "w wieku poniżej roku",
+    "He died under a year old": "Zmarł w wieku poniżej roku",
+    "She died under a year old": "Zmarła w wieku poniżej roku",
+    "Died under a year old": "Zmarł(a) w wieku poniżej roku",
     "the death record gives {n} year|the death record gives {n} years":
         "akt zgonu podaje {n} rok|akt zgonu podaje {n} lata|akt zgonu podaje {n} lat",
     "cause of death: {cause}": "przyczyna zgonu: {cause}",
