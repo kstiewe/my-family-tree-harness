@@ -78,6 +78,9 @@ line of every record instead of every page:
 - **Which line**: a death register — the line "und zeigte an, daß [name of the deceased]"; a marriage — two bands, the groom
   ("1. der …") and the bride ("2. die …"); a birth — the parents' lines ("daß von der … Ehefrau des …"), because the person
   reporting a birth in a town was often the midwife ("die Hebamme …"), not the father.
+- **In village offices the father usually reported the birth himself**, so a band of the reporter line ("der Arbeiter Jan
+  Kowalski, wohnhaft zu …") finds a family quickly; main registers of small offices often hold one record per scan with a
+  constant offset (scan = record number + 2 or 3) within a year.
 - **Left and right pages** of a book are offset differently (binding margin): calibrate the band on one odd and one even
   scan, and on scans of each new book — the image size can differ between offices and years.
 - **Calibrate every year's book anew.** Render four consecutive scans at full width first and read off where the line you

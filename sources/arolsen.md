@@ -14,8 +14,12 @@ persons (DP) after 1945. Free, no account.
 - Two lists: **People** (name, given name, maiden name, place and date of birth) and **Topics**
   (document groups: "Personal file of …", "Tracing and documentation case no. … for …").
   The preview shows 5 people; "Show all search results" opens the full list (25 per page).
+- **In a narrow browser window the People table shows only the name columns**; widen the window
+  (about 1600 px) to see maiden name, place and date of birth. The full list pages by 25 with the
+  arrows under the table. (Checked 2026-11.)
 - Search the surname alone; with two words ("Kowalski Jan") the search is strict and often
-  returns nothing. Polish letters are folded (Kowalska = KOWALSKA), but spelling variants are not:
+  returns nothing. When the surname alone gives hundreds of fuzzy matches, add the given name
+  ("Kowalska Leokadia"): a hit is then reliable, and no hit proves little. Polish letters are folded (Kowalska = KOWALSKA), but spelling variants are not:
   also try the German spelling (Kowalsky, Nowack).
 - **Given names were Germanized** in wartime documents (Wojciech → Adalbert, Jan → Johann,
   Kazimierz → Kasimir, and sometimes a different German name altogether). Match on the date of birth and
@@ -32,6 +36,8 @@ persons (DP) after 1945. Free, no account.
   data under the applicable law) with "I agree". Accepting it is the user's decision: ask before
   ticking it. After that, documents open in a viewer with a "DeepLink"
   (`…/en/document/<DocID>`).
+- The thumbnails on a person's record page (`…/search/person/<id>`) are already the full images: their
+  `img` addresses end in `…/001.jpg`, `…/002.jpg`, so a card can be read without opening the viewer.
 - The images are plain JPEGs on `collections-server.arolsen-archives.org/…/001.jpg`; open one in its
   own tab and enlarge it with a style (`width:2000px; height:auto; max-width:none; position:absolute`)
   to read typed lists.

@@ -13,7 +13,10 @@ The parish decides where the records are. Record it in `places.yaml` (`parish`, 
   "Sprawdzamy, czy nie jesteś botem!" — wait a few seconds. The parish is in the village's entry, or
   the village is listed in the parish's entry — this also lets you rule a parish out.
 - **[Meyers Gazetteer](https://www.meyersgaz.org)**: the German Empire (~1912) with Catholic and
-  Protestant parishes and the civil registry office — the Prussian partition.
+  Protestant parishes and the civil registry office — the Prussian partition. Its names are those of about
+  1912: offices and villages renamed in the 1900s appear under the new German name, so a Standesamt
+  "Neuhof" may be the office the archive catalogues under its old name ("USC Przykładowo Małe"). Find the
+  fonds through an 1870s–1880s record of a neighbouring village, or check the archive's list of offices.
 - **[Polona](https://polona.pl)** and **[FBC](https://fbc.pionier.net.pl)**: place indexes, maps,
   address books.
 - **Mapster** (igrek.amzp.pl): old topographic maps (WIG, German); often unavailable.
