@@ -28,7 +28,9 @@ SIGNATURES = {"signed", "mark"}
 PLACE_KEYS = {"id", "name", "type", "aliases", "parish", "denomination", "partition", "admin", "today",
               "country", "coords", "geneteka_region", "records", "notes"}
 SOURCE_KEYS = {"id", "type", "title", "parish", "year", "act", "repository", "signature", "url", "quality",
-               "accessed", "informant", "language", "transcription", "notes"}
+               "accessed", "informant", "language", "file", "transcription", "notes"}
+# Where the workspace keeps local copies of sources (scans, saved pages); `source.file` points into it.
+SCANS_DIR = "research/skany"
 SEXES = {"M", "F", "U"}
 CONFIDENCE = {"confirmed", "probable", "hypothesis"}
 
@@ -108,6 +110,9 @@ def schema_json() -> dict:
             "event.type=residence": "value = the house number or address, if the record gives one.",
             "event.type=signature": "value = signed (the person signed the record) or mark (made a cross).",
             "person.quote": "optional {text, source, note}: one short sentence the card shows as a quote.",
+            "source.file": "optional: path (or list of paths) relative to the workspace of the local copy of the source, "
+                           f"e.g. {SCANS_DIR}/<archive>/<fonds>/<file>.jpg. The build checks that the file exists and "
+                           "reports sources whose scan is not saved locally.",
         },
         "references": {
             "event.place": "places", "event.sources[]": "sources", "family.husband": "persons",

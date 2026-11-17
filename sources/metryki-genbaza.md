@@ -62,6 +62,16 @@ books, open without a login). (Checked 2026-11.)
   rule above you land on the right spread at once. If the register is absent, read the first lines of every second spread
   (zoom 0.9–1.0, region screenshots) and step forward by the dates.
 
+## Saving a photo (verified 2026-11)
+
+"Pobierz ten skan" fetches `/pobierz/info/skan/<id>` (answer: `{"ok":true,"scans":1,"remaining":N}` — the site allows
+50 downloads a day) and then clicks a link to `/pobierz/skan/<id>`. The `<id>` is the `data-file-id` of that button, and it
+is also in the viewer page's HTML (`podglad/<id>.jpg`), so the ids of several photos can be read with `fetch` of their viewer
+addresses in the signed-in tab. Browsers block the second automatic download that a page triggers, so open
+`/pobierz/skan/<id>` itself in a second tab, a few seconds apart. The file is named
+`_10_<fonds>_0_<unit>_<photo>[_<years>].jpg` (leading underscore, a book's years at the end); drop both so the name is the
+PTG photo number. Look at the image before you attach it to the source: the viewer number is photo + 1.
+
 ## Reading a photo
 
 - The viewer address is `<book folder>/<number>#zoom=<z>&x=<x>&y=<y>`: x and y are the centre of the view as fractions

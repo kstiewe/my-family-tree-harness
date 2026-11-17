@@ -26,6 +26,7 @@ from .html import write_html
 from .i18n import tr
 from .model import FIXES, Tree
 from .reports import mermaid_views, write_ancestors, write_gaps
+from .scans import write_scans
 from .schema import schema_json
 from .workspace import NOT_FOUND, find_workspace
 
@@ -33,7 +34,7 @@ def output_names() -> dict[str, str]:
     """File names of the outputs in the active language, keyed by their English names."""
     return {"tree.html": tr("tree.html"), "tree-artifact.html": tr("tree-artifact.html"), "tree.mmd": tr("tree.mmd"),
             "ancestors.mmd": tr("ancestors.mmd"), "tree.ged": tr("tree.ged"), "gaps.md": tr("gaps.md"),
-            "ancestors.md": tr("ancestors.md"), "map.html": tr("map.html"), "map-artifact.html": tr("map-artifact.html"),
+            "ancestors.md": tr("ancestors.md"), "scans.md": tr("scans.md"), "map.html": tr("map.html"), "map-artifact.html": tr("map-artifact.html"),
             "geography.md": tr("geography.md"), "geography.json": tr("geography.json")}
 
 
@@ -49,6 +50,7 @@ def write_outputs(tree: Tree, out: Path, public: bool) -> dict[str, Path]:
     write_gedcom(tree, names["tree.ged"], public)
     write_gaps(tree, names["gaps.md"])
     write_ancestors(tree, names["ancestors.md"])
+    write_scans(tree, names["scans.md"])
     write_map(tree, geo, names["map.html"])
     write_map(tree, geo, names["map-artifact.html"], artifact=True)
     write_geography(geo, names["geography.md"], names["geography.json"])

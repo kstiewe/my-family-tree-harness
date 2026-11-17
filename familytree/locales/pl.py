@@ -270,6 +270,28 @@ MESSAGES = {
     "tree.ged": "drzewo.ged",
     "gaps.md": "luki.md",
     "ancestors.md": "przodkowie.md",
+    "scans.md": "skany.md",
+    "# Local copies of the sources": "# Lokalne kopie źródeł",
+    "**Rule:** a source that can be checked (a scan, a photo, a page) is saved in `{dir}/` as soon as it is found and "
+    "attached with its `file` field; every new search starts with the local copy.":
+        "**Zasada:** źródło, które można sprawdzić (skan, zdjęcie, strona), zapisujemy w `{dir}/` od razu po "
+        "znalezieniu i podpinamy polem `file`; każde nowe poszukiwanie zaczyna się od kopii lokalnej.",
+    "- sources: {n}": "- źródeł: {n}",
+    "- saved locally: {n}": "- zapisane lokalnie: {n}",
+    "- **missing — to be downloaded: {n}**": "- **brakuje — do pobrania: {n}**",
+    "- index entries or transcriptions (the entry is in the data): {n}":
+        "- wpisy indeksów i transkrypcje (wpis jest w danych): {n}",
+    "- family accounts (no document): {n}": "- relacje rodzinne (bez dokumentu): {n}",
+    "- files in `{dir}/` not attached to any source: {n}": "- pliki w `{dir}/` niepodpięte do żadnego źródła: {n}",
+    "## 1. Missing local copies": "## 1. Brakujące kopie lokalne",
+    "| Source | Title | Where | Persons |": "| Źródło | Tytuł | Gdzie | Osoby |",
+    "## 2. Saved locally": "## 2. Zapisane lokalnie",
+    "| Source | File | Persons |": "| Źródło | Plik | Osoby |",
+    "## 3. Persons and their sources": "## 3. Osoby i ich źródła",
+    "| Person | Saved locally | Missing | Index / transcription | Accounts |":
+        "| Osoba | Zapisane lokalnie | Brakuje | Indeks / transkrypcja | Relacje |",
+    "## 4. Files not attached to any source": "## 4. Pliki niepodpięte do żadnego źródła",
+    "{ctx}: file {path} does not exist in the workspace": "{ctx}: plik {path} nie istnieje w workspace",
 
     # ---- HTML page (templates/*.html, ⟦…⟧ markers)
     "Whole tree": "Całe drzewo",

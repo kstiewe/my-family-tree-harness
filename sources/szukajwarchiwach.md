@@ -99,6 +99,18 @@ line of every record instead of every page:
 "Thomas" can look like "Ijomas": capital T resembles J or G. Compare with letters of known words
 (month names, "geboren", "katholisch") on the same page.
 
+## Saving a scan (verified 2026-11)
+
+The viewer's right-hand panel has "Download" → "Download in jpg"; the file comes from
+`/o/pliki-api/pliki/pobierzplikjpeg/<scan id>`, so a scan can be saved by opening that address in the signed-in
+browser (one scan at a time, a few seconds apart; a repeated request for the same scan may answer 503). The scan id is
+not `first id + scan number − 1` in every unit — ids are consecutive in some units and jump or run backwards in others
+(a Congress-Poland duplicate book, for instance). Read the real id from the unit page: fetch the unit address with the
+page-size parameter `_Jednostka_delta=200` in the browser tab, parse each `.jednostka-skan` element (its text is
+"number id") and look the scan number up. The saved file is named `<archive>_<fonds>_0_-_<unit>_<scan id>.jpg`; rename it
+to `<archive>_<fonds>_0_<unit>_s<scan number>.jpg` so that the name carries the number the signature in the source uses.
+Check one scan per unit against the record before saving the rest.
+
 ## Outages
 
 The search sometimes answers "Portlety jest tymczasowo niedostępny" or "Brak wyników" for everything;

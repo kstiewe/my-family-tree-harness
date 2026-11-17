@@ -99,7 +99,14 @@ the geography context are described in [geography.md](geography.md).
 civil_record, index, census, population_register, family_document, photo, gravestone, oral,
 online_tree, publication, other), `title`, `parish`, `year`, `act`, `repository`, `signature`,
 `url`, `quality` (original, image, transcription, index, derivative, oral), `language`, `accessed`,
-`informant` (oral accounts: who, through whom, when), `transcription`, `notes`.
+`informant` (oral accounts: who, through whom, when), `file`, `transcription`, `notes`.
+
+**Local copies.** `file` is the path (or a list of paths) of the saved copy of the source, relative to the
+workspace and normally under `research/skany/<archive>/<fonds>/` — the scan, a screenshot, a saved page or
+a PDF; an act on two photos lists both. The build fails when a listed file does not exist and writes
+`output/scans.md` (`skany.md`): the sources that are scans, photos or pages without a local copy, the
+sources that have one, per person what is saved and what is not, and files that no source points to.
+Index entries (the transcription in the data is the copy) and family accounts need no file.
 
 ## Validation
 

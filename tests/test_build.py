@@ -95,10 +95,37 @@ class BuildSampleFamily(unittest.TestCase):
         self.assertIn("https://geneteka.genealodzy.pl/index.php?", gaps)
         self.assertIn("`P0006` Bezparafie: missing", gaps)
 
+    def test_scans_report_lists_local_and_missing_copies(self):
+        code, _, out = self.build()
+        self.assertEqual(code, 0)
+        scans = (out / "scans.md").read_text()
+        self.assertIn("# Local copies of the sources", scans)
+        self.assertIn("| `S0003` | `research/skany/fictional-archive/0000-wzorcowo/00_0000_0_00_0001.png` |", scans)
+        missing = scans.split("## 2. Saved locally")[0]
+        self.assertIn("`S0007`", missing)            # a gravestone photo that was never saved
+        self.assertNotIn("`S0003`", missing)
+        self.assertNotIn("`S0001`", missing)         # a family account has no document
+        _, _, pl = self.build("--lang", "pl")
+        self.assertIn("# Lokalne kopie źródeł", (pl / "skany.md").read_text())
+
+    def test_source_file_must_exist_and_stray_files_are_listed(self):
+        ws = tmpdir() / "scans"
+        shutil.copytree(EXAMPLE, ws)
+        (ws / "research" / "skany" / "stray.png").write_bytes(b"x")
+        out = tmpdir()
+        run(build.main, ["--workspace", str(ws), "--out", str(out)])
+        self.assertIn("- `research/skany/stray.png`", (out / "scans.md").read_text())
+        sources = ws / "data" / "sources.yaml"
+        sources.write_text(sources.read_text().replace("00_0000_0_00_0001.png", "00_0000_0_00_9999.png"))
+        code, stdout, _ = run(build.main, ["--workspace", str(ws), "--out", str(tmpdir()), "--json"])
+        self.assertEqual(code, 1)
+        self.assertIn(("missing-scan-file", "S0003"), {(e["code"], e["record"]) for e in json.loads(stdout)["errors"]})
+
     def test_schema(self):
         code, stdout, _ = run(build.main, ["--schema"])
         schema = json.loads(stdout)
         self.assertIn("language", schema["source"])
+        self.assertIn("file", schema["source"])
         self.assertIn("russian", schema["enums"]["partition"])
         self.assertIn("rosyjski", schema["enums"]["partition"])
 

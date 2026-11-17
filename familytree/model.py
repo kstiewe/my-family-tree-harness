@@ -65,6 +65,7 @@ FIXES = {
     "suspicious-coords": "Check the order: [latitude, longitude] (Poland is about [49..55, 14..24]) and the source in notes.",
     "bad-admin": "Write admin entries as {period: \"1867..1918\", value: \"…\"}.",
     "missing-title": "Give the source a title.",
+    "missing-scan-file": "Save the file at that path in the workspace or fix `file` of the source.",
     "unused-source": "Cite the source in some fact's `sources`, or remove it if it was a mistake.",
     "unknown-language": "Use an ISO 639-1 code (pl, la, de, ru, uk …) of the original document.",
     "cycle": "A person is their own ancestor: check children/parents in families.yaml.",
@@ -84,6 +85,7 @@ class Hint:
 
 class Tree:
     def __init__(self, data_dir: Path):
+        self.root = data_dir.parent         # the workspace; `source.file` paths are relative to it
         self.errors: list[Issue] = []
         self.warnings: list[Issue] = []
         self.project = self._load(data_dir / "project.yaml", dict) or {}
@@ -168,6 +170,13 @@ class Tree:
     def _enum(self, ctx: str, value, allowed) -> None:
         if value is not None and value not in allowed:
             self.err("bad-value", ctx, tr("{ctx}: {value!r} — allowed: {allowed}", ctx=ctx, value=value, allowed=", ".join(sorted(allowed))))
+
+    def source_files(self, sid: str) -> list[str]:
+        """Paths (relative to the workspace) of the local copies of a source: `file` is one path or a list."""
+        value = self.sources[sid].get("file")
+        if isinstance(value, str):
+            return [value]
+        return [p for p in value if isinstance(p, str)] if isinstance(value, list) else []
 
     def _list(self, ctx: str, rec: dict, key: str) -> list:
         value = rec.get(key)
@@ -292,6 +301,10 @@ class Tree:
             self._enum(f"{sid}.quality", s.get("quality"), SOURCE_QUALITY)
             if s.get("parish") and s["parish"] not in self.places:
                 self.err("unknown-place", sid, tr("{ctx}: unknown place {id}", ctx=f"{sid}.parish", id=s["parish"]))
+            for path in self.source_files(sid):
+                if not (self.root / path).is_file():
+                    self.err("missing-scan-file", sid, tr("{ctx}: file {path} does not exist in the workspace",
+                                                          ctx=f"{sid}.file", path=path))
             langs = s.get("language")
             for code in (langs if isinstance(langs, list) else [langs] if langs else []):
                 if code not in LANGUAGES:
