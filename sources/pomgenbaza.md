@@ -94,6 +94,19 @@ applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only
   another index (e.g. FamilySearch) may carry a father and a different surname. Compare the record numbers: the two indexes
   may attach the father to neighbouring entries (see [familysearch.md](familysearch.md)).
 
+- **A person under several spellings in one family**: the index keeps each spelling of the record, so the baptisms of
+  one man's nine children read Kowalski, Kowalsky, Kowolski, Kowolsky. A search by the child's surname then finds only
+  some of them. When a baptism is missing, leave the surname empty and give the **father's given name**, the **mother's
+  maiden name** (prefix) and the parish: the row of the person sought appears under whatever form the clerk used.
+  The marriage of the parents is found the same way (`spouseLastName` = the wife's maiden name, surname empty).
+- **The "age" column of a civil death entry may hold a full date of birth** (`12.03.1850.`) instead of years. That date
+  finds the baptism in the parish of the birthplace at once (the late-December act numbers fit a late-December birth) and
+  tells you whether two candidates of the same year can be told apart.
+- **Civil and parish indexes of one death do not always agree.** A death present in the parish index (age only) can be
+  missing from the civil index of the office. Read the civil register itself (see
+  [metryki-genbaza.md](metryki-genbaza.md): alphabetical register at the end of the book) before you conclude that the
+  person died elsewhere.
+
 ## The "Księga" (book) column
 
 - `10/XXXX/0/YY` — the State Archive in Gdańsk (fonds / series / unit): civil registry books, often with

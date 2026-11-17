@@ -71,3 +71,7 @@ cover the State Archive in Gdańsk; for Pomerania see [pomgenbaza.md](pomgenbaza
   occupation ("Beglaubigte Übersetzung aus dem in polnischer Sprache geführten Heiratsregister …"): the content follows the
   Polish original, but names and places are in German forms (Johann, Martha, occupation-era place names). They are often the
   only copy of the 1920s in the archive, because the original register stayed in the civil registry office.
+- **No hit does not mean no record.** The person index covers only the scans that volunteers have indexed. A search for a
+  rare surname can return dozens of unrelated persons and still miss the family's own marriage record, and a search with a
+  village filter can answer "nothing found" although the village's books are online. Search the books by office and year
+  (the "related indexes" of a unit) before you give up.
