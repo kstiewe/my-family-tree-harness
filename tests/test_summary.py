@@ -51,6 +51,22 @@ class SampleSummary(unittest.TestCase):
         who = row(person_summary(Tree(ws / "data"), "I0009"), "who")
         self.assertEqual([it["t"] for it in who["items"]], ["parobek", "robotnik", "gospodarz"])
 
+    def test_a_date_before_or_after_is_a_bound_not_a_year(self):
+        def who(events: str) -> dict:
+            ws = tmpdir() / "bounds"
+            shutil.rmtree(ws, ignore_errors=True)
+            shutil.copytree(EXAMPLE, ws)
+            persons = ws / "data" / "persons.yaml"
+            persons.write_text(persons.read_text().replace("  occupation: [farmer]\n  events:\n", "  events:\n" + events))
+            return row(person_summary(Tree(ws / "data"), "I0009"), "who")
+
+        # the record of a child's wedding calls him "the late labourer": he was one before 1975, not until 1975
+        late = '    - {type: occupation, date: "<1975", value: robotnik, sources: [S0008], note: "the late labourer"}\n'
+        both = who('    - {type: occupation, date: "1930", value: robotnik, sources: [S0008]}\n' + late)
+        self.assertEqual([(it["t"], it["y"]) for it in both["items"]], [("robotnik", "1930")])
+        self.assertEqual([ln["y"] for ln in both["more"]], ["1930", "before 1975"])
+        self.assertEqual([(it["t"], it["y"]) for it in who(late)["items"]], [("robotnik", "before 1975")])
+
     def test_places_of_the_life_merged_with_distances(self):
         where = row(self.jakub, "where")
         self.assertEqual([(it["t"], it.get("y")) for it in where["items"]],

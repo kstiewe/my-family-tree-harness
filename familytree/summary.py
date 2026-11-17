@@ -507,14 +507,16 @@ class Summary:
     def occupations(self) -> list[dict]:
         """Occupations and standing in time order: events of type occupation (each with its date and source) and the
         entries of the free-text `occupation` list, dated by a year written in them. An entry without a date keeps
-        its place after the entry before it; a free-text entry already recorded as an event is left out."""
+        its place after the entry before it; a free-text entry already recorded as an event is left out. A date
+        "before 1928" or "after 1850" is a bound, not a year the occupation was held: it sorts, but gives no years."""
         p, out = self.p, []
         last = START
         for i, e in enumerate(p.get("events") or []):
             if isinstance(e, dict) and e.get("type") == "occupation" and e.get("value"):
                 d = safe_date(e.get("date"))
                 last = _key(d) or last
-                out.append({"key": (last, 0, i), "text": str(e["value"]), "date": d, "years": [d.year] if d else [],
+                years = [d.year] if d and d.kind not in ("before", "after") else []
+                out.append({"key": (last, 0, i), "text": str(e["value"]), "date": d, "years": years,
                             "sources": e.get("sources") or [], "conf": e.get("confidence") or "",
                             "place": e.get("place"), "note": str(e.get("note") or "")})
         recorded = {(self.main_key(o["text"]), y) for o in out for y in o["years"] or [None]}
@@ -556,6 +558,8 @@ class Summary:
         for grp in groups:
             years = sorted({y for o in grp for y in o["years"]})
             when = "" if not years else str(years[0]) if len(years) == 1 else f"{years[0]}–{years[-1]}"
+            if not years and (bound := next((o["date"] for o in grp if o["date"]), None)):
+                when = tr("before {date}" if bound.kind == "before" else "after {date}", date=bound.year)
             items.append(self.item(grp[0]["main"], when=when, sources=[s for o in grp for s in o["sources"]],
                                    conf=grp[0]["conf"] if all(o["conf"] for o in grp) else ""))
         more = []
