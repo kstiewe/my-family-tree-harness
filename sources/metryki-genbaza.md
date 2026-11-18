@@ -61,6 +61,19 @@ books, open without a login). (Checked 2026-11.)
   last page of the folder: it gives the record number of a person the name index of PomGenBaza has missed, and with the
   rule above you land on the right spread at once. If the register is absent, read the first lines of every second spread
   (zoom 0.9–1.0, region screenshots) and step forward by the dates.
+- **Parish duplicates (fonds "…kat_1254"): the index photo can be one too low.** In tabular baptism books of the early 19th century
+  the PomGenBaza photo number of an entry pointed to the double page before the one holding it (index "photo 0102" for record
+  48; the page showed records 25–39, record 48 was on photo 0103). If the record numbers on the page stop short of yours, open
+  the next photo first.
+- **A death missing from the index of the parish seat's office**: villages of one parish often belonged to two or three civil
+  offices. Search the death over the whole database (no parish filter) by given name and surname prefix — the hit names the
+  office whose district held the village (a Jan Kowalski of Przykładowo, parish Wzorcowo, was registered by the office of a
+  neighbouring estate, not by "USC Wzorcowo"). The seat of one office can also move while the fonds stays the same: a year
+  headed "Wzorcowo Stare" and later years headed "Wzorcowo" may sit in one fonds.
+- **An unindexed civil year, found through the parish index.** When the office's year is missing from PomGenBaza but the
+  parish deaths of that year are indexed, line up the parish entries around the one you need with civil records you can
+  recognise (a stillborn child, an infant with a rare name, two children of one family): if parish entry 51 is civil record
+  22 of 3 June, parish entry 54 is record 23 or 24. With two records per double page, one or two photos settle it.
 
 ## Saving a photo (verified 2026-11)
 
@@ -112,6 +125,10 @@ PTG photo number. Look at the image before you attach it to the source: the view
   the margin or across the form. It has no declarant, but the narrative gives the birth date and place, the parents and
   the wife's maiden name. The record is in the register of the office where the person died, not where he lived, and the
   name index of PomGenBaza may lack it although the parish index has the death.
+- **Place names in Latin script inside a Kurrent record**: clerks often wrote the place of birth in Latin letters, and the
+  long s (ſ) in the middle of a word looks like a t or an l — "Kowalſken" read as "Kowaltken" matches no village. Try the
+  reading with s and compare it with the places in the parish's own books: the baptism's godparents "beide aus Kowalsken"
+  settled one such name, and with it the birthplace.
 - **Two men of the same name and age** (a Jan Kowalski aged 48 who died in 1889, another aged 71 who died in 1912): do not
   choose by name and age. Read the record — wife's name, birthplace, occupation, the declarant's relation — and compare it
   with the facts already known (the marriage record said "mason"; the 1889 record said "railway guard" and a wife with

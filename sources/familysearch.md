@@ -42,6 +42,15 @@ by volunteers. Free account; the user signs in. (Checked 2026-11.)
   scans: jump, read the years, jump again. Example: marriages 1850–1925 on 325 images give about four images per year.
 - To read an entry, zoom with the viewer's + button and move with Shift + arrow keys (dragging may not move the image in an
   automated browser), then take region screenshots.
+- **Years missing from every film are lost.** Read the film rows of the parish's catalog entry before hunting a baptism: when
+  every copy says e.g. "births 1740–1818, 1828–1850" and the regional index (PomGenBaza, Geneteka) has the same gap, the
+  book for 1819–1827 is not there to be found. Turn to the civil death record, siblings and godparents instead.
+- **Item image numbers are not film image numbers.** A record page may give "image 61" of folder `00XXXXXXX_002` (the
+  second item on the film) while the viewer counts the whole film (image 340). Open the record's "View original" link
+  rather than typing the number.
+- **Marriage books without parents.** Some Catholic marriage registers of the 1850s list only residence, ages, date and
+  witnesses. The bride's age still matters: 21 at the wedding outweighs "79" at her death 50 years later when the two give
+  different years of birth, and it can move the search for her baptism to other years and other candidates.
 
 ## Searching the index of a collection
 
