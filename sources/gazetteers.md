@@ -28,6 +28,11 @@ Records spell places in German, Polish, Kashubian or by ear, and the same villag
 unrelated German names. A record that writes two forms side by side ("Musterdorf (Przykładowo)") settles
 the identification — note such a record in the place's `notes`.
 
+A German form that sounds like a nearby Polish village may belong to another one: an index's "Schwarzhof, Kreis
+Musterstadt" need not be the look-alike Szwarcowo 10 km away — Meyers may give it as the old name of Czarnylas. Look up
+the indexed form with its county in Meyers Gazetteer (or the FamilySearch catalog entry of the parish) before you
+attach a record to a place.
+
 A place you cannot identify yet: record it with what is known (`notes`: the spelling in the source,
 the candidates) and add a `todo` — the gap report lists places without a parish.
 

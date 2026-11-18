@@ -17,7 +17,12 @@ by volunteers. Free account; the user signs in. (Checked 2026-11.)
   manuscripts in …", a parish archive, a state archive). The same books may be elsewhere. Protestant books of the former German
   eastern provinces are often scanned on Archion ([german-sources.md](german-sources.md)). Catholic books are in the parish
   or the diocesan archive. Duplicate registers may sit in a state archive with scans on [Metryki GenBaza](metryki-genbaza.md).
-- Profiles in the FamilySearch Family Tree are other people's work: a lead (`online_tree`), never a source.
+- Profiles in the FamilySearch Family Tree are other people's work: a lead, never a source. Read the profile (dates, spouse,
+  children, parents) and how many sources are attached to it; a profile with none only tells you what its author believed.
+  Record it as a source of `type: other` with `quality: derivative`, not `online_tree`: the privacy guard treats the host of
+  an `online_tree` source as private (right for a family's own website), and with FamilySearch's host it would flag every
+  mention of the service in the repository. Check each claim in the index before you use it — a profile can join a
+  record's place from a wrongly catalogued film, or give a date found nowhere else.
 
 ## From the catalog to an image
 
