@@ -52,6 +52,21 @@ by volunteers. Free account; the user signs in. (Checked 2026-11.)
 - Indexes make mistakes: one marriage index may give a father's name that the baptism contradicts. Prefer the entry closest
   to the fact (the baptism for the parents, the burial for the death) and record the conflict in `notes`.
 - Negative results count only for the indexed years and places of that collection — note which ones were searched.
+- **The priest's spelling.** The civil registrar and the parish clerk often spelled a surname differently ("Neesler" in the
+  civil birth record, "Nezler" in the baptism), and the fuzzy match ranks such forms low or not at all. When the family
+  surname gives nothing, search the forms a Polish or Latin writer would use (s / z / sz, ee / e, -er / -ar) and check the
+  hit by the parents' names and the date.
+- **All children of a couple in one search**: `q.surname=<family surname>&q.motherSurname=<her maiden name>` (narrow with
+  `q.fatherGivenName`) lists the baptisms and burials of the couple's children in every indexed parish, each row with both
+  parents. Rows with the same mother and another father's given name show either a second couple or an indexing error;
+  note them.
+- **One entry, two indexes.** A register filmed twice (an original and a copy) is indexed twice: the same baptism with the
+  same page numbers, but the two catalog entries may name different places, one of them a namesake village in another
+  county. Compare the page numbers before treating the rows as two events, and take the place that fits the family.
+- **Given names that share a short form.** A mother written "Apolonia" in some entries and "Paulina" in others (both
+  "Pola") may be one woman: Jan Kowalski's children baptised in the same villages and years with mothers "Apolonia Nowak"
+  and "Paulina Nowak". Keep that a hypothesis until a record with both names, the marriage image or a civil record settles
+  it — another couple with the same surnames may live nearby.
 - **West Prussia: the Catholic and Lutheran church books collection, 1537–1981** (in Polish "Niemcy, Prusy, Prusy
   Zachodnie, Zapisy Kościoła katolickiego i luterańskiego"; take its id from a record page, the link "O tej kolekcji" /
   "About this collection") indexes parish books of the province, often with the exact date of a wedding that the
