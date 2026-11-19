@@ -80,6 +80,11 @@ the record number. Reading the index first is much faster than paging through th
   late 1880) — search ±2 years.
 - **Same village name in two counties**: check that the candidate village belongs to the parish named in the
   record (the Słownik geograficzny or the parish entry on Wikipedia).
+- **A "birth date" may be the date of the record**: Congress-Poland birth records were written a few days after the
+  birth, and a later document or a family tree often gives the day the record was drawn up ("akt spisano 11 maja",
+  birth on the 9th). A date that matches the record's own date is strong evidence that it is the right record.
+- **Variant spellings fall out of exact searches**: a Geneteka query with the exact-surname option misses a baptism
+  indexed as "Kowal" for a later "Kowalski". Make the last pass without the exact option and read the rows.
 - **Vertical margin notes** (baptism and godparents written along the margin): turn them with the helper
   `swaRotate` in [szukajwarchiwach.js](../szukajwarchiwach.js) instead of reading them sideways.
 - **An unclear word in a later record** (e.g. a birthplace in an interwar civil record): compare its letters with

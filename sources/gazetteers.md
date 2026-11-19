@@ -33,6 +33,13 @@ Musterstadt" need not be the look-alike Szwarcowo 10 km away — Meyers may give
 the indexed form with its county in Meyers Gazetteer (or the FamilySearch catalog entry of the parish) before you
 attach a record to a place.
 
+The civil registry office (Standesamt) of a village is not always in its parish village: Meyers gives the office of each
+place, and the office may be named after a neighbouring village or estate. Look for the fonds under that name.
+
+A place name copied from a Polish sentence may be a case form: "urodzony w Przykładowie" gives either Przykładowo or
+Przykładów in the nominative. A private tree or a transcript that writes "Przykładowo" may have reconstructed the wrong
+one — look up both before deciding that the village does not exist.
+
 A place you cannot identify yet: record it with what is known (`notes`: the spelling in the source,
 the candidates) and add a `todo` — the gap report lists places without a parish.
 

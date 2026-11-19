@@ -63,6 +63,14 @@ relying on it. (Verified 2026-11.)
   without scans, while the main register is still in the civil registry office.
 - **Duplicate registers (Neben-Register) may have no name index** at the end of the year; one marriage
   record then takes one double-page scan and the book has to be read record by record.
+- **A reconstructed duplicate may be the only scanned copy**: when the main register of a year shows 0 scans, look in the
+  unit list for a "wtóropis [odtworzone]" unit that spans several years. It is often scanned: a Polish printed form, "(–)"
+  where the signatures were, about one record per scan. A marriage of 1892 can be there although its own unit is not.
+- **One office, two descriptions**: an office may be catalogued twice under neighbouring fonds IDs, one with 0 scans and
+  one with scans. Search the office's name and open every hit before you conclude that the books are not online.
+- **The office is not always named after the parish**: the civil registry office of a parish village can sit in a
+  neighbouring village (Meyers Gazetteer gives the Standesamt of each place, see [gazetteers.md](gazetteers.md)); a fonds
+  described as "vacat … włączony do zespołu X" points to the fonds that holds the books of an office that was dissolved.
 
 ## Reading a whole book without an index (verified 2026-11)
 
@@ -110,6 +118,10 @@ page-size parameter `_Jednostka_delta=200` in the browser tab, parse each `.jedn
 "number id") and look the scan number up. The saved file is named `<archive>_<fonds>_0_-_<unit>_<scan id>.jpg`; rename it
 to `<archive>_<fonds>_0_<unit>_s<scan number>.jpg` so that the name carries the number the signature in the source uses.
 Check one scan per unit against the record before saving the rest.
+
+The full-size image is also served without a login from `https://photos.szukajwarchiwach.gov.pl/<hash>_max`; the hash of
+each scan appears in the unit pages (`_Jednostka_cur=N`, 20 scans per page). Several such images can be fetched from the
+shell (`curl`) and read locally, which is faster than the viewer when a whole sequence of records has to be checked.
 
 ## Outages
 

@@ -59,7 +59,12 @@ cover the State Archive in Gdańsk; for Pomerania see [pomgenbaza.md](pomgenbaza
   record, the same address with a larger width (`full/1600,/0/default.jpg`) opened in a tab gives a sharper image than the
   viewer; read single records this way, not whole books.
 - **"Przepraszamy plik niedostępny"** ("file unavailable") can affect a single book for a day or longer while other books
-  load normally. Note the book and the record in the log and retry later; the record is not lost.
+  load normally. Note the book and the record in the log and retry later; the record is not lost. Some scans of such a
+  book may still open: step through them by setting `#modal=<id>` to the next ids (the ids of one book are mostly, not
+  always, consecutive — they can jump by a few). When the viewer hangs on "Wczytywanie miniaturki", look at
+  `performance.getEntriesByType('resource')`: a `/loris/…` request that took about 180 s means the image server is down,
+  not that the query is wrong — note the exact book, year and record numbers in the log and retry another day.
+- **The "(N)" in the viewer's header counts within the year** of the book, not across the whole unit.
 - **Page numbers in brackets** ("…/2.3/1088 (8)") are this site's own numbering; they need not match the scan numbers of
   the same book on [Szukaj w Archiwach](szukajwarchiwach.md), and the indexed name can belong to any person of the record
   (the deceased, a parent, the person reporting). When the scan does not open here, find the record there by reading the
