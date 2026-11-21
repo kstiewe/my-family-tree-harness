@@ -20,6 +20,12 @@ books, open without a login). (Checked 2026-11.)
 - Without that, the user opens the photo and saves it (or a sharp screenshot of the record) into the workspace (e.g. a
   `research/scans/` folder, the file named after the photo number), or pastes it into the chat; the agent reads the image
   from there, transcribes it and records the file name in the source's `notes`.
+- **Terms of use (checked 2026-11, § 4 and § 7 of the site's terms).** Reading the site is allowed, also with tools and AI
+  agents, but pages must open no faster than a person would open them. Serial, automated or systematic downloading of
+  scans, image tiles, indexes or search results is forbidden, and so is using several IP addresses, accounts or sessions at
+  once. The site also reserves text and data mining. In practice: one agent at a time in the user's browser (never several
+  parallel agents on this site), one record at a time at a reading pace, and no batch downloads. A page that shows a notice
+  about automated access is a stop sign: stop using the site and tell the user; continue only if the user decides so.
 - Read every photo of a record in one go: a marriage record usually takes two.
 - The duplicate registers ("Neben-Register") often have no name index — only the cover, the title page and the records.
   Use the complete year list from PomGenBaza instead (see [pomgenbaza.md](pomgenbaza.md)).
@@ -85,6 +91,8 @@ books, open without a login). (Checked 2026-11.)
 
 ## Saving a photo (verified 2026-11)
 
+Download only a single photo the user needs as a local copy, through the site's own button, at a reading pace — never a
+series of photos opened one after another by a script (see the terms above); for more, ask the user to save them.
 "Pobierz ten skan" fetches `/pobierz/info/skan/<id>` (answer: `{"ok":true,"scans":1,"remaining":N}` — the site allows
 50 downloads a day) and then clicks a link to `/pobierz/skan/<id>`. The `<id>` is the `data-file-id` of that button, and it
 is also in the viewer page's HTML (`podglad/<id>.jpg`), so the ids of several photos can be read with `fetch` of their viewer
