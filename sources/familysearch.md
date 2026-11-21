@@ -55,6 +55,16 @@ by volunteers. Free account; the user signs in. (Checked 2026-11.)
   parish books that have no scans anywhere else. The index of such a parish may lack the village; the "Wohnort" (residence)
   column on the image has it. Check a namesake there before accepting the match: Jan Kowalski of Przykładowo, not the Jan
   Kowalski of the next village baptised the same year.
+- **One record type can be filmed far longer than another**: the marriages of Przykładowo may be on film up to 1939 while
+  its baptisms stop in 1890. Read the year range of every film row before searching the index for a baptism after the last
+  filmed year; hits in the parish's marriage index for the 1920s do not mean that the baptisms of those years were filmed.
+  A German place name can also open the catalog entry of a neighbouring parish ("Musterhausen" → Wzorcowo): check which
+  parish an entry really covers.
+- **A record page without an image link** may still name its image folder and number; "Check image availability" then says
+  whether the image is viewable only at a FamilySearch center or affiliate library. Note the folder and the image number
+  ("Anna Kowalska, baptism Musterstadt 1840, DGS 001234567 image 42") for the visit instead of searching the catalog again.
+- **Two indexes of one entry can misread a maiden name in different ways** ("Nowakowna", "Nawakowna", "Howakowna"): search
+  by the father's name and the place, and record every reading as a variant until the image settles it.
 
 ## Searching the index of a collection
 
