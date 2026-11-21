@@ -13,7 +13,10 @@ The parish decides where the records are. Record it in `places.yaml` (`parish`, 
   "Sprawdzamy, czy nie jesteś botem!" — wait a few seconds. The parish is in the village's entry, or
   the village is listed in the parish's entry — this also lets you rule a parish out.
 - **[Meyers Gazetteer](https://www.meyersgaz.org)**: the German Empire (~1912) with Catholic and
-  Protestant parishes and the civil registry office — the Prussian partition.
+  Protestant parishes and the civil registry office — the Prussian partition. Its names are those of about
+  1912: offices and villages renamed in the 1900s appear under the new German name, so a Standesamt
+  "Neuhof" may be the office the archive catalogues under its old name ("USC Przykładowo Małe"). Find the
+  fonds through an 1870s–1880s record of a neighbouring village, or check the archive's list of offices.
 - **[Polona](https://polona.pl)** and **[FBC](https://fbc.pionier.net.pl)**: place indexes, maps,
   address books.
 - **Mapster** (igrek.amzp.pl): old topographic maps (WIG, German); often unavailable.
@@ -24,6 +27,27 @@ The parish decides where the records are. Record it in `places.yaml` (`parish`, 
 Records spell places in German, Polish, Kashubian or by ear, and the same village may appear under two
 unrelated German names. A record that writes two forms side by side ("Musterdorf (Przykładowo)") settles
 the identification — note such a record in the place's `notes`.
+
+A German form that sounds like a nearby Polish village may belong to another one: an index's "Schwarzhof, Kreis
+Musterstadt" need not be the look-alike Szwarcowo 10 km away — Meyers may give it as the old name of Czarnylas. Look up
+the indexed form with its county in Meyers Gazetteer (or the FamilySearch catalog entry of the parish) before you
+attach a record to a place.
+
+The civil registry office (Standesamt) of a village is not always in its parish village: Meyers gives the office of each
+place, and the office may be named after a neighbouring village or estate. Look for the fonds under that name. When the
+archive's description of that fonds lists e.g. deaths "1874–1899, 1910–1938", the years in between are not in the archive
+and not online: order the record from today's civil registry office instead of searching further.
+
+**Every namesake in one district at once**: the search page of Meyers Gazetteer loads one JSON file of all places
+(`all.json`); one of its fields points into a list of "endings" (", Kreis, Regierungsbezirk, Province"). Filtering that file
+by the ending lists every place of a name in one Kreis, e.g. all "Musterhof" in Kreis Musterstadt — the way to tell whether a
+birthplace "Musterhof, Kreis Musterstadt" in a death record is one place or several. The Słownik geograficzny site serves the
+OCR text of each page through the page's "pobierz tekst" link; fetching the pages in the browser finds a cross-reference such
+as "Musterhof … ob. Przykładowo" (see Przykładowo) and then the parish in the entry it points to.
+
+A place name copied from a Polish sentence may be a case form: "urodzony w Przykładowie" gives either Przykładowo or
+Przykładów in the nominative. A private tree or a transcript that writes "Przykładowo" may have reconstructed the wrong
+one — look up both before deciding that the village does not exist.
 
 A place you cannot identify yet: record it with what is known (`notes`: the spelling in the source,
 the candidates) and add a `todo` — the gap report lists places without a parish.

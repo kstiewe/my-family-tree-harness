@@ -13,6 +13,26 @@ hits; each cemetery is a link `/wyszukiwanie?nazw=X&wojewodztwo=Y&cmentarz=…&i
 dostępu z uwagi na duże obciążenie systemu" (blocked because of load) — pause and query less.
 (Verified 2026-11.)
 
+**One cemetery by its id**: `idcmproj=N` from such a link restricts any later query to that cemetery
+(`/wyszukiwanie?nazw=<surname>&wojewodztwo=<voivodeship>&idcmproj=N`), also for a surname that was not in
+the first list. In a tab on grobonet.com the pages can be fetched one after another and the `main article`
+elements read (one person each) — a quick way to check several family surnames in the cemetery where one
+relative is known to lie. (Verified 2026-11.)
+
+**Parish finders on a Grobonet subdomain**: many parishes run their own Grobonet site,
+`https://<parish>.grobonet.com/` (found by a web search for the parish name with "grobonet"). It often
+covers more than grobonet.com: several cemeteries of the parish (old and new), "Ostatnio pochowani"
+(latest burials — shows how current the data are, sometimes up to the last few months), "Nekrologi" and
+an advanced search `/wyszukiwarka/zaawansowana` with separate fields for the day, month and year of birth
+and of death (`dur`, `mur`, `rur`, `dzg`, `mzg`, `rzg`) and a cemetery choice (`cmentarz`, the last
+option = all cemeteries). What works (checked 2026-11): the simple search `/wyszukiwarka/wyniki?id=wyniki&name=<surname or given name>`
+(a given name alone lists everyone of that name); a full date of birth (day + month + year); month +
+year of birth or of death (e.g. everyone born 11.1946, everyone who died 06.2022). Day + month without
+a year and a year alone return nothing, and the death-year field is ignored when a given name is typed.
+Before reading a negative result, count the burials of the year you need month by month: a parish whose
+"latest burials" reach this year may still have only a handful of entries for a year a few years back —
+then that year is filled in only partly and a missing name proves nothing.
+
 ## eCmentarze
 
 `https://www.ecmentarze.pl/wyszukaj-pochowanego/szukaj?name=<given>&surname=<surname>` — the whole
@@ -22,11 +42,57 @@ the row of the grave (persons, dates, cemetery). At most 10 graves per result. C
 (e.g. a military cemetery) list hundreds of names — truncate the row text. Helper:
 [ecmentarze.js](ecmentarze.js). (Verified 2026-11.)
 
+**One cemetery, every grave of a surname**: the cemetery's own search
+`https://www.ecmentarze.pl/cmentarz/<cemetery-slug>/search?mode=search&name=&surname=<surname>` lists all graves of the
+surname there; each grave page shows sector / row / plot (municipal partner data often without dates). Two graves of the
+surname in neighbouring plots of one row (e.g. 5/3/41 and 5/3/42) are often a married couple — a hypothesis to check on
+the gravestone. (Verified 2026-11.)
+
+## Timenote
+
+`https://timenote.info/en/search?q=<surname>` lists everyone of the surname in the service, 20 per page (`&start=N`, up
+to about 100–120 results); the person page gives the cemetery and "section / grave". The list of a cemetery
+(`/en/person/list?cemetery_id=N&start=20*k`) is not sorted by surname, can be incomplete (a burial of the last few years
+may be missing) and usually stops 10–15 years ago. The "near buried" block on a person page is a neighbourhood on the
+map, not the people in the same grave. To find a family grave, collect the grave numbers of everyone of the surname in
+that cemetery: neighbouring numbers (796-797, 801, 802-803) are often relatives.
+
+## Reading grave results
+
+- A search by a woman's given name and her maiden surname returns hundreds of unrelated graves nationwide (eCmentarze,
+  Timenote). Use the married surname, a cemetery filter, or Grobonet with a voivodeship, which at least lists the
+  cemeteries with the number of hits.
+- Municipal cemeteries in eCmentarze often show only sector / row / plot, no dates; Grobonet's cemetery view shows dates
+  or "date unknown", and a shared grave number links spouses. A cemetery inventoried in one service is often missing from
+  the other — try both.
+- Grobonet's `miasto=` returns "0 cemeteries" for a place outside its own list, also for a surname that certainly occurs:
+  test the place with a very common surname before concluding that the cemetery is not in the service. Even then the
+  cemetery may be there under a name `miasto=` does not match: it shows up in the voivodeship-wide list of a surname
+  that has a grave in it (e.g. "Przykładowo, Cmentarz Parafialny (nowy)"), and its `idcmproj` then opens it for any
+  surname (see above). The person page
+  has the gravestone photo — read the inscription there; "Osoby pochowane w tym grobie" lists only the entries typed into
+  the database, not every name on the monument.
+- Burials from about 2012 on are in practically no index (cemetery indexes, parish indexes and the obituary search
+  `nekrolog.pl/nekrologi?q=<surname>` stop earlier). The exception is a parish's own Grobonet site (above), which can
+  be current to the last few months, though often with gaps in single years. For a recent death what is left
+  otherwise is the parish office of the cemetery, a photo of the gravestone, an obituary the family kept and the civil
+  registry office.
+- A parish website rarely helps for a funeral a few years back: many keep only the current weekly announcements and
+  Mass intentions (often as an image), and the archive of posts may start years after the death. Look at the archive
+  months before reading anything. (Checked 2026-11.)
+- A village cemetery beside a town may belong to a family that lived there before moving to the town: check who bore the
+  surname in the records of the cemetery's parish.
+
 ## Others
 
 - PomGenBaza cemetery indexes: see [pomgenbaza.md](pomgenbaza.md).
 - mogily.pl did not open in the agent's browser (2026-11); Find a Grave and BillionGraves rarely have
   Polish rural cemeteries.
+- **Find a Grave holds bulk imports of some big-city municipal cemeteries** (name, exact dates of birth and death,
+  cemetery; no plot, no photo): `https://www.findagrave.com/memorial/search?firstname=<given>&lastname=<surname>`
+  searches worldwide and may find a city burial that Grobonet and eCmentarze lack — then open the city's own finder
+  for the plot and the others in the grave. A BillionGraves result URL with parameters was blocked in the agent's
+  browser (2026-11).
 - When no database covers the cemetery: the family, a photo of the gravestone, or the civil registry office.
 
 ## Municipal cemetery finders (checked 2026-11)
@@ -37,3 +103,7 @@ and the date of burial; parish cemeteries in the same city often have a separate
 surname, given name, optional cemetery, a "Filtruj"/"Szukaj" button and results in a side panel. Useful
 for families who settled in the western and northern territories after 1945. Search the surname alone
 and read the list, then narrow by given name.
+The details of a result ("Pokaż szczegóły rekordu" / "Więcej") often add the **burial date** and "Inne osoby" — the
+others buried in the same grave, with their dates — the quickest way to a spouse; a person born too late to be the
+mother of a known child rules out one candidate couple. Prefix matching ("początek") with the short surname also
+catches the German spelling (Kowalsk… → Kowalski, Kowalsky). (Checked 2026-11.)

@@ -93,6 +93,12 @@ Steps:
 
 - Read the workspace `research/log.md` first so you do not repeat searches, and the workspace's
   own research notes.
+- **Local copy first.** Before opening a source online, look for it in the workspace `research/skany/`
+  (`output/scans.md` lists what is saved and under which source). A source that can be checked — a scan, a
+  photo, a saved page — is downloaded and saved there **as soon as it is found** (where downloads are
+  allowed, see the private instructions), named after the photo or signature, and attached to its source
+  with `file`. The build lists the sources still without a copy; clear that list instead of letting it grow.
+  Layout: `research/skany/<archive or service>/<fonds>/<file>`.
 - Read the guide of the service in `sources/` before using it, and of the region in
   `sources/regions/`. Add what you learn about a service or region there (generic, fictional
   examples) — this is how the toolkit grows. Family-specific findings (which parish IDs you used,
@@ -127,6 +133,10 @@ Steps:
 - Women: `surname` = maiden name, surnames after marriage in `married_surnames`.
 - Always record ages from records (`death.age`, `marriage.husband_age` / `wife_age`).
 - Latin, Russian and German forms of names and surnames in `variants`.
+- From every record, also the parents' records in a child's baptism, take into the structure what it says about each
+  person: an `occupation` event (value as written, date, source), a `residence` event (house number in `value`), the
+  cause of death, `godparents`, `witnesses`, a `signature` event (signed / mark). The card's "At a glance" is computed
+  from these fields, not from notes (docs/data-format.md).
 
 ## 6. Commands
 

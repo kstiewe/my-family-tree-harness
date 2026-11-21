@@ -22,7 +22,7 @@ class BuildSampleFamily(unittest.TestCase):
         self.assertEqual(code, 0, stdout)
         for name in ("tree.html", "tree-artifact.html", "tree.mmd", "ancestors.mmd", "tree.ged", "gaps.md", "ancestors.md"):
             self.assertTrue((out / name).is_file(), name)
-        self.assertIn("Next free IDs: I0022 F0010 P0007 S0010", stdout)
+        self.assertIn("Next free IDs: I0030 F0013 P0007 S0019", stdout)
         self.assertIn("# Gaps in the data and research suggestions", (out / "gaps.md").read_text())
         self.assertNotIn("⟦", (out / "tree.html").read_text())
 
@@ -41,7 +41,7 @@ class BuildSampleFamily(unittest.TestCase):
         self.assertEqual(code, 0)
         result = json.loads(stdout)
         self.assertTrue(result["ok"])
-        self.assertEqual(result["next_ids"], {"person": "I0022", "family": "F0010", "place": "P0007", "source": "S0010"})
+        self.assertEqual(result["next_ids"], {"person": "I0030", "family": "F0013", "place": "P0007", "source": "S0019"})
         codes = {(w["code"], w["record"]) for w in result["warnings"]}
         self.assertIn(("unused-source", "S0009"), codes)
         self.assertIn(("chronology", "I0013"), codes)
@@ -95,10 +95,37 @@ class BuildSampleFamily(unittest.TestCase):
         self.assertIn("https://geneteka.genealodzy.pl/index.php?", gaps)
         self.assertIn("`P0006` Bezparafie: missing", gaps)
 
+    def test_scans_report_lists_local_and_missing_copies(self):
+        code, _, out = self.build()
+        self.assertEqual(code, 0)
+        scans = (out / "scans.md").read_text()
+        self.assertIn("# Local copies of the sources", scans)
+        self.assertIn("| `S0003` | `research/skany/fictional-archive/0000-wzorcowo/00_0000_0_00_0001.png` |", scans)
+        missing = scans.split("## 2. Saved locally")[0]
+        self.assertIn("`S0007`", missing)            # a gravestone photo that was never saved
+        self.assertNotIn("`S0003`", missing)
+        self.assertNotIn("`S0001`", missing)         # a family account has no document
+        _, _, pl = self.build("--lang", "pl")
+        self.assertIn("# Lokalne kopie źródeł", (pl / "skany.md").read_text())
+
+    def test_source_file_must_exist_and_stray_files_are_listed(self):
+        ws = tmpdir() / "scans"
+        shutil.copytree(EXAMPLE, ws)
+        (ws / "research" / "skany" / "stray.png").write_bytes(b"x")
+        out = tmpdir()
+        run(build.main, ["--workspace", str(ws), "--out", str(out)])
+        self.assertIn("- `research/skany/stray.png`", (out / "scans.md").read_text())
+        sources = ws / "data" / "sources.yaml"
+        sources.write_text(sources.read_text().replace("00_0000_0_00_0001.png", "00_0000_0_00_9999.png"))
+        code, stdout, _ = run(build.main, ["--workspace", str(ws), "--out", str(tmpdir()), "--json"])
+        self.assertEqual(code, 1)
+        self.assertIn(("missing-scan-file", "S0003"), {(e["code"], e["record"]) for e in json.loads(stdout)["errors"]})
+
     def test_schema(self):
         code, stdout, _ = run(build.main, ["--schema"])
         schema = json.loads(stdout)
         self.assertIn("language", schema["source"])
+        self.assertIn("file", schema["source"])
         self.assertIn("russian", schema["enums"]["partition"])
         self.assertIn("rosyjski", schema["enums"]["partition"])
 

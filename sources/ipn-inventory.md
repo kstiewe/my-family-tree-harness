@@ -14,6 +14,9 @@ Typical unit titles, each with "imię ojca" (father's name) and "ur." (date of b
 - personnel files of officers and employees: police (MO), security service (UB/SB), prison service
   (SW), volunteer reserve police (ORMO) — with the places of service;
 - **passport files** ("akta paszportowe", 1950s–1980s) — questionnaires with parents and addresses;
+- **seaman's book files** ("akta o wydanie książeczki żeglarskiej", a separate series of the voivodeship internal
+  affairs offices, 1960s–1980s) — one unit per sailor or fisherman, with a photo; the application names the place of
+  birth, the parents and the address (checked 2026-11);
 - court and prosecutor files, investigations, prisoners' files;
 - **proceedings to declare a person dead** ("uznanie za zmarłego", late 1940s–1960s) — the usual way
   missing soldiers, deportees and war victims were declared dead; the file names the person, the
@@ -35,6 +38,10 @@ Typical unit titles, each with "imię ojca" (father's name) and "ur." (date of b
 
 ## Using a hit
 
+- A deceased grandparent born after 1926 is outside every birth index, but a query "Surname Given" here can give
+  the full date of birth and the father's given name (e.g. "Jan Kowalski, imię ojca: Józef, ur. 12-03-1947 r." in a
+  seaman's-book file). The father's given name then picks one of several candidate great-grandfathers found in death
+  indexes and grave finders, and the file itself is the next step for the mother's maiden name.
 - Match on the father's name, the date of birth and the places of service against what the family
   knows. A personnel file of a son can confirm his date of birth and, through its questionnaire and
   CV, give the **mother's maiden name** and sometimes the parents' dates and places of birth — a way
@@ -49,4 +56,10 @@ Typical unit titles, each with "imię ojca" (father's name) and "ur." (date of b
   alive). Search a surname only to find deceased relatives, and do not follow up hits on persons who
   may be living.
 - The catalogue is still growing; no hit does not mean no file.
+- **Is the person in a hit dead?** Before following up a hit on someone born less than 100 years ago, search the given
+  name and surname in grave finders (Find a Grave, a city's municipal finder, see [graves.md](graves.md)): a burial with
+  the **same full date of birth** identifies the person and shows the death. Until then, leave the hit alone.
+- The BIP catalogue (`https://katalog.bip.ipn.gov.pl/szukaj/?LastName=<surname>` — officials and functionaries, with
+  place of birth and both parents) is a separate database. A web search for a full name often lands on BIP entries of
+  other people from the same town; read the name on the page.
 - Titles are typed from the files: dates can be wrong by a day and names can be misspelt.

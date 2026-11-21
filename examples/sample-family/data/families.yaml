@@ -48,4 +48,22 @@
 - id: F0009
   husband: I0020                    # Antoni Kowalski
   wife: I0021                       # Marianna
-  children: [I0015]                 # Wojciech
+  children: [I0015, I0022]          # Wojciech, Jakub
+
+- id: F0010
+  husband: I0022                    # Jakub Kowalski
+  wife: I0023                       # Rozalia Nowicka
+  marriage: {date: "1893-11-20", place: P0002, husband_age: 20, wife_age: 19, sources: [S0010],
+             witnesses: ["Antoni Kowalski, father of the groom", "Józef Nowicki"]}
+  children: [I0026, I0027, I0028]   # Jan, Maria, Józefa
+
+- id: F0011
+  husband: I0022                    # Jakub Kowalski
+  wife: I0024                       # Katarzyna Lis
+  marriage: {date: "1899-07-15", place: P0002, husband_age: 26, wife_age: 30, sources: [S0017]}
+  children: [I0029]                 # Franciszek
+
+- id: F0012
+  husband: I0022                    # Jakub Kowalski
+  wife: I0025                       # Weronika Wzorkowska
+  marriage: {date: "1926-04-11", place: P0004, husband_age: 52, wife_age: 58, sources: [S0014]}

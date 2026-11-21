@@ -133,6 +133,20 @@ Akt Zabużańskich). Abroad: Lviv (CDIAL), Vilnius (LVIA), Minsk (NIAB).
   those surnames in the indexes, and record both versions.
 - An age at marriage outweighs a baptism chosen by name: a groom aged 27 in 1840 is not the boy baptised in 1816, even when
   the parents' names fit. Look for his own earlier baptism — perhaps before his parents' wedding.
+- **Before you accept a baptism chosen by name, follow every namesake**: when two girls of the same name were born in
+  the region within a few years, look for each one's marriage. An index row with ages ("26 and 21") or a later run of
+  children can show that the candidate married someone else. A candidate can also be ruled out by her death as a child in
+  the same parish, at the age that fits her baptism.
+- **A parents' marriage that seems missing**: the bride may have been a widow and married under her first husband's
+  surname. Search her earlier marriage under her maiden name in the parish she came from; the witnesses at her
+  children's weddings may then turn out to be half-siblings.
+- **One marriage, two parish entries**: a couple from two parishes is often entered in both books. The second entry may
+  be the only one with ages or the bride's parish of origin — search both parishes.
+- **Dating an undated parish entry**: when a parish index gives a death without a date, match its neighbouring entries
+  with dated civil records of the same months; the gap shows within a few weeks when the death happened. If the parish
+  belonged to two civil offices and the death is not in one of them, it is in the other.
+- **One declarant in two families**: a son-in-law who reports the deaths of both his parents-in-law in two different
+  years ties the two families together — strong support for the marriage that links them.
 - Online trees can merge two namesakes of similar age: when the age or birthplace in a death record does
   not fit the tree, look for a second person of that name (two August Kowalskis: the tree gives one's
   birth and the other's death and wife). Check every date taken from a tree against a record.

@@ -55,7 +55,7 @@ class Context(unittest.TestCase):
         text = workspace.context_text(workspace.Workspace(EXAMPLE, "test"))
         self.assertIn("Private instructions", text)
         self.assertIn("Wzorcowo parish", text)
-        self.assertIn("next free IDs: I0022", text)
+        self.assertIn("next free IDs: I0030", text)
 
     def test_hook_never_fails(self):
         with env(FAMILYTREE_WORKSPACE=str(tmpdir())):

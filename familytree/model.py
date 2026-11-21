@@ -14,8 +14,8 @@ from .geneteka import REGIONS, kind_label, page_url
 from .geo import Geo, valid_coords
 from .i18n import tr
 from .schema import (CONFIDENCE, EVENT_KEYS, EVENT_TYPES, EXTRA_EVENT_KEYS, FAMILY_KEYS, LANGUAGES, LIFE_EVENTS,
-                     MARRIAGE_KEYS, NO_PARISH_NEEDED, PARTITIONS, PERSON_KEYS, PLACE_KEYS, PROJECT_KEYS, SEXES,
-                     SOURCE_KEYS, SOURCE_QUALITY, SOURCE_TYPES, event_type_label, place_kind)
+                     MARRIAGE_KEYS, NO_PARISH_NEEDED, PARTITIONS, PERSON_KEYS, PLACE_KEYS, PROJECT_KEYS, QUOTE_KEYS,
+                     SEXES, SIGNATURES, SOURCE_KEYS, SOURCE_QUALITY, SOURCE_TYPES, event_type_label, place_kind)
 
 
 def fold(text: str) -> str:
@@ -65,11 +65,13 @@ FIXES = {
     "suspicious-coords": "Check the order: [latitude, longitude] (Poland is about [49..55, 14..24]) and the source in notes.",
     "bad-admin": "Write admin entries as {period: \"1867..1918\", value: \"…\"}.",
     "missing-title": "Give the source a title.",
+    "missing-scan-file": "Save the file at that path in the workspace or fix `file` of the source.",
     "unused-source": "Cite the source in some fact's `sources`, or remove it if it was a mistake.",
     "unknown-language": "Use an ISO 639-1 code (pl, la, de, ru, uk …) of the original document.",
     "cycle": "A person is their own ancestor: check children/parents in families.yaml.",
     "chronology": "Check the dates and ages involved; mark doubtful facts with confidence and notes.",
     "assumed-living": "Set `living: false` if the person has died (even without a date), or add dates.",
+    "bad-quote": "Write the quote as {text: \"one short sentence\", source: S0001}.",
 }
 
 
@@ -83,6 +85,7 @@ class Hint:
 
 class Tree:
     def __init__(self, data_dir: Path):
+        self.root = data_dir.parent         # the workspace; `source.file` paths are relative to it
         self.errors: list[Issue] = []
         self.warnings: list[Issue] = []
         self.project = self._load(data_dir / "project.yaml", dict) or {}
@@ -168,6 +171,13 @@ class Tree:
         if value is not None and value not in allowed:
             self.err("bad-value", ctx, tr("{ctx}: {value!r} — allowed: {allowed}", ctx=ctx, value=value, allowed=", ".join(sorted(allowed))))
 
+    def source_files(self, sid: str) -> list[str]:
+        """Paths (relative to the workspace) of the local copies of a source: `file` is one path or a list."""
+        value = self.sources[sid].get("file")
+        if isinstance(value, str):
+            return [value]
+        return [p for p in value if isinstance(p, str)] if isinstance(value, list) else []
+
     def _list(self, ctx: str, rec: dict, key: str) -> list:
         value = rec.get(key)
         if value is None:
@@ -196,6 +206,20 @@ class Tree:
         for k in ("age", "husband_age", "wife_age"):
             if ev.get(k) is not None and not isinstance(ev[k], int):
                 self.err("bad-age", ctx, tr("{ctx}.{key}: age must be an integer", ctx=ctx, key=k))
+        self._enum(f"{ctx}.confidence", ev.get("confidence"), CONFIDENCE)
+        for k in ("godparents", "witnesses"):
+            if ev.get(k) is not None and not isinstance(ev[k], (str, list)):
+                self.err("not-a-list", ctx, tr("{ctx}.{key}: expected a list [..]", ctx=ctx, key=k))
+
+    def _quote(self, ctx: str, q) -> None:
+        if not isinstance(q, dict) or not isinstance(q.get("text"), str):
+            self.err("bad-quote", ctx, tr("{ctx}: expected {{text: \"…\", source: S0001}}", ctx=ctx))
+            return
+        self._keys(ctx, q, QUOTE_KEYS)
+        if q.get("source") in self.sources:
+            self._used_sources.add(q["source"])
+        elif q.get("source"):
+            self.err("unknown-source", ctx, tr("{ctx}: unknown source {id}", ctx=ctx, id=q["source"]))
 
     def validate(self) -> None:
         self._keys("project.yaml", self.project, PROJECT_KEYS)
@@ -217,6 +241,10 @@ class Tree:
                     self._enum(f"{pid}.events[{i}].type", e.get("type"), EVENT_TYPES)
                     if not e.get("type"):
                         self.err("missing-event-type", pid, tr("{ctx}: missing type field", ctx=f"{pid}.events[{i}]"))
+                    if e.get("type") == "signature":
+                        self._enum(f"{pid}.events[{i}].value", e.get("value"), SIGNATURES)
+            if "quote" in p:
+                self._quote(f"{pid}.quote", p["quote"])
             for k in ("married_surnames", "variants", "occupation", "todo"):
                 self._list(pid, p, k)
             if len(self.child_of.get(pid, [])) > 1:
@@ -273,6 +301,10 @@ class Tree:
             self._enum(f"{sid}.quality", s.get("quality"), SOURCE_QUALITY)
             if s.get("parish") and s["parish"] not in self.places:
                 self.err("unknown-place", sid, tr("{ctx}: unknown place {id}", ctx=f"{sid}.parish", id=s["parish"]))
+            for path in self.source_files(sid):
+                if not (self.root / path).is_file():
+                    self.err("missing-scan-file", sid, tr("{ctx}: file {path} does not exist in the workspace",
+                                                          ctx=f"{sid}.file", path=path))
             langs = s.get("language")
             for code in (langs if isinstance(langs, list) else [langs] if langs else []):
                 if code not in LANGUAGES:

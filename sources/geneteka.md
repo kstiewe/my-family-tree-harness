@@ -76,3 +76,21 @@ the workspace `places.yaml` notes).
 - Check the indexed years with `--parishes` before concluding anything: **no hit often means the
   years are not indexed**, not that there is no record. Some parishes are indexed for a few years
   only; in some regions other databases are much richer (see `sources/regions/`).
+- **Filter the result table from the URL**: `searchtable=<fragment>` (e.g. `&searchtable=Przykładowo`) filters the table
+  on the server by any visible column, such as the parish; `.dataTables_info` then says "filtering from N in total", so
+  hits can be counted without paging. The filter does not cover the "Uwagi" icon. `near=1` needs the ID of a parish of
+  the *same* type (births, marriages or deaths) as the query.
+- **What "Uwagi" holds depends on the parish**: in one parish a 20th-century death carries the full birth date or the
+  maiden name, in another only the age ("8 d", "10 m"). Read two or three rows before building a search on it. In
+  marriages of the German period it may hold the spouses' places of residence in German spelling ("Przykładowo
+  Wzorcowo") — read it even when the parents are missing from the table.
+- **A marriage after 1945, a death after about 2006 or a birth after 1926 is outside most indexes**: a zero for such
+  a record says nothing about whether it exists.
+- In the Prussian partition the German spelling usually has many more entries than the Polish one ("Kowalsky" more
+  often than "Kowalski"); exact mode treats them as different surnames, so run the overview for both.
+- **A given name with no surname**: a query "Johannes" for one parish and five years lists every Johannes baptised there,
+  whatever the surname spelling. A Kowalski family of Przykładowo was indexed only as "Kowalewski", which no prefix search
+  had caught. In some Pomeranian parishes the "Akt" column holds the page number, not the record number.
+- **A calligraphic capital Ł can be indexed as G** ("Gukowski" for Łukowski). When a known surname gives no
+  hit, search the parish for the given name and the year alone and read every surname, or read the register at the end of
+  the year on the scan.

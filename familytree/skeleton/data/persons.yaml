@@ -11,12 +11,16 @@
 #   living: false                     # living persons: true (never searched online, hidden by --public)
 #   religion: Roman Catholic
 #   birth:   {date: "~1850", place: P0001, sources: [S0001], note: "age from the death record"}
-#   baptism: {date: "1850-03-14", place: P0002, sources: [S0001]}
+#   baptism: {date: "1850-03-14", place: P0002, sources: [S0001], godparents: ["Jan Nowak", "Maria Kowalska"]}
 #   death:   {date: "1910-01-05", place: P0001, age: 60, cause: "", sources: [S0002]}
 #   burial:  {date: "1910-01-07", place: P0002}
-#   occupation: [farmer]
-#   events:                           # residence | occupation | emigration | military | census | confirmation | education | other
-#     - {type: residence, date: "1880..1895", place: P0003, note: "from the children's birth records"}
+#   occupation: [farmer]              # free text; better: one occupation event per record (below)
+#   events:                           # residence | occupation | emigration | military | census | confirmation | education | signature | other
+#     - {type: occupation, date: "1875-04-02", value: komornik, sources: [S0003], note: "at the baptism of a son"}
+#     - {type: residence, date: "1875-04-02", place: P0003, value: "house no. 12", sources: [S0003]}
+#     - {type: signature, date: "1872-11-20", value: mark, sources: [S0004]}   # signed | mark (could not write)
+#     - {type: residence, date: "1880..1895", place: P0003, confidence: probable, note: "from the children's birth records"}
+#   quote: {text: "One short sentence for the card.", source: S0005}
 #   confidence: confirmed             # confirmed | probable | hypothesis
 #   notes: |
 #     Free notes.

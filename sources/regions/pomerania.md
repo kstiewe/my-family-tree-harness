@@ -134,3 +134,22 @@ use them.
 - **Parishes change**: the Meyers Gazetteer gives the parishes of about 1912. A parish founded later
   (books starting in the 1890s) did not serve the village decades earlier — check when its books begin and
   look in the older neighbouring parish.
+- **A parish founded after 1945** (a village that became a parish seat in the 1980s) belonged before to a mother parish,
+  and the books of the new parish do not reach back. Find the mother parish in the Meyers "Ecclesiastical" section
+  (about 1912), in the article about the new parish (the priest of the mother parish often bought the plot for the
+  chapel) or in the biography of a local person who was buried "in the old parish". The year a church was built, or the
+  first year of the indexed books, is not the year a parish was founded.
+- **The civil registry office is named after its seat, not after the village**: a forestry or estate seat can give its
+  name to the Standesamt ("Musterwiese" for Przykładowo). Meyers gives the German name of the office; the Polish name has
+  to be matched through a database of former names (ehemalige-ostgebiete.de), and PomGenBaza names the office by its seat
+  in Polish. The children of a family that moved between offices are scattered over several; a query by the mother's
+  maiden name gathers them.
+- **"From Przykładowo" can mean the district** (Kreis): about 1912 a village sometimes belonged to another Kreis than the
+  nearby town, and "from Wzorcowo" in a family account may name the Kreis of that town.
+- **The same wedding twice after 1920**: the parish book and the civil register have different record numbers and often
+  different spellings of the bride's surname; the civil office in which the record stands shows where the couple lived.
+- **Two candidate births with different parents cannot be one pair of brothers**: before accepting "brothers in one town"
+  from two index hits, find the same pair of parents for both.
+- **Address-book and library searches**: the CompGen address-book search answers "No matching entries" also when the town
+  is simply not in its database — check its list of places first. A query such as "address book Przykładowo" in a
+  regional digital library (dLibra) returns mostly press; add "Adressbuch" or the publisher.
