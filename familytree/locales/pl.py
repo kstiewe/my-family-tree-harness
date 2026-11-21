@@ -658,4 +658,163 @@ MESSAGES = {
     "martial law in Poland": "stan wojenny",
     "the end of communist rule in Poland": "koniec rządów komunistycznych w Polsce",
     "Poland joins the European Union": "Polska w Unii Europejskiej",
+
+    # ---- confidence: validation of the new fields (familytree/model.py)
+    '{ctx}: expected {{about: …, note: "…", resolved: true/false}}': '{ctx}: oczekiwano {{about: …, note: "…", resolved: true/false}}',
+    '{ctx}: expected {{namesakes: excluded | possible, note: "…"}}': '{ctx}: oczekiwano {{namesakes: excluded | possible, note: "…"}}',
+    '{ctx}: expected {{score: 0–100, reason: "…"}}': '{ctx}: oczekiwano {{score: 0–100, reason: "…"}}',
+
+    # ---- confidence: scores, "why this score" and what would strengthen it (familytree/confidence.py)
+    "confidence.md": "pewnosc.md",
+    "unsupported": "bez dowodów",
+    "birth record": "akt urodzenia",
+    "baptism record": "akt chrztu",
+    "marriage record": "akt małżeństwa",
+    "death record": "akt zgonu",
+    "burial record": "akt pochówku",
+    "civil register record": "akt stanu cywilnego",
+    "index entry": "wpis w indeksie",
+    "population register": "księga ludności",
+    "family document": "dokument rodzinny",
+    "photo": "zdjęcie",
+    "gravestone": "nagrobek",
+    "family account": "relacja rodzinna",
+    "online tree": "drzewo w internecie",
+    "publication": "publikacja",
+    "source": "źródło",
+    "original source": "źródło oryginalne",
+    "derivative source": "źródło pochodne",
+    "authored source": "źródło autorskie",
+    "direct evidence": "dowód bezpośredni",
+    "indirect evidence": "dowód pośredni",
+    "primary information": "informacja pierwotna",
+    "secondary information": "informacja wtórna",
+    "{evidence}: {type} {source} ({classification}, {information})": "{evidence}: {type} {source} ({classification}, {information})",
+    "from the person's death": "z zapisu zgonu osoby",
+    "from the person's marriage": "z zapisu ślubu osoby",
+    "from the parents' marriage": "ze ślubu rodziców",
+    "from the age in the record": "z wieku podanego w akcie",
+    "names the parents: {names}": "podaje rodziców: {names}",
+    "the transcription does not name the parents": "transkrypcja nie podaje rodziców",
+    "local copy of {source}": "kopia lokalna {source}",
+    "transcription of {source}": "transkrypcja {source}",
+    "marked as the same record": "oznaczone jako ten sam akt",
+    "the same local copy": "ta sama kopia lokalna",
+    "the same parish, year and act, cited for the same event": "ta sama parafia, rok i numer aktu, przy tym samym zdarzeniu",
+    "the entry refers to {source}": "wpis odsyła do {source}",
+    "the same informant": "ten sam informator",
+    "the same record": "ten sam akt",
+    "{source} is the same record as {other} ({why}): counted once": "{source} to ten sam akt co {other} ({why}): liczony raz",
+    "no source cited": "brak cytowanego źródła",
+    "independent corroboration: {evidence}": "niezależne potwierdzenie: {evidence}",
+    "more independent records: {sources}": "kolejne niezależne akty: {sources}",
+    "confirmed needs direct evidence from an original source with primary information":
+        "„potwierdzone” wymaga dowodu bezpośredniego ze źródła oryginalnego z informacją pierwotną",
+    "confirmed needs a second independent record with direct evidence":
+        "„potwierdzone” wymaga drugiego niezależnego aktu z dowodem bezpośrednim",
+    "confirmed needs every conflict resolved": "„potwierdzone” wymaga rozstrzygnięcia każdej sprzeczności",
+    "at most {cap}: {reason}": "najwyżej {cap}: {reason}",
+    "set to {score} by confidence_override: {reason}": "ustawione na {score} przez confidence_override: {reason}",
+    "resolved conflict: {note}": "rozstrzygnięta sprzeczność: {note}",
+    "unresolved conflict: {note}": "nierozstrzygnięta sprzeczność: {note}",
+    "chronology warning, explained by a resolved conflict: {warning}":
+        "ostrzeżenie chronologiczne wyjaśnione rozstrzygniętą sprzecznością: {warning}",
+    "chronology warning: {warning}": "ostrzeżenie chronologiczne: {warning}",
+    "identity: {sources} name the parents": "tożsamość: {sources} podają rodziców",
+    "identity: the ages in {sources} agree with the year of birth": "tożsamość: wiek w {sources} zgadza się z rokiem urodzenia",
+    "identity: namesakes checked and excluded": "tożsamość: imiennicy sprawdzeni i wykluczeni",
+    "identity: a namesake could be the person": "tożsamość: może chodzić o imiennika",
+    "identity: the evidence about the year of birth is contradictory": "tożsamość: dowody co do roku urodzenia są sprzeczne",
+    "identity: born in the parish where the parents married": "tożsamość: urodzony w parafii ślubu rodziców",
+    "identity: born in the parish where the siblings were born": "tożsamość: urodzony w parafii, w której rodziło się rodzeństwo",
+    "the evidence about the year of birth is contradictory": "dowody co do roku urodzenia są sprzeczne",
+    'manual confidence "{label}" of the person': "ręczna pewność osoby: „{label}”",
+    'manual confidence "{label}" of the family {family}': "ręczna pewność rodziny {family}: „{label}”",
+    'the event is marked "{label}"': "zdarzenie oznaczone jako „{label}”",
+    "living person: the link rests on the family's own knowledge and does not lower the path (only a manual label caps it)":
+        "osoba żyjąca: powiązanie opiera się na wiedzy rodziny i nie obniża ścieżki (ogranicza je tylko ręczna etykieta)",
+    "years unknown": "lata nieznane",
+    "usually the bride's parish": "zwykle parafia panny młodej",
+    "View the scan of the record behind the index entry {source} and cite it as a source of its own (quality: image).":
+        "Obejrzyj skan aktu, z którego pochodzi wpis w indeksie {source}, i dodaj go jako osobne źródło (quality: image).",
+    "Save a local copy of {source} (`file`).": "Zapisz kopię lokalną {source} (`file`).",
+    "Resolve the conflict or the chronology warning and record the reasoning (`conflicts`: `resolved: true`, the reasoning in `note`).":
+        "Rozstrzygnij sprzeczność lub ostrzeżenie chronologiczne i zapisz uzasadnienie (`conflicts`: `resolved: true`, "
+        "uzasadnienie w `note`).",
+    "The score is capped at {cap} ({reason}): change the label once the evidence supports more.":
+        "Wynik jest ograniczony do {cap} ({reason}): zmień etykietę, gdy dowody pozwolą na więcej.",
+    "A full copy of the civil birth certificate (USC) names the parents; living persons are never searched online.":
+        "Odpis zupełny aktu urodzenia (USC) podaje rodziców; osób żyjących nigdy nie szukamy w internecie.",
+    "Find the birth or baptism record of {name}: {where}, {years}.": "Znajdź akt urodzenia lub chrztu: {name} — {where}, {years}.",
+    "Find the death or burial record of {name}: {where}, {years}.": "Znajdź akt zgonu lub pochówku: {name} — {where}, {years}.",
+    "Find the marriage record of {name}: {where}, {years}.": "Znajdź akt małżeństwa: {name} — {where}, {years}.",
+    "Transcribe {source} (`transcription`): it shows whether the record names the parents.":
+        "Przepisz {source} (`transcription`): transkrypcja pokaże, czy akt podaje rodziców.",
+    "A second independent record: the marriage record of {name} (it usually names the parents).":
+        "Drugi niezależny akt: akt małżeństwa — {name} (zwykle podaje rodziców).",
+    "A second independent record: the death record of {name} (it often names the parents).":
+        "Drugi niezależny akt: akt zgonu — {name} (często podaje rodziców).",
+    "A second independent record that names the parents: a census, a population register or the civil copy of a record of {name}.":
+        "Drugi niezależny akt z rodzicami: spis ludności, księga ludności albo duplikat cywilny aktu — {name}.",
+    "Check namesakes: other persons named {name} in {where}, {years}; record the result in `identity`.":
+        "Sprawdź imienników: inne osoby o nazwisku i imieniu {name} — {where}, {years}; wynik zapisz w `identity`.",
+    "A second independent record of the marriage: the civil copy (duplicate) of the parish book, or the banns.":
+        "Drugi niezależny zapis ślubu: duplikat cywilny księgi parafialnej albo zapowiedzi.",
+    "A second independent record of the birth: the age in the death or marriage record, or the civil copy next to the parish book.":
+        "Drugi niezależny zapis urodzenia: wiek w akcie zgonu lub małżeństwa albo duplikat cywilny obok księgi parafialnej.",
+    "A second independent record of the death: the burial record, the civil copy or the gravestone.":
+        "Drugi niezależny zapis zgonu: akt pochówku, duplikat cywilny albo nagrobek.",
+
+    # ---- confidence report (confidence.md)
+    "# Confidence of the tree": "# Pewność drzewa",
+    "Scores 0–100 computed from the evidence (docs/confidence.md): **confirmed** ≥ 85 · **probable** 60–84 · "
+    "**hypothesis** 30–59 · **unsupported** < 30. The *link* of a person is the evidence that they are the child of "
+    "their parents and the person in the records; the *path* is the weakest link between the proband and the person. "
+    "A manual `confidence` caps a score; `confidence_override` replaces it.":
+        "Wyniki 0–100 obliczone z dowodów (docs/confidence.md): **potwierdzone** ≥ 85 · **prawdopodobne** 60–84 · "
+        "**hipoteza** 30–59 · **bez dowodów** < 30. *Powiązanie* osoby to dowody, że jest dzieckiem swoich rodziców i "
+        "osobą z aktów; *ścieżka* to najsłabsze powiązanie między probantem a osobą. Ręczne `confidence` ogranicza "
+        "wynik; `confidence_override` go zastępuje.",
+    "- links parent–child: {n} ({counts})": "- powiązania rodzic–dziecko: {n} ({counts})",
+    "- facts (birth, death, marriage): {n} ({counts})": "- fakty (urodzenie, zgon, ślub): {n} ({counts})",
+    "- ancestors of the proband by path: {n} ({counts})": "- przodkowie probanta według ścieżki: {n} ({counts})",
+    "## Ancestors per generation (path from the proband)": "## Przodkowie w pokoleniach (ścieżka od probanta)",
+    "Gen.": "Pok.",
+    "Ancestors": "Przodkowie",
+    "## Weakest links on the line of ancestors": "## Najsłabsze powiązania na linii przodków",
+    "_The lowest-scored links first; a weak link lowers the path of every ancestor above it._":
+        "_Najniżej ocenione powiązania najpierw; słabe powiązanie obniża ścieżkę każdego przodka powyżej._",
+    "- link to the parents: **{score}** · path from the proband to the parents: {path} · ancestors above: {n}":
+        "- powiązanie z rodzicami: **{score}** · ścieżka od probanta do rodziców: {path} · przodków powyżej: {n}",
+    "- why:": "- dlaczego:",
+    "- to strengthen:": "- co by wzmocniło:",
+    "## Facts of the ancestors below probable": "## Fakty przodków poniżej „prawdopodobne”",
+    "## Manual labels that disagree with the evidence": "## Ręczne etykiety niezgodne z dowodami",
+    "_A manual label above the computed band is not backed by the cited sources; one below it may be outdated._":
+        "_Ręczna etykieta powyżej obliczonego przedziału nie ma pokrycia w cytowanych źródłach; poniżej — może być nieaktualna._",
+    '- `{id}` {name}: manual "{label}", computed link {score}': "- `{id}` {name}: ręcznie „{label}”, obliczone powiązanie {score}",
+    "## Other persons (not ancestors)": "## Pozostałe osoby (nie przodkowie)",
+
+    # ---- confidence in the page (templates)
+    "Confidence": "Pewność",
+    "Show only the persons whose weakest link to the proband reaches this confidence (scores computed from the sources)":
+        "Pokaż tylko osoby, których najsłabsze powiązanie z probantem osiąga tę pewność (wyniki obliczone ze źródeł)",
+    "all persons": "wszystkie osoby",
+    "${V.hidden.length} hidden": "ukryte: ${V.hidden.length}",
+    "hidden by the filter": "ukryta przez filtr",
+    "Path from the proband": "Ścieżka od probanta",
+    "Link to the parents": "Powiązanie z rodzicami",
+    "Birth or baptism": "Urodzenie lub chrzest",
+    "Death or burial": "Zgon lub pochówek",
+    "Marriage": "Ślub",
+    "Why this score": "Skąd ten wynik",
+    "To strengthen": "Co by wzmocniło",
+    "no parents in the data": "brak rodziców w danych",
+    "not connected to the proband in this view": "niepowiązana z probantem w tym widoku",
+    "proband": "proband",
+    "path": "ścieżka",
+    "link": "powiązanie",
+    "Hidden by the confidence filter: the weakest link from the proband is ${path ?? '—'}, the filter needs ${minConf}.":
+        "Ukryta przez filtr pewności: najsłabsze powiązanie od probanta to ${path ?? '—'}, filtr wymaga ${minConf}.",
+    "confidence ≥ ${band[2]} (${minConf})": "pewność ≥ ${band[2]} (${minConf})",
 }

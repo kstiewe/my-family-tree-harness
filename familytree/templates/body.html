@@ -13,8 +13,12 @@
     <label class="chk" title="⟦Unticked: also the siblings of the ancestors (with spouses) and the proband's descendants⟧"><input type="checkbox" id="pb-only" checked> ⟦only ancestors⟧</label>
   </div>
   <input type="search" class="tree-only" id="q" placeholder="⟦Search for a person…⟧" aria-label="⟦Search for a person⟧">
+  <div class="cfsel tree-only" title="⟦Show only the persons whose weakest link to the proband reaches this confidence (scores computed from the sources)⟧">
+    <label for="cf">⟦Confidence⟧</label><select id="cf"></select><span class="muted" id="cf-n" role="status" hidden></span>
+  </div>
   <div class="muted legend tree-only">
     <span><i class="sw line"></i>⟦direct line of the proband⟧</span><span><i class="sw"></i>⟦collateral relatives⟧</span><span><i class="sw hyp"></i>⟦hypothesis⟧</span>
+    <span id="cf-leg"></span>
     <span>⟦≈ probable · number in the corner = Kekule number · * birth · † death · ⚭ marriage · click a person to highlight their line⟧</span>
   </div>
 </header>
@@ -62,14 +66,20 @@ $('#stats').textContent = `⟦${ids.length} persons · ${Object.keys(D.sources).
 const G = TreeLayout.graph(D), layouts = {};
 const PREFS = 'familytree:' + D.title;
 const prefs = (() => { try { return JSON.parse(localStorage.getItem(PREFS)) || {}; } catch { return {}; } })();
-const savePrefs = () => { try { localStorage.setItem(PREFS, JSON.stringify({ view, proband, onlyAnc })); } catch {} };
+const savePrefs = () => { try { localStorage.setItem(PREFS, JSON.stringify({ view, proband, onlyAnc, minConf })); } catch {} };
 let proband = D.persons[prefs.proband] ? prefs.proband : D.proband, onlyAnc = prefs.onlyAnc ?? true;
 if (prefs.view === 'anc') view = 'anc';
 
+// ---- confidence: named thresholds (familytree/confidence.py), the filter by the path from the proband
+const BANDS = D.confidence.bands;                                    // [[key, lowest score, label], …], the highest first
+const bandOf = s => s == null ? null : BANDS.find(b => s >= b[1]);
+let minConf = BANDS.some(b => b[1] === prefs.minConf) ? prefs.minConf : 0;
+
 function currentLayout() {
-  const pb = view === 'anc' ? proband : D.proband, mode = view !== 'anc' ? 'all' : onlyAnc ? 'anc' : 'kin', key = `${mode}:${pb}`;
-  return layouts[key] ??= TreeLayout.build(D, G, pb, mode);
+  const pb = view === 'anc' ? proband : D.proband, mode = view !== 'anc' ? 'all' : onlyAnc ? 'anc' : 'kin', key = `${mode}:${pb}:${minConf}`;
+  return layouts[key] ??= TreeLayout.build(D, G, pb, mode, minConf);
 }
+const hiddenByFilter = pid => !!V && minConf > 0 && V.hidden.includes(pid);
 
 // ---- cards and drawing a view
 
@@ -78,10 +88,15 @@ function cardText(pid) {
   return [p.card.name + (p.card.maiden ? ' ' + p.card.maiden : ''), ...p.life].join('\n');
 }
 
+function bandDot(pid) {
+  const s = V.path[pid], b = bandOf(s);
+  return b ? `<i class="cb b-${b[0]}" title="⟦Path from the proband⟧: ${s} · ${esc(b[2])}"></i>` : '';
+}
+
 function cardHTML(pid) {
   const p = D.persons[pid], c = p.card;
   const conf = c.conf === 'probable' ? '<i title="⟦probable⟧">≈</i> ' : c.conf === 'hypothesis' ? '<i title="⟦hypothesis⟧">?</i> ' : '';
-  return `<span class="kn">${conf}${esc((V.kek[pid] || []).slice(0, 2).join(', '))}</span><span class="nm">${esc(c.name)}</span>` +
+  return `<span class="kn">${bandDot(pid)}${conf}${esc((V.kek[pid] || []).slice(0, 2).join(', '))}</span><span class="nm">${esc(c.name)}</span>` +
     (c.maiden ? `<span class="md">${esc(c.maiden)}</span>` : '') + p.life.slice(0, 2).map(l => `<span class="lf">${esc(l)}</span>`).join('');
 }
 
@@ -91,6 +106,10 @@ function draw() {
   $('#pb').hidden = view !== 'anc';
   $('#pb-q').value = proband && D.persons[proband] ? D.persons[proband].name : '';
   $('#pb-only').checked = onlyAnc;
+  $('#cf').value = String(minConf);
+  $('#cf-n').hidden = !minConf;
+  $('#cf-n').textContent = `⟦${V.hidden.length} hidden⟧`;
+  renderList();
   world.querySelectorAll('.card, .pill').forEach(n => n.remove());
   chart.querySelector('.empty')?.remove();
   lines.innerHTML = bandsEl.innerHTML = labelsEl.innerHTML = '';
@@ -118,7 +137,8 @@ function draw() {
     b.className = `card ${p.sex}${V.kek[pid] ? ' line' : ''}${p.card.conf === 'hypothesis' ? ' hyp' : ''}${pid === V.proband ? ' me' : ''}`;
     Object.assign(b.style, { left: x + 'px', top: y + 'px', width: cw + 'px', height: ch + 'px' });
     b.innerHTML = cardHTML(pid);
-    b.title = cardText(pid); b.setAttribute('aria-label', cardText(pid).replace(/\n/g, ', '));
+    const band = bandOf(V.path[pid]), cfText = band ? `\n⟦Path from the proband⟧: ${V.path[pid]} · ${band[2]}` : '';
+    b.title = cardText(pid) + cfText; b.setAttribute('aria-label', (cardText(pid) + cfText).replace(/\n/g, ', '));
     frag.append(b);
   }
   for (const f of V.fams) if (f.pill) {
@@ -351,6 +371,32 @@ function glance(p) {
     `${gQuote(s)}${gSources(s)}</section>`;
 }
 
+// ---- confidence on the card: the score and band of the path, the link and the facts, each with "why" and what would
+// strengthen it (computed in familytree/confidence.py); source IDs in the texts become links to the sources
+
+const chip = s => { const b = bandOf(s); return b ? `<span class="cfb b-${b[0]}">${s} · ${esc(b[2])}</span>` : '<span class="muted">—</span>'; };
+const withSources = t => esc(t).replace(/\bS\d{4,}\b/g, sid => D.sources[sid] ? srcs([sid]) : sid).replace(/`([^`]+)`/g, '<code>$1</code>');
+const points = n => n == null ? '' : n > 0 ? '+' + n : n < 0 ? '−' + -n : '±0';
+function why(sc, label) {
+  if (!sc) return '';
+  return `<details class="cf-row"><summary><span class="cf-k">${label}</span>${chip(sc.s)}</summary>` +
+    `<p class="cf-h">⟦Why this score⟧</p><ul class="cf-why">${sc.w.map(([n, t]) => `<li><b class="pt">${points(n)}</b><span>${withSources(t)}</span></li>`).join('')}</ul>` +
+    (sc.t.length ? `<p class="cf-h">⟦To strengthen⟧</p><ul class="cf-tips">${sc.t.map(t => `<li>${withSources(t)}</li>`).join('')}</ul>` : '') + '</details>';
+}
+function confHTML(pid) {
+  const p = D.persons[pid], x = p.cf?.x;
+  if (!x) return '';
+  const path = V.path[pid];
+  let h = `<section class="conf" aria-label="⟦Confidence⟧"><h3>⟦Confidence⟧</h3>`;
+  if (hiddenByFilter(pid)) h += `<p class="cf-off">⟦Hidden by the confidence filter: the weakest link from the proband is ${path ?? '—'}, the filter needs ${minConf}.⟧</p>`;
+  h += `<div class="cf-row"><span class="cf-k">⟦Path from the proband⟧</span>${pid === V.proband ? chip(100) + ' <span class="muted">⟦proband⟧</span>'
+    : path == null ? '<span class="muted">⟦not connected to the proband in this view⟧</span>' : chip(path)}</div>`;
+  h += x.link ? why(x.link, '⟦Link to the parents⟧') : `<div class="cf-row"><span class="cf-k">⟦Link to the parents⟧</span><span class="muted">⟦no parents in the data⟧</span></div>`;
+  h += why(x.birth, '⟦Birth or baptism⟧') + why(x.death, '⟦Death or burial⟧');
+  for (const f of p.families) if (D.families[f.id]?.x) h += why(D.families[f.id].x, `⟦Marriage⟧${f.spouse && D.persons[f.spouse] ? ' · ' + esc(D.persons[f.spouse].name) : ''}`);
+  return h + '</section>';
+}
+
 function select(pid, focus = true, lit = true) {
   selected = pid;
   const p = D.persons[pid];
@@ -358,11 +404,14 @@ function select(pid, focus = true, lit = true) {
   const kek = V.kek[pid] || [];
   let h = `<h2>${esc(p.name)}</h2><div class="badge">${pid}${kek.length ? ' · ⟦no.⟧ ' + kek.join(', ') : ''}` +
     `${p.confidence ? ' · ' + conf[p.confidence] : ''}${p.religion ? ' · ' + esc(p.religion) : ''}${p.living ? ' · ⟦living person⟧' : ''}</div>`;
+  if (p.cf?.x?.link || V.path[pid] != null) h += `<div class="cf-sum">${V.path[pid] != null ? `<span>⟦path⟧ ${chip(V.path[pid])}</span>` : ''}` +
+    `${p.cf?.x?.link ? `<span>⟦link⟧ ${chip(p.cf.x.link.s)}</span>` : ''}</div>`;
   h += glance(p);
   if (!(view === 'anc' && proband === pid)) h += `<button type="button" class="go-anc" data-anc="${pid}">⟦Show the ancestors of this person⟧</button>`;
   if (gm?.geomap?.has(pid)) h += `<button type="button" class="go-anc" data-map="${pid}">⟦Show on the map⟧</button>`;
   if (p.summary) h += `<button type="button" class="go-anc" data-card="${pid}" title="⟦Save this card as an image (PNG)⟧">⟦Save the card (PNG)⟧</button>`;
   if (p.variants) h += `<div class="muted">⟦Variants:⟧ ${esc(p.variants.join(', '))}</div>`;
+  h += confHTML(pid);
   if (p.facts.length || p.occupation) {
     h += '<h3>⟦Facts⟧</h3>' + p.facts.map(f => `<p class="fact"><b>${esc(f.label)}</b> ${esc(f.date)}${f.place ? ', ' + esc(f.place) : ''}` +
       `${f.note ? ` <span class="muted">(${esc(f.note)})</span>` : ''}${srcs(f.sources)}</p>`).join('');
@@ -396,8 +445,13 @@ function renderList() {
   const rows = ids.filter(id => !q || fold(D.persons[id].name + ' ' + (D.persons[id].variants || []).join(' ')).includes(q))
     .sort((a, b) => D.persons[a].name.localeCompare(D.persons[b].name, '__LANG__'));
   const list = $('#list');
-  list.innerHTML = rows.map(id => `<div data-pid="${id}" tabindex="0" role="button"><span>${esc(D.persons[id].name)}</span><span class="muted">${esc(D.persons[id].life.join(' '))}</span></div>`).join('')
-    || '<p class="muted" style="padding:0 16px">⟦No results.⟧</p>';
+  list.innerHTML = rows.map(id => {
+    const off = hiddenByFilter(id);
+    return `<div data-pid="${id}" tabindex="0" role="button"${off ? ' class="off"' : ''}><span>${esc(D.persons[id].name)}` +
+      `${off ? ' <i class="cf-tag">⟦hidden by the filter⟧</i>' : ''}</span><span class="muted">${esc(D.persons[id].life.join(' '))}</span></div>`;
+  }).join('') || '<p class="muted" style="padding:0 16px">⟦No results.⟧</p>';
+  list.querySelectorAll('div.on').forEach(d => d.classList.remove('on'));
+  if (selected) list.querySelector(`div[data-pid="${selected}"]`)?.classList.add('on');
   list.querySelectorAll('div[data-pid]').forEach(d => onActivate(d, () => select(d.dataset.pid)));
 }
 
@@ -431,6 +485,17 @@ $('#views').addEventListener('click', e => {
   if (b) setView(b.dataset.view);
 });
 $('#q').addEventListener('input', renderList);
+
+// the confidence filter: all persons, or a named threshold of the path from the proband (the ones above it too)
+$('#cf').innerHTML = '<option value="0">⟦all persons⟧</option>' + BANDS.filter(b => b[1] > 0).reverse()
+  .map(b => `<option value="${b[1]}">≥ ${esc(b[2])} (${b[1]})</option>`).join('');
+$('#cf').addEventListener('change', e => {
+  minConf = +e.target.value;
+  savePrefs();
+  draw();
+  if (selected) select(selected, false, chart.classList.contains('focus'));
+});
+$('#cf-leg').innerHTML = BANDS.map(b => `<span class="cf-l"><i class="cb b-${b[0]}"></i>${esc(b[2])}${b[1] ? ' ≥' + b[1] : ''}</span>`).join('');
 
 // ---- picking the proband: a text field that filters a list of every person (arrows, Enter, Esc)
 
@@ -494,9 +559,10 @@ function toast(text, ms = 4000) {
 }
 
 function viewCaption() {
-  const name = V.proband ? D.persons[V.proband].name : '';
-  if (view === 'anc') return onlyAnc ? `⟦Ancestors of ${name}⟧` : `⟦Ancestors of ${name} with their siblings⟧`;
-  return '⟦Whole tree⟧';
+  const name = V.proband ? D.persons[V.proband].name : '', band = BANDS.find(b => b[1] === minConf);
+  const filter = minConf && band ? ` · ⟦confidence ≥ ${band[2]} (${minConf})⟧` : '';
+  if (view === 'anc') return (onlyAnc ? `⟦Ancestors of ${name}⟧` : `⟦Ancestors of ${name} with their siblings⟧`) + filter;
+  return '⟦Whole tree⟧' + filter;
 }
 
 async function fontsReady() {
@@ -577,7 +643,10 @@ function paintView(g, W, H, head) {
     const nums = (V.kek[pid] || []).slice(0, 2).join(', '), mark = { probable: '≈', hypothesis: '?' }[p.card.conf] || '';
     g.fillStyle = c('muted'); g.textAlign = 'right';
     font('500 10.5px', 'mono'); g.fillText(nums, x + cw - 8, y + 11.5);
-    if (mark) { const w = nums ? g.measureText(nums).width + 4 : 0; font('600 10.5px', 'mono'); g.fillText(mark, x + cw - 8 - w, y + 11.5); }
+    let right = x + cw - 8 - (nums ? g.measureText(nums).width + 4 : 0);
+    if (mark) { font('600 10.5px', 'mono'); g.fillText(mark, right, y + 11.5); right -= g.measureText(mark).width + 4; }
+    const band = bandOf(V.path[pid]);                // the band of the path from the proband, as the dot on the card
+    if (band) { g.fillStyle = c('cf-' + band[0]); g.beginPath(); g.arc(right - 4, y + 11, 4, 0, 2 * Math.PI); g.fill(); }
     g.textAlign = 'left';
   }
   font('500 10.5px', 'mono'); g.textAlign = 'center';

@@ -13,9 +13,11 @@ from .dates import TODAY, Date, Window, parse_date, safe_date, search_range, sor
 from .geneteka import REGIONS, kind_label, page_url
 from .geo import Geo, valid_coords
 from .i18n import tr
-from .schema import (CONFIDENCE, EVENT_KEYS, EVENT_TYPES, EXTRA_EVENT_KEYS, FAMILY_KEYS, LANGUAGES, LIFE_EVENTS,
-                     MARRIAGE_KEYS, NO_PARISH_NEEDED, PARTITIONS, PERSON_KEYS, PLACE_KEYS, PROJECT_KEYS, QUOTE_KEYS,
-                     SEXES, SIGNATURES, SOURCE_KEYS, SOURCE_QUALITY, SOURCE_TYPES, event_type_label, place_kind)
+from .schema import (CONFIDENCE, CONFLICT_KEYS, EVENT_KEYS, EVENT_TYPES, EVIDENCE, EXTRA_EVENT_KEYS, FAMILY_CONFLICT_ABOUT,
+                     FAMILY_KEYS, FAMILY_OVERRIDE_ABOUT, IDENTITY_KEYS, INFORMATION, LANGUAGES, LIFE_EVENTS, MARRIAGE_KEYS,
+                     NAMESAKES, NO_PARISH_NEEDED, OVERRIDE_KEYS, PARTITIONS, PERSON_CONFLICT_ABOUT, PERSON_KEYS,
+                     PERSON_OVERRIDE_ABOUT, PLACE_KEYS, PROJECT_KEYS, QUOTE_KEYS, SEXES, SIGNATURES, SOURCE_CLASSES,
+                     SOURCE_KEYS, SOURCE_QUALITY, SOURCE_TYPES, event_type_label, place_kind)
 
 
 def fold(text: str) -> str:
@@ -72,6 +74,9 @@ FIXES = {
     "chronology": "Check the dates and ages involved; mark doubtful facts with confidence and notes.",
     "assumed-living": "Set `living: false` if the person has died (even without a date), or add dates.",
     "bad-quote": "Write the quote as {text: \"one short sentence\", source: S0001}.",
+    "bad-conflict": "Write each conflict as {about: birth, note: \"what disagrees\", resolved: false, sources: [S0001]}.",
+    "bad-override": "Write confidence_override as {score: 0-100, reason: \"why the computed score is wrong\"}.",
+    "bad-identity": "Write identity as {namesakes: excluded | possible, note: \"what was checked\"}.",
 }
 
 
@@ -103,6 +108,8 @@ class Tree:
                 self.child_of.setdefault(c, []).append(fid)
         self._used_sources: set[str] = set()
         self._geo: dict = {}
+        # chronology warnings per record and the fact they touch (birth, death, link, marriage), for the confidence
+        self.chronology: dict[str, list[tuple[str, str]]] = {}
         self.validate()
         self.kekule = self._kekule() if not self.errors else {}
         if not self.errors:
@@ -221,6 +228,40 @@ class Tree:
         elif q.get("source"):
             self.err("unknown-source", ctx, tr("{ctx}: unknown source {id}", ctx=ctx, id=q["source"]))
 
+    def _source_refs(self, ctx: str, value, use: bool) -> None:
+        """Source IDs in a field that holds one ID or a list; `use` = they support a fact (not an unused source)."""
+        for s in value if isinstance(value, list) else [value] if value is not None else []:
+            if s in self.sources:
+                if use:
+                    self._used_sources.add(s)
+            else:
+                self.err("unknown-source", ctx, tr("{ctx}: unknown source {id}", ctx=ctx, id=s))
+
+    def _conflicts(self, ctx: str, rec: dict, about: set[str]) -> None:
+        for i, c in enumerate(self._list(ctx, rec, "conflicts"), 1):
+            where = f"{ctx}.conflicts[{i}]"
+            if not isinstance(c, dict) or not isinstance(c.get("note"), str) or not c["note"].strip():
+                self.err("bad-conflict", ctx, tr("{ctx}: expected {{about: …, note: \"…\", resolved: true/false}}", ctx=where))
+                continue
+            self._keys(where, c, CONFLICT_KEYS)
+            self._enum(f"{where}.about", c.get("about"), about)
+            if c.get("resolved") is not None and not isinstance(c["resolved"], bool):
+                self.err("bad-value", ctx, tr("{ctx}: {value!r} — allowed: {allowed}", ctx=f"{where}.resolved",
+                                              value=c["resolved"], allowed="true, false"))
+            self._source_refs(where, c.get("sources"), use=True)
+
+    def _overrides(self, ctx: str, rec: dict, about: set[str]) -> None:
+        value = rec.get("confidence_override")
+        for i, o in enumerate(value if isinstance(value, list) else [value] if value is not None else [], 1):
+            where = f"{ctx}.confidence_override" + (f"[{i}]" if isinstance(value, list) else "")
+            score = o.get("score") if isinstance(o, dict) else None
+            if not isinstance(score, int) or isinstance(score, bool) or not 0 <= score <= 100 \
+                    or not isinstance(o.get("reason"), str) or not o["reason"].strip():
+                self.err("bad-override", ctx, tr("{ctx}: expected {{score: 0–100, reason: \"…\"}}", ctx=where))
+                continue
+            self._keys(where, o, OVERRIDE_KEYS)
+            self._enum(f"{where}.about", o.get("about"), about)
+
     def validate(self) -> None:
         self._keys("project.yaml", self.project, PROJECT_KEYS)
         pb = self.project.get("proband")
@@ -245,6 +286,15 @@ class Tree:
                         self._enum(f"{pid}.events[{i}].value", e.get("value"), SIGNATURES)
             if "quote" in p:
                 self._quote(f"{pid}.quote", p["quote"])
+            self._conflicts(pid, p, PERSON_CONFLICT_ABOUT)
+            self._overrides(pid, p, PERSON_OVERRIDE_ABOUT)
+            if "identity" in p:
+                if not isinstance(p["identity"], dict):
+                    self.err("bad-identity", pid, tr("{ctx}: expected {{namesakes: excluded | possible, note: \"…\"}}",
+                                                     ctx=f"{pid}.identity"))
+                else:
+                    self._keys(f"{pid}.identity", p["identity"], IDENTITY_KEYS)
+                    self._enum(f"{pid}.identity.namesakes", p["identity"].get("namesakes"), NAMESAKES)
             for k in ("married_surnames", "variants", "occupation", "todo"):
                 self._list(pid, p, k)
             if len(self.child_of.get(pid, [])) > 1:
@@ -273,6 +323,8 @@ class Tree:
             if "divorce" in f:
                 self._event(f"{fid}.divorce", f["divorce"], EVENT_KEYS)
             self._enum(f"{fid}.confidence", f.get("confidence"), CONFIDENCE)
+            self._conflicts(fid, f, FAMILY_CONFLICT_ABOUT)
+            self._overrides(fid, f, FAMILY_OVERRIDE_ABOUT)
         for plid, pl in self.places.items():
             self._keys(plid, pl, PLACE_KEYS)
             if not pl.get("name"):
@@ -299,6 +351,13 @@ class Tree:
                 self.err("missing-title", sid, tr("{id}: missing title", id=sid))
             self._enum(f"{sid}.type", s.get("type"), SOURCE_TYPES)
             self._enum(f"{sid}.quality", s.get("quality"), SOURCE_QUALITY)
+            self._enum(f"{sid}.classification", s.get("classification"), SOURCE_CLASSES)
+            self._enum(f"{sid}.information", s.get("information"), INFORMATION)
+            self._enum(f"{sid}.evidence", s.get("evidence"), EVIDENCE)
+            if s.get("same_record_as") is not None and not isinstance(s["same_record_as"], list):
+                self.err("not-a-list", sid, tr("{ctx}.{key}: expected a list [..]", ctx=sid, key="same_record_as"))
+            for key in ("same_record_as", "derived_from"):
+                self._source_refs(f"{sid}.{key}", s.get(key), use=False)
             if s.get("parish") and s["parish"] not in self.places:
                 self.err("unknown-place", sid, tr("{ctx}: unknown place {id}", ctx=f"{sid}.parish", id=s["parish"]))
             for path in self.source_files(sid):
@@ -328,16 +387,21 @@ class Tree:
                     seen.add(a)
                     stack.extend(self.parents(a))
 
+    def _chrono(self, record: str, facts: tuple[str, ...], text: str) -> None:
+        """A chronology warning; `facts` are the scores it lowers (birth, death, link, marriage)."""
+        self.warn("chronology", record, text)
+        self.chronology.setdefault(record, []).extend((fact, text) for fact in facts)
+
     def _check_chronology(self) -> None:
         for pid, p in self.persons.items():
             b, d = self.birth_year(p), self.death_year(p)
             if b and d and d < b:
-                self.warn("chronology", pid, tr("{id} {name}: death ({death}) before birth ({birth})", id=pid, name=self.name(pid), death=d, birth=b))
+                self._chrono(pid, ("birth", "death"), tr("{id} {name}: death ({death}) before birth ({birth})", id=pid, name=self.name(pid), death=d, birth=b))
             elif b and d and d - b > 105:
-                self.warn("chronology", pid, tr("{id} {name}: age {age} years — check the dates", id=pid, name=self.name(pid), age=d - b))
+                self._chrono(pid, ("birth", "death"), tr("{id} {name}: age {age} years — check the dates", id=pid, name=self.name(pid), age=d - b))
             bd, cd = self.date(p, "birth"), self.date(p, "baptism")
             if bd and cd and bd.kind == cd.kind == "exact" and sort_key(cd.a) < sort_key(bd.a):
-                self.warn("chronology", pid, tr("{id} {name}: baptism before birth", id=pid, name=self.name(pid)))
+                self._chrono(pid, ("birth",), tr("{id} {name}: baptism before birth", id=pid, name=self.name(pid)))
         for fid, f in self.families.items():
             md = self.date(f, "marriage")
             for role, min_age in (("husband", 16), ("wife", 14)):
@@ -346,10 +410,10 @@ class Tree:
                     continue
                 b, d = self.birth_year(p), self.death_year(p)
                 if b and md.year - b < min_age:
-                    self.warn("chronology", fid, tr("{id}: {name} is {age} years old at the marriage", id=fid, name=self.name(f[role]), age=md.year - b))
+                    self._chrono(fid, ("marriage",), tr("{id}: {name} is {age} years old at the marriage", id=fid, name=self.name(f[role]), age=md.year - b))
                 if d and md.year > d:
-                    self.warn("chronology", fid, tr("{id}: marriage ({year}) after the death of {name} ({death})",
-                                                    id=fid, year=md.year, name=self.name(f[role]), death=d))
+                    self._chrono(fid, ("marriage",), tr("{id}: marriage ({year}) after the death of {name} ({death})",
+                                                        id=fid, year=md.year, name=self.name(f[role]), death=d))
             for c in f.get("children") or []:
                 cb = self.birth_year(self.persons[c])
                 if not cb:
@@ -361,11 +425,11 @@ class Tree:
                     mother = role == "wife"
                     pb, pd = self.birth_year(par), self.death_year(par)
                     if pb and not lo <= cb - pb <= hi:
-                        self.warn("chronology", c, tr("{id} {name}: mother's age at the birth = {age} years ({family})" if mother
+                        self._chrono(c, ("link",), tr("{id} {name}: mother's age at the birth = {age} years ({family})" if mother
                                                       else "{id} {name}: father's age at the birth = {age} years ({family})",
                                                       id=c, name=self.name(c), age=cb - pb, family=fid))
                     if pd and cb > pd + slack:
-                        self.warn("chronology", c, tr("{id} {name}: birth ({birth}) after the mother's death ({death})" if mother
+                        self._chrono(c, ("link",), tr("{id} {name}: birth ({birth}) after the mother's death ({death})" if mother
                                                       else "{id} {name}: birth ({birth}) after the father's death ({death})",
                                                       id=c, name=self.name(c), birth=cb, death=pd))
 

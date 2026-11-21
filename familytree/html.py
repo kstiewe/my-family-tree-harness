@@ -1,6 +1,7 @@
 """Interactive HTML page: a standalone file and a variant without the document skeleton (for hosts
 such as Claude artifacts, which add <html>/<head>/<body> themselves). Besides the tree, the page carries the
-family map (geomap.py) as its "Map" view. Each person card opens with "At a glance" (summary.py)."""
+family map (geomap.py) as its "Map" view. Each person card opens with "At a glance" (summary.py) and shows the
+confidence of the person's link and facts (confidence.py); the page filters the tree by the path confidence."""
 
 from __future__ import annotations
 
@@ -8,6 +9,7 @@ import json
 import re
 from pathlib import Path
 
+from .confidence import bands_json, scores
 from .dates import TODAY, safe_date
 from .geo import Geo
 from .geomap import component
@@ -20,6 +22,7 @@ TEMPLATES = Path(__file__).parent / "templates"
 
 
 def html_data(tree: Tree, public: bool) -> dict:
+    cf = scores(tree)
     persons = {}
     for pid, p in tree.persons.items():
         hidden = public and tree.living(pid)
@@ -30,6 +33,14 @@ def html_data(tree: Tree, public: bool) -> dict:
             "parents": [x for x in ((fam or {}).get("husband"), (fam or {}).get("wife")) if x],
             "families": [], "facts": [], "hints": [], "living": tree.living(pid),
         }
+        # confidence: the link score (l) and the manual cap (c) for the paths in the page; the breakdown (x) is left
+        # out for a living person in public mode — it would show their sources
+        link = cf.link(pid)
+        rec["cf"] = {"l": link.value if link else None}
+        if pid in cf.node_cap:
+            rec["cf"]["c"] = cf.node_cap[pid]
+        if not hidden:
+            rec["cf"]["x"] = ({"link": link.json()} if link else {}) | {k: s.json() for k, s in cf.facts[pid].items()}
         married = p.get("married_surnames") or []
         rec["card"] = {"name": tr("Living person") if hidden else f"{p.get('given') or '?'} {(married or [p.get('surname') or '?'])[-1]}",
                        "maiden": tr("née {surname}", surname=p["surname"]) if married and p.get("surname") and not hidden else "",
@@ -38,7 +49,7 @@ def html_data(tree: Tree, public: bool) -> dict:
             f = tree.families[fid]
             spouse = f.get("wife") if f.get("husband") == pid else f.get("husband")
             m = tree.ev(f, "marriage")
-            rec["families"].append({"spouse": spouse, "marriage": "" if hidden else tree.event_text(m),
+            rec["families"].append({"id": fid, "spouse": spouse, "marriage": "" if hidden else tree.event_text(m),
                                     "sources": [] if hidden else m.get("sources") or [], "children": f.get("children") or []})
         if not hidden:
             for key in LIFE_EVENTS:
@@ -64,14 +75,20 @@ def html_data(tree: Tree, public: bool) -> dict:
         md = tree.date(f, "marriage")
         hidden = public and any(tree.living(x) for x in (f.get("husband"), f.get("wife")) if x)
         families[fid] = {"h": f.get("husband"), "w": f.get("wife"), "c": f.get("children") or [],
-                         "m": md.text() if md and not hidden else ""}
+                         "m": md.text() if md and not hidden else "",
+                         # steps of the confidence paths: to each child (k), between the spouses (u)
+                         "k": {c: cf.step[(c, fid)] for c in f.get("children") or [] if (c, fid) in cf.step},
+                         "u": cf.union_step[fid]}
+        if fid in cf.marriages and not hidden:
+            families[fid]["x"] = cf.marriages[fid].json()
     sources = {}
     for sid, s in tree.sources.items():
         sources[sid] = {k: s.get(k) for k in ("title", "url", "repository", "signature", "type", "quality") if s.get(k)}
         if langs := language_names(s.get("language")):
             sources[sid]["language"] = ", ".join(langs)
     return {"title": tree.project.get("name") or tr("Family tree"), "generated": TODAY.isoformat(),
-            "proband": tree.project.get("proband"), "persons": persons, "families": families, "sources": sources}
+            "proband": tree.project.get("proband"), "persons": persons, "families": families, "sources": sources,
+            "confidence": {"bands": bands_json()}}
 
 
 def _templates() -> tuple[str, str]:

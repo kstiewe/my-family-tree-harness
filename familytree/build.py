@@ -4,7 +4,8 @@
     python3 scripts/build.py --check       validate only
     python3 scripts/build.py --find Kowal  find persons (duplicate check before adding someone)
     python3 scripts/build.py --public      HTML, map and GEDCOM without data of living persons
-    python3 scripts/build.py --json        machine-readable result (errors with codes and fixes, next free IDs)
+    python3 scripts/build.py --json        machine-readable result (errors with codes and fixes, next free IDs,
+                                           confidence scores: docs/confidence.md)
     python3 scripts/build.py --schema      allowed fields and values of the data files, as JSON
 
 The source of truth is <workspace>/data/*.yaml; everything in output/ is generated — do not edit it.
@@ -19,6 +20,7 @@ import sys
 from pathlib import Path
 
 from . import i18n
+from .confidence import scores, write_confidence
 from .gedcom import write_gedcom
 from .geo import write_geography
 from .geomap import write_map
@@ -35,7 +37,7 @@ def output_names() -> dict[str, str]:
     return {"tree.html": tr("tree.html"), "tree-artifact.html": tr("tree-artifact.html"), "tree.mmd": tr("tree.mmd"),
             "ancestors.mmd": tr("ancestors.mmd"), "tree.ged": tr("tree.ged"), "gaps.md": tr("gaps.md"),
             "ancestors.md": tr("ancestors.md"), "scans.md": tr("scans.md"), "map.html": tr("map.html"), "map-artifact.html": tr("map-artifact.html"),
-            "geography.md": tr("geography.md"), "geography.json": tr("geography.json")}
+            "geography.md": tr("geography.md"), "geography.json": tr("geography.json"), "confidence.md": tr("confidence.md")}
 
 
 def write_outputs(tree: Tree, out: Path, public: bool) -> dict[str, Path]:
@@ -54,6 +56,7 @@ def write_outputs(tree: Tree, out: Path, public: bool) -> dict[str, Path]:
     write_map(tree, geo, names["map.html"])
     write_map(tree, geo, names["map-artifact.html"], artifact=True)
     write_geography(geo, names["geography.md"], names["geography.json"])
+    write_confidence(tree, names["confidence.md"])
     return names
 
 
@@ -115,6 +118,7 @@ def main(argv: list[str] | None = None) -> int:
                        "places": len(tree.places), "sources": len(tree.sources)},
             "errors": [issue_json(e) for e in tree.errors], "warnings": [issue_json(w) for w in tree.warnings],
             "next_ids": ids, "outputs": {k: str(v) for k, v in written.items()}, "public": args.public,
+            "confidence": scores(tree).summary() if not tree.errors else None,
         }, ensure_ascii=False, indent=2))
         return 1 if tree.errors else 0
 

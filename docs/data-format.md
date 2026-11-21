@@ -30,7 +30,8 @@ that validates the data, so it is always current). Annotated templates are in
 - **Names** in the local form; Latin, Russian and German forms (Joannes, Иосифъ, Johann) in `variants`.
 - **Every fact points to a source** (`sources`), even if it is only a family account (`type: oral`).
 - **Confidence**: `confirmed` (confirmed by a record), `probable`, `hypothesis` (to be verified).
-  An index hit without a scan is at most `probable`.
+  An index hit without a scan is at most `probable`. The build also computes a score 0–100 for every
+  link and fact from the cited sources ([confidence.md](confidence.md)); the manual label caps it.
 - **Ages from records** (`age` at death, `husband_age` / `wife_age` at marriage) are always recorded:
   the build derives the range of birth years from them.
 - **Parish**: a locality points to its parish (`parish`), the parish to the Geneteka region
@@ -54,6 +55,7 @@ that validates the data, so it is always current). Annotated templates are in
 | `events` | list of `{type, date, place, value, note, sources, age, confidence}`; `type`: residence, occupation, emigration, military, census, confirmation, education, signature, other |
 | `quote` | optional `{text, source, note}`: one short sentence the person card shows as a quote |
 | `confidence`, `notes`, `todo` | research state |
+| `conflicts`, `confidence_override`, `identity` | evidence analysis (see "Confidence fields" below) |
 
 All of these are optional; data written before a field existed stays valid.
 
@@ -73,8 +75,8 @@ All of these are optional; data written before a field existed stays valid.
 ## families.yaml
 
 `id`, `husband`, `wife`, `marriage` (event plus `husband_age`, `wife_age`, `witnesses`), `divorce`,
-`children` (in order of birth), `confidence`, `notes`, `todo`. A child belongs to the family of its
-parents; a person may be a spouse in several families.
+`children` (in order of birth), `confidence`, `notes`, `todo`, `conflicts`, `confidence_override`. A
+child belongs to the family of its parents; a person may be a spouse in several families.
 
 ## places.yaml
 
@@ -99,7 +101,9 @@ the geography context are described in [geography.md](geography.md).
 civil_record, index, census, population_register, family_document, photo, gravestone, oral,
 online_tree, publication, other), `title`, `parish`, `year`, `act`, `repository`, `signature`,
 `url`, `quality` (original, image, transcription, index, derivative, oral), `language`, `accessed`,
-`informant` (oral accounts: who, through whom, when), `file`, `transcription`, `notes`.
+`informant` (oral accounts: who, through whom, when), `file`, `transcription`, `notes`, and the optional
+evidence fields `classification`, `information`, `evidence`, `same_record_as`, `derived_from` (see
+"Confidence fields" below).
 
 **Local copies.** `file` is the path (or a list of paths) of the saved copy of the source, relative to the
 workspace and normally under `research/skany/<archive>/<fonds>/` — the scan, a screenshot, a saved page or
@@ -107,6 +111,32 @@ a PDF; an act on two photos lists both. The build fails when a listed file does 
 `output/scans.md` (`skany.md`): the sources that are scans, photos or pages without a local copy, the
 sources that have one, per person what is saved and what is not, and files that no source points to.
 Index entries (the transcription in the data is the copy) and family accounts need no file.
+
+## Confidence fields
+
+The confidence scores ([confidence.md](confidence.md)) are computed from the fields above. These
+optional fields refine them; the build validates them (unknown values are errors with a `fix`).
+
+| Where | Field | Meaning |
+|---|---|---|
+| source | `classification` | `original` (a record made at the time, or its image), `derivative` (index, transcription, abstract), `authored` (family account, someone's tree, publication). Default: from `type` and `quality`. |
+| source | `information` | `primary` (first-hand, at the time) or `secondary`. Default: from the type and the event that cites the source. |
+| source | `evidence` | `direct` (answers the question alone — for a link: names the parents) or `indirect`. |
+| source | `same_record_as` | list of source IDs that are the same record (the index entry and the image of one act): they count once. |
+| source | `derived_from` | the source ID (or list) this one was made from; they count once. |
+| person, family | `conflicts` | list of `{about, note, resolved, sources}`: evidence that disagrees. Person `about`: `link`, `identity`, `birth`, `death`; family: `marriage`, `link` (the children's links); without `about` every score of the record. `resolved: true` once the reasoning is in `note`. |
+| person | `confidence_override` | `{score: 0–100, reason, about: link \| birth \| death}` (or a list): replaces the computed score; the reason is required and shown. |
+| family | `confidence_override` | `{score: 0–100, reason}`: replaces the score of the marriage. |
+| person | `identity` | `{namesakes: excluded \| possible, note}`: whether other persons of the same name were checked. |
+
+```yaml
+- id: I0013
+  given: Karol
+  conflicts:
+    - {about: link, resolved: true, sources: [S0001],
+       note: "Born after his father's recorded death: the family's death date for August is the doubtful one."}
+  identity: {namesakes: excluded, note: "no other Karol Nowak born in Wzorki 1905–1920 in the index"}
+```
 
 ## Validation
 

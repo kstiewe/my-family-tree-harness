@@ -80,14 +80,19 @@ Steps:
    and families.
 3. Take new IDs from the "Next free IDs" line of the build (or `next_ids` in `--json`).
 4. In families.yaml put a comment with the name next to every ID.
-5. Mark uncertain things `confidence: probable` / `hypothesis` and give the reason in `notes`.
+5. Mark uncertain things `confidence: probable` / `hypothesis` and give the reason in `notes`. The
+   build computes a score 0–100 for every link and fact from the cited sources (docs/confidence.md);
+   the manual label only caps it. Record evidence that disagrees in `conflicts`, checked namesakes in
+   `identity`, and two sources of one act with `same_record_as`; never type a score in except as
+   `confidence_override` with its reason.
 6. For every record, set `language` of the source — the language of the original document
    (`pl`, `la`, `de`, `ru` …; a list if mixed), e.g. Latin parish books, German civil registers
    (Standesamt), Russian records of Congress Poland after 1868. Keep transcriptions in the original
    language and spelling; put Latin, Russian and German forms of names into `variants`.
 7. Run the build, fix the errors, read the new chronology warnings.
 8. Answer briefly: what was added, new warnings, the 3–5 most important gaps from the gap report
-   (`output/gaps.md`, Polish: `output/luki.md`).
+   (`output/gaps.md`, Polish: `output/luki.md`) and the weakest links from the confidence report
+   (`output/confidence.md`, Polish: `output/pewnosc.md`; `confidence` in `--json`).
 
 ## 4. Online research
 
