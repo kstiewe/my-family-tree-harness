@@ -52,7 +52,12 @@ the record number. Reading the index first is much faster than paging through th
 - Births index right after the births, marriages index after the marriages, deaths at the end of the volume.
   On Szukaj w Archiwach, a grid of small thumbnails of a whole volume shows the index pages (tables) at a glance.
 - Record numbers in the margin, often with the village name ("№ 75. Przykładowo") — the village is also an
-  identification aid.
+  identification aid. In marriages the margin often adds both names ("32. Przykładowo. Jan Kowalski z Marianną Nowak").
+- **Microfilmed duplicates of the Polish period (1850s–1860s)**: the film order of a year is usually births, index,
+  "BLANK PAGES" target, marriages, index, target, deaths, index. The marriage index sits just before the second target —
+  look for the targets on the thumbnails first.
+- **An index entry can give another given name than the record** ("Paulina" in the index, "Pelagia" in the record): always
+  read the record itself before ruling a candidate out.
 
 ## Where the scans are (checked 2026-11)
 
