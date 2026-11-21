@@ -2,7 +2,8 @@
 
 Code, identifiers and message ids are English. `tr()` looks a message id up in the catalog of the
 active language (`familytree/locales/<code>.py`) and falls back to the English id. Message ids
-always go through `str.format`, so literal braces in an id must be doubled.
+always go through `str.format`, so literal braces in an id must be doubled. `trn()` picks the
+plural form of a message for a number (forms separated by "|").
 
 Templates (`familytree/templates/*.html`) mark translatable text as ⟦message id⟧; `fill()` swaps
 it for the translation without formatting, because template text is JavaScript and CSS.
@@ -62,6 +63,23 @@ def lookup(msgid: str) -> str:
 
 def tr(msgid: str, **kw) -> str:
     return lookup(msgid).format(**kw)
+
+
+def plural_form(n: int) -> int:
+    """Which plural form a number takes in the active language: English one|other, Polish one|few|many."""
+    n = abs(int(n))
+    if _lang == "pl":
+        return 0 if n == 1 else 1 if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14 else 2
+    return 0 if n == 1 else 1
+
+
+def trn(msgid: str, count: int, **kw) -> str:
+    """A message that depends on a number: the id holds the English forms separated by "|" ("{n} year|{n} years"),
+    a translation the forms of its language (Polish: "{n} rok|{n} lata|{n} lat"). The form is chosen by `count`;
+    {n} shows `count`, or the text given as n= ("c. 54")."""
+    forms = lookup(msgid).split("|")
+    kw.setdefault("n", count)
+    return forms[min(plural_form(count), len(forms) - 1)].format(**kw)
 
 
 def fmt_ymd(y: int, m: int | None, d: int | None) -> str:

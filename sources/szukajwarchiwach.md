@@ -63,6 +63,19 @@ relying on it. (Verified 2026-11.)
   without scans, while the main register is still in the civil registry office.
 - **Duplicate registers (Neben-Register) may have no name index** at the end of the year; one marriage
   record then takes one double-page scan and the book has to be read record by record.
+- **A reconstructed duplicate may be the only scanned copy**: when the main register of a year shows 0 scans, look in the
+  unit list for a "wtóropis [odtworzone]" unit that spans several years. It is often scanned: a Polish printed form, "(–)"
+  where the signatures were, about one record per scan. A marriage of 1892 can be there although its own unit is not.
+- **One office, two descriptions**: an office may be catalogued twice under neighbouring fonds IDs, one with 0 scans and
+  one with scans. Search the office's name and open every hit before you conclude that the books are not online.
+- **The office is not always named after the parish**: the civil registry office of a parish village can sit in a
+  neighbouring village (Meyers Gazetteer gives the Standesamt of each place, see [gazetteers.md](gazetteers.md)); a fonds
+  described as "vacat … włączony do zespołu X" points to the fonds that holds the books of an office that was dissolved.
+- **Unit ids of one parish need not follow the years**: a unit for another period can sit between two consecutive years
+  (a unit "1880–1905" between 1846 and 1847). Check the signature and the dates of each unit before relying on its id.
+- **Dark microfilm duplicates** (light writing on a dark background): turn the image to greyscale and stretch the contrast
+  (autocontrast) before reading. Find the yearly index pages on a contact sheet built from the `_max` images; the `_mid`
+  thumbnails are too dark to tell index pages from records.
 
 ## Reading a whole book without an index (verified 2026-11)
 
@@ -78,8 +91,19 @@ line of every record instead of every page:
 - **Which line**: a death register — the line "und zeigte an, daß [name of the deceased]"; a marriage — two bands, the groom
   ("1. der …") and the bride ("2. die …"); a birth — the parents' lines ("daß von der … Ehefrau des …"), because the person
   reporting a birth in a town was often the midwife ("die Hebamme …"), not the father.
+- **In village offices the father usually reported the birth himself**, so a band of the reporter line ("der Arbeiter Jan
+  Kowalski, wohnhaft zu …") finds a family quickly; main registers of small offices often hold one record per scan with a
+  constant offset (scan = record number + 2 or 3) within a year.
 - **Left and right pages** of a book are offset differently (binding margin): calibrate the band on one odd and one even
   scan, and on scans of each new book — the image size can differ between offices and years.
+- **Calibrate every year's book anew.** Render four consecutive scans at full width first and read off where the line you
+  need starts on the odd and on the even scans. In one office the shift between odd and even scans was about a quarter of
+  the page width, the line moved by one line height from year to year, and the side that is shifted swapped between years.
+  Position the image by its real proportions (natural width and height), not by an assumed page size.
+- **When the band shows the wrong line**, the clerk's wording changed: a midwife's "in ihrer Gegenwart von der …" pushes the
+  mother's name to the end of the line and into the next one. Use a two-line band for those records, or re-read them singly.
+- **Spellings vary within one family** (a Kowalski written "Kowalewski", a Przykładowski written "Przikladowsky" in a
+  child's record): watch for the first letters and the given names of the parents, not for one exact spelling.
 - Example: a death in the Kowalski family was indexed elsewhere with a page number that pointed to the wrong scan; a band
   review of the whole book found the record near the end, together with other records of the family the index had missed.
 
@@ -88,10 +112,34 @@ line of every record instead of every page:
 "Thomas" can look like "Ijomas": capital T resembles J or G. Compare with letters of known words
 (month names, "geboren", "katholisch") on the same page.
 
+## Saving a scan (verified 2026-11)
+
+The viewer's right-hand panel has "Download" → "Download in jpg"; the file comes from
+`/o/pliki-api/pliki/pobierzplikjpeg/<scan id>`, so a scan can be saved by opening that address in the signed-in
+browser (one scan at a time, a few seconds apart; a repeated request for the same scan may answer 503). The scan id is
+not `first id + scan number − 1` in every unit — ids are consecutive in some units and jump or run backwards in others
+(a Congress-Poland duplicate book, for instance). Read the real id from the unit page: fetch the unit address with the
+page-size parameter `_Jednostka_delta=200` in the browser tab, parse each `.jednostka-skan` element (its text is
+"number id") and look the scan number up. The saved file is named `<archive>_<fonds>_0_-_<unit>_<scan id>.jpg`; rename it
+to `<archive>_<fonds>_0_<unit>_s<scan number>.jpg` so that the name carries the number the signature in the source uses.
+Check one scan per unit against the record before saving the rest.
+
+The full-size image is also served without a login from `https://photos.szukajwarchiwach.gov.pl/<hash>_max`; the hash of
+each scan appears in the unit pages (`_Jednostka_cur=N`, 20 scans per page). Several such images can be fetched from the
+shell (`curl`) and read locally, which is faster than the viewer when a whole sequence of records has to be checked.
+
 ## Outages
 
 The search sometimes answers "Portlety jest tymczasowo niedostępny" or "Brak wyników" for everything;
 a few hours later it works. Retry later and note the outage in the log.
+
+After about 60 full-size downloads in a row the image host answered scripted requests (curl) very slowly — over a minute
+per image — while the same images still loaded in the browser. Then read the images in the browser at full width instead
+of downloading them, and keep downloads to the records you cite.
+
+**Ranking pages by a script**: the `_mid` thumbnails are served with CORS headers, so a script in a tab of the site can draw
+them on an `OffscreenCanvas` and measure them (brightness, the number of ruled vertical lines) to rank the pages most likely
+to be index tables. In books of the Polish period (before 1868) this gave many false hits; check the ranked pages by eye.
 
 ## Browser window and screenshots
 

@@ -52,7 +52,12 @@ the record number. Reading the index first is much faster than paging through th
 - Births index right after the births, marriages index after the marriages, deaths at the end of the volume.
   On Szukaj w Archiwach, a grid of small thumbnails of a whole volume shows the index pages (tables) at a glance.
 - Record numbers in the margin, often with the village name ("№ 75. Przykładowo") — the village is also an
-  identification aid.
+  identification aid. In marriages the margin often adds both names ("32. Przykładowo. Jan Kowalski z Marianną Nowak").
+- **Microfilmed duplicates of the Polish period (1850s–1860s)**: the film order of a year is usually births, index,
+  "BLANK PAGES" target, marriages, index, target, deaths, index. The marriage index sits just before the second target —
+  look for the targets on the thumbnails first.
+- **An index entry can give another given name than the record** ("Paulina" in the index, "Pelagia" in the record): always
+  read the record itself before ruling a candidate out.
 
 ## Where the scans are (checked 2026-11)
 
@@ -75,11 +80,25 @@ the record number. Reading the index first is much faster than paging through th
 
 - **A Geneteka year range hides gaps**: a parish listed as "U 1671–1921" may have births indexed only up to
   about 1800 plus a few late years. Search a common surname of the region (e.g. Kowalski) over the whole range
-  and count the hits per decade before concluding that a record does not exist.
+  and count the hits per decade before concluding that a record does not exist. The gap can also sit in the middle:
+  "M 1830–1880" may be 1830–1858 plus 1874–1880. Search the parish for one common given name over the range and see which
+  years appear; for the missing years read the yearly marriage indexes on the scans (Szukaj w Archiwach) — the Kowalski ×
+  Nowak marriage of a missing year was found that way.
+- **A widow's second marriage names her late husband** with the date and village of his death ("wdową po zmarłym Janie
+  Kowalskim, zmarłym we wsi Przykładowo dnia …"). That leads to his death record, often in a neighbouring parish, and the
+  death record gives his parents.
+- **A death reported by neighbours can name the wrong mother**: "Piotr Kowalski, son of Wawrzyniec and Dorota née Nowak" was
+  in fact the husband of Dorota née Nowak. Check the parents in a death record against the deceased's own marriage before
+  using them.
 - **Ages drift by a year or two** between records (a woman aged 26 at her wedding in 1907 may have been born in
   late 1880) — search ±2 years.
 - **Same village name in two counties**: check that the candidate village belongs to the parish named in the
   record (the Słownik geograficzny or the parish entry on Wikipedia).
+- **A "birth date" may be the date of the record**: Congress-Poland birth records were written a few days after the
+  birth, and a later document or a family tree often gives the day the record was drawn up ("akt spisano 11 maja",
+  birth on the 9th). A date that matches the record's own date is strong evidence that it is the right record.
+- **Variant spellings fall out of exact searches**: a Geneteka query with the exact-surname option misses a baptism
+  indexed as "Kowal" for a later "Kowalski". Make the last pass without the exact option and read the rows.
 - **Vertical margin notes** (baptism and godparents written along the margin): turn them with the helper
   `swaRotate` in [szukajwarchiwach.js](../szukajwarchiwach.js) instead of reading them sideways.
 - **An unclear word in a later record** (e.g. a birthplace in an interwar civil record): compare its letters with

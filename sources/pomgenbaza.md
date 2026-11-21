@@ -83,6 +83,16 @@ applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only
   next pages (buttons "2", "Następna" under the table). When the number of rows equals the number of the last record, the
   year is indexed completely — a list of every adult woman without a maiden name, say, then finds a person under any
   spelling. Use it where the books themselves have no name index.
+- **A woman known only by her given name and her date of birth** (from a gravestone: "Maria Kowalska, 14.03.1922",
+  maiden name unknown): query the given name alone (prefix, no surname) for that one year in the parish where the family
+  lived, then the neighbouring parishes. The result lists every girl of that name baptised there, with father, mother
+  and mother's maiden name — the candidates for her maiden name. **The index has no dates of birth or baptism**, so
+  place the baptism by its record number: run the same year once more with both name fields empty — the total (e.g.
+  "Urodzenia (180)") gives about 15 baptisms a month, so a birth in mid-March falls around records 35–45 (baptism
+  usually within one to three weeks of birth). This gives a short list, not an answer; the maiden name from the family,
+  the marriage record or the gravestone then picks one row. In the 1920s the Catholic books of the former Prussian
+  partition are in Polish: "Mar" finds "Maria", while the German or Latin form of a name may return nothing (a query
+  "Hedw" for the 1920s can find none where "Jadw" lists several girls). (Checked 2026-11.)
 - **Coverage of many parishes at once**: `fetch` each parish page in the console and read its `table tr`
   rows — the last three cells of a row are the years indexed for births, marriages and deaths.
 - **The coverage table is not complete.** It lists only books with a signature. Entries indexed from another copy, with no
@@ -93,6 +103,31 @@ applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only
   The mother's surname can be misread as well; in old German hand *St* is easily read as *Śl* or *Sl*. The same baptism in
   another index (e.g. FamilySearch) may carry a father and a different surname. Compare the record numbers: the two indexes
   may attach the father to neighbouring entries (see [familysearch.md](familysearch.md)).
+
+- **A person under several spellings in one family**: the index keeps each spelling of the record, so the baptisms of
+  one man's nine children read Kowalski, Kowalsky, Kowolski, Kowolsky. A search by the child's surname then finds only
+  some of them. When a baptism is missing, leave the surname empty and give the **father's given name**, the **mother's
+  maiden name** (prefix) and the parish: the row of the person sought appears under whatever form the clerk used.
+  The marriage of the parents is found the same way (`spouseLastName` = the wife's maiden name, surname empty).
+- **The "age" column of a civil death entry may hold a full date of birth** (`12.03.1850.`) instead of years. That date
+  finds the baptism in the parish of the birthplace at once (the late-December act numbers fit a late-December birth) and
+  tells you whether two candidates of the same year can be told apart.
+- **Civil and parish indexes of one death do not always agree.** A death present in the parish index (age only) can be
+  missing from the civil index of the office. Read the civil register itself (see
+  [metryki-genbaza.md](metryki-genbaza.md): alphabetical register at the end of the book) before you conclude that the
+  person died elsewhere.
+- **Is the year fully indexed?** Before concluding that a baptism is absent, list one parish-year with both name fields
+  empty. Forty to fifty baptisms in a year of a village parish mean the year is complete, so a missing entry is real; a
+  handful means the year is indexed only in part.
+- **The first letter of a maiden name is often misread** ("Rowalska" or "Bowalska" for Kowalska): match a candidate on
+  the father's name and the place, not on the mother's maiden name.
+- **Sisters who married in the town of origin** and then baptised their children in the new parish show when and where a
+  family moved; their marriages are often the quickest way to the parents' old parish.
+- **A prefix never crosses a Polish letter**: "Przyklad" does not match "Przykładowska", and "Ges" or "Gas" miss "Gęsiak". Query
+  every form ("Przyklad" and "Przykład"; "Ges", "Gas", "Gęs").
+- **A widow's remarriage**: search marriages with `spouseLastName` set to her maiden name and the surname empty. "Jan Nowak ×
+  Anna Kowalska, widow" may stand only under her first husband's name, "Anna Przykładowa"; a child of the first marriage
+  indexed with the mother "Kowalska" confirms that she is the same woman.
 
 ## The "Księga" (book) column
 
@@ -110,3 +145,10 @@ applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only
 
 `/pomgenbaza/indeksy-cmentarzy-i-pomnikow/` — about 190 cemeteries (2026-11); many rural cemeteries
 are not included.
+- Form fields: `selectCemetery` (0 = all cemeteries, otherwise the cemetery id from the list), `textInput_firstName`,
+  `textInput_lastName`; the results (`divAjaxFindInner_cemeteries`) carry the dates of birth and death. The table has a
+  "maiden name" column — for a woman known only from her husband's surname it gives the family name without a record
+  (e.g. "Nowak née Kowalska"); the data are sometimes shifted by a column. Most indexed cemeteries end around 2010.
+- The coverage table of a parish does not list every year: a parish whose table shows births 1848–1875 and two single
+  years may still have births of 1908–1921 in the index. Run a search with `selectParish` before treating years as
+  not indexed.

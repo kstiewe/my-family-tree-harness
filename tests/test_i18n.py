@@ -9,13 +9,15 @@ import unittest
 from _common import EXAMPLE, ROOT, run, tmpdir
 
 from familytree import build, i18n
+from familytree.history import EVENTS
 from familytree.schema import LANGUAGES
 
 PACKAGE = ROOT / "familytree"
 
 
 def message_strings(node) -> set[str]:
-    """Strings a tr() argument can evaluate to: literals, both branches of `a if c else b`, dict values."""
+    """Strings a tr() argument can evaluate to: literals, both branches of `a if c else b`, dict values, and the
+    arguments of `self.g(male, female, other)` (summary.py picks the id for the person's grammatical gender)."""
     if isinstance(node, ast.Constant) and isinstance(node.value, str):
         return {node.value}
     if isinstance(node, ast.IfExp):
@@ -24,19 +26,23 @@ def message_strings(node) -> set[str]:
         return set().union(*(message_strings(v) for v in node.values))
     if isinstance(node, ast.Subscript):
         return message_strings(node.value)
+    if isinstance(node, ast.Call) and getattr(node.func, "attr", None) == "g":
+        return set().union(*(message_strings(a) for a in node.args))
     return set()
 
 
-def code_message_ids() -> set[str]:
-    """Message ids of every tr() call in the package."""
+def code_message_ids(functions=("tr", "trn")) -> set[str]:
+    """Message ids of every tr() and trn() call in the package (or of the calls of `functions` only)."""
     ids: set[str] = set()
     for path in PACKAGE.rglob("*.py"):
         if "locales" in path.parts:
             continue
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
-            if isinstance(node, ast.Call) and getattr(node.func, "id", None) == "tr" and node.args:
+            if isinstance(node, ast.Call) and getattr(node.func, "id", None) in functions and node.args:
                 ids |= message_strings(node.args[0])
-    ids |= set(LANGUAGES.values())          # schema.language_names() translates these
+    if "tr" in functions:
+        ids |= set(LANGUAGES.values())      # schema.language_names() translates these
+        ids |= {e.name for e in EVENTS}     # history.lived_through() translates these
     return ids
 
 
@@ -73,6 +79,18 @@ class Catalogs(unittest.TestCase):
     def test_unknown_language_falls_back_to_english(self):
         self.assertEqual(i18n.set_language("xx"), "en")
         self.assertEqual(i18n.tr("Birth"), "Birth")
+
+    def test_plural_forms(self):
+        i18n.set_language("en")
+        self.assertEqual([i18n.trn("{n} year later|{n} years later", n) for n in (1, 2)], ["1 year later", "2 years later"])
+        i18n.set_language("pl")
+        self.assertEqual([i18n.trn("lasted {n} year|lasted {n} years", n) for n in (1, 2, 5, 12, 22, 25)],
+                         ["trwało 1 rok", "trwało 2 lata", "trwało 5 lat", "trwało 12 lat", "trwało 22 lata", "trwało 25 lat"])
+        self.assertEqual(i18n.trn("He lived {n} year|He lived {n} years", 54, n="ok. 54"), "Przeżył ok. 54 lata")
+        catalog = importlib.import_module("familytree.locales.pl").MESSAGES
+        for msgid in code_message_ids(("trn",)):                # Polish has three forms: one, few, many
+            self.assertEqual(catalog[msgid].count("|"), 2, msgid)
+        i18n.set_language("en")
 
 
 @unittest.skipUnless(shutil.which("node"), "node is not installed")

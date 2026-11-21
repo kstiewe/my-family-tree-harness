@@ -30,6 +30,7 @@
   quality: image
   language: ru
   accessed: "2026-01-06"
+  file: research/skany/fictional-archive/0000-wzorcowo/00_0000_0_00_0001.png
   transcription: |
     Состоялось в деревне Взорцово 15 ноября 1898 года … Войцех Ковальский, холостой, 28 лет,
     сын Антония и Марианны … и Агнешка Малиновская, девица, 19 лет …
@@ -86,3 +87,108 @@
   url: "https://example.org/tree/12345"
   quality: derivative
   notes: "Not attached to any fact yet (the build warns about it)."
+
+# --- records of Jakub Kowalski and his families (all invented) ---
+
+- id: S0010
+  type: marriage_record
+  title: "Marriage record no. 41/1893, Roman Catholic parish of Wzorcowo (Jakub Kowalski × Rozalia Nowicka)"
+  parish: P0002
+  year: 1893
+  act: "41"
+  repository: "Fictional state archive"
+  quality: image
+  language: ru
+  transcription: |
+    Состоялось в деревне Взорцово 8 ноября 1893 года … Якуб Ковальский, холостой, 20 лет, батрак,
+    жительствующий в деревне Пшикладово, сын Антония и Марианны … и Розалия Новицкая, девица, 19 лет …
+    Акт сей … прочитан, Нами только подписан, так как новобрачные неграмотны.
+  notes: "Witnesses: Antoni Kowalski (father of the groom) and Józef Nowicki. The Julian date is in the record."
+
+- id: S0011
+  type: baptism_record
+  title: "Baptism no. 22/1896, Roman Catholic parish of Wzorcowo (Maria Kowalska)"
+  parish: P0002
+  year: 1896
+  act: "22"
+  quality: image
+  language: ru
+  transcription: "… явился Якуб Ковальский, коморник, 22 лет, жительствующий в деревне Пшикладово под № 12 …"
+
+- id: S0012
+  type: birth_record
+  title: "Birth record no. 117/1903, Roman Catholic parish of Wzorcowo (Franciszek Kowalski)"
+  parish: P0002
+  year: 1903
+  act: "117"
+  quality: image
+  language: ru
+  transcription: "… явился Якуб Ковальский, хозяин, 30 лет, жительствующий в Змыслине под № 4 …"
+
+- id: S0013
+  type: death_record
+  title: "Death record no. 9/1931, Roman Catholic parish of Wzorki (Jakub Kowalski)"
+  parish: P0005
+  year: 1931
+  act: "9"
+  quality: image
+  language: pl
+  transcription: |
+    Działo się we wsi Wzorki dnia 4 marca 1931 roku … zmarł Jakub Kowalski, lat 57, wycużnik, wdowiec po
+    Katarzynie z Lisów (zm. 20 stycznia 1925 w Zmyślinie), mąż Weroniki z Wzorkowskich. Przyczyna śmierci:
+    zapalenie płuc.
+
+- id: S0014
+  type: marriage_record
+  title: "Marriage record no. 5/1926, Roman Catholic parish of Wzorki (Jakub Kowalski × Weronika Wzorkowska)"
+  parish: P0005
+  year: 1926
+  act: "5"
+  quality: image
+  language: pl
+  transcription: "… Jakub Kowalski, wdowiec, lat 52, zamieszkały we wsi Wzorki … i Weronika Wzorkowska, wdowa, lat 58 … Akt ten nowożeńcom i świadkom przeczytany, przez Nas, nowożeńców i świadków podpisany został."
+
+- id: S0015
+  type: baptism_record
+  title: "Baptism no. 60/1873, Roman Catholic parish of Wzorcowo (Jakub Kowalski)"
+  parish: P0002
+  year: 1873
+  act: "60"
+  quality: transcription
+  language: ru
+  transcription: "… родился 2 мая … в деревне Безпарафие … младенец Якуб … восприемники Ян Малиновский и Францишка Новак."
+
+- id: S0016
+  type: oral
+  title: "Account of Ewa Kowalska about Jakub Kowalski and his third wife"
+  quality: oral
+  language: pl
+  accessed: "2026-01-12"
+  informant: "Ewa Kowalska née Nowak (mother of the proband), heard from her mother-in-law — told to the proband 2026-01-12"
+  transcription: |
+    Uncle Jakub buried two wives and married a third time at fifty-two.
+    He used to say that the soil in Wzorki was better than in Zmyślin.
+    Aunt Weronika, his third wife, was about ten years older than people thought.
+
+- id: S0017
+  type: index
+  title: "Geneteka index: marriage Jakub Kowalski × Katarzyna Lis (widow), Wzorcowo 1899, record 33"
+  parish: P0002
+  year: 1899
+  act: "33"
+  quality: index
+  accessed: "2026-01-12"
+  transcription: "1899 | 33 | Jakub | Kowalski | Katarzyna | Lis (wdowa) | Wzorcowo"
+
+- id: S0018
+  type: index
+  title: "Geneteka index: births and deaths of the Kowalski family in Wzorcowo 1894–1899"
+  parish: P0002
+  quality: index
+  accessed: "2026-01-12"
+  transcription: |
+    B 1894 | 88 | Jan | Kowalski | Jakub | Rozalia Nowicka | Przykładowo
+    D 1894 | 102 | Jan | Kowalski | 3 m. | Przykładowo
+    B 1899 | 14 | Józefa | Kowalska | Jakub | Rozalia Nowicka | Przykładowo
+    D 1899 | 19 | Rozalia | Kowalska z d. Nowicka | 25 | Przykładowo
+    D 1899 | 31 | Józefa | Kowalska | 24 d. | Przykładowo

@@ -260,7 +260,7 @@ Every build regenerates `<workspace>/output/`. File names follow the report lang
 
 | Output | `language: en` | `language: pl` | What it is |
 |---|---|---|---|
-| 🌳 Interactive tree | `tree.html` | `drzewo.html` | generation lanes, line highlighting, zoom, search, facts, sources, research hints; any person as the proband (only their ancestors, or also their ancestors' siblings and their own descendants); the current view saved as a sharp PNG; a Map view with the heatmap of births and deaths (the map below); works offline (web fonts aside) |
+| 🌳 Interactive tree | `tree.html` | `drzewo.html` | generation lanes, line highlighting, zoom, search; each person card opens with "At a glance" (who they were, where they lived, whom they lived with, what is worth knowing, the times they lived in — computed from the data, with sources; the card can be saved as a PNG); facts, sources, research hints; any person as the proband (only their ancestors, or also their ancestors' siblings and their own descendants); the current view saved as a sharp PNG; a Map view with the heatmap of births and deaths (the map below); works offline (web fonts aside) |
 | 🧩 Embeddable tree | `tree-artifact.html` | `drzewo-artefakt.html` | the same page without the document skeleton, for hosts that add one (e.g. Claude artifacts) |
 | 📈 Diagrams | `tree.mmd`, `ancestors.mmd` | `drzewo.mmd`, `przodkowie.mmd` | Mermaid: the whole tree and the line of ancestors |
 | 📜 Ancestor list | `ancestors.md` | `przodkowie.md` | Kekule numbering with completeness per generation |

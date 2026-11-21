@@ -52,6 +52,47 @@ books, open without a login). (Checked 2026-11.)
   since the first year, + 1 for marriages, + 2 for deaths), so the unit of another year can be predicted. A year with an
   extra book breaks the pattern: check against the folder list.
 
+- **The photo number can be a record number.** In some civil death books the index's photo field simply repeats the record
+  number (photo 0035 for record 35) although the folder holds only 19 photos. When the number is larger than the photo
+  count, treat it as the record number: two records per double page after a cover and a title page put record N near viewer
+  number 3 + N/2 (check the "Nr." printed at the top of both pages and step by one spread). In other books the photo number
+  is exact (viewer number = photo + 1); a record can also lie one spread further.
+- **A death book often ends with an alphabetical register** ("Kowalski, Jan … No. 24"), one page per initial. Open the
+  last page of the folder: it gives the record number of a person the name index of PomGenBaza has missed, and with the
+  rule above you land on the right spread at once. If the register is absent, read the first lines of every second spread
+  (zoom 0.9–1.0, region screenshots) and step forward by the dates.
+- **Parish duplicates (fonds "…kat_1254"): the index photo can be one too low.** In tabular baptism books of the early 19th century
+  the PomGenBaza photo number of an entry pointed to the double page before the one holding it (index "photo 0102" for record
+  48; the page showed records 25–39, record 48 was on photo 0103). If the record numbers on the page stop short of yours, open
+  the next photo first. In other duplicates the index photo was one too **high** (index "0112", entry on 0111): when the next
+  photo does not have it either, open the one before. Photo names often carry the years (`…_0150_1840_1841_ur`); read them
+  from the viewer's HTML to find the photos of a year before paging.
+- **A parish's civil-status duplicate may sit in a fonds of its own**, apart from the collection of the parish books (a
+  separate "duplikat ksiąg" fonds of the parish). For the 1840s–1870s such a duplicate can hold baptisms with godparents,
+  marriages, and deaths with columns for the heirs ("Erben") and the informant. The informant column often names the widow
+  with her maiden name ("die Frau Maria geb. Nowak"): the death of Jan Kowalski of Przykładowo gave no parents, but this
+  column gave the maiden name of his widow, and with it the mother of his daughter. Look for such a fonds under the parish's
+  name before deciding that a year is lost.
+- **A death missing from the index of the parish seat's office**: villages of one parish often belonged to two or three civil
+  offices. Search the death over the whole database (no parish filter) by given name and surname prefix — the hit names the
+  office whose district held the village (a Jan Kowalski of Przykładowo, parish Wzorcowo, was registered by the office of a
+  neighbouring estate, not by "USC Wzorcowo"). The seat of one office can also move while the fonds stays the same: a year
+  headed "Wzorcowo Stare" and later years headed "Wzorcowo" may sit in one fonds.
+- **An unindexed civil year, found through the parish index.** When the office's year is missing from PomGenBaza but the
+  parish deaths of that year are indexed, line up the parish entries around the one you need with civil records you can
+  recognise (a stillborn child, an infant with a rare name, two children of one family): if parish entry 51 is civil record
+  22 of 3 June, parish entry 54 is record 23 or 24. With two records per double page, one or two photos settle it.
+
+## Saving a photo (verified 2026-11)
+
+"Pobierz ten skan" fetches `/pobierz/info/skan/<id>` (answer: `{"ok":true,"scans":1,"remaining":N}` — the site allows
+50 downloads a day) and then clicks a link to `/pobierz/skan/<id>`. The `<id>` is the `data-file-id` of that button, and it
+is also in the viewer page's HTML (`podglad/<id>.jpg`), so the ids of several photos can be read with `fetch` of their viewer
+addresses in the signed-in tab. Browsers block the second automatic download that a page triggers, so open
+`/pobierz/skan/<id>` itself in a second tab, a few seconds apart. The file is named
+`_10_<fonds>_0_<unit>_<photo>[_<years>].jpg` (leading underscore, a book's years at the end); drop both so the name is the
+PTG photo number. Look at the image before you attach it to the source: the viewer number is photo + 1.
+
 ## Reading a photo
 
 - The viewer address is `<book folder>/<number>#zoom=<z>&x=<x>&y=<y>`: x and y are the centre of the view as fractions
@@ -81,3 +122,22 @@ books, open without a login). (Checked 2026-11.)
   and rewritten, the signature line shows the form the clerk kept ("+++ Handzeichen der Marianna Kowalski").
 - A record from a civil register can settle a guess made from a parish index: a widower's remarriage names his birthplace,
   his parents and their last residence, so a candidate baptism and a candidate death found by year alone become facts.
+- **Kurrent traps in the parents' line of a marriage record.** "Sohn des noch lebenden … und seiner noch lebenden Ehefrau
+  …" (the parents are alive) and "des verstorbenen … und der verstorbenen …" look alike at low magnification: "noch" is
+  written like "nof" and is a short word, "verstorbenen" is long and begins with "ver". Read the word at zoom 2 or more
+  before you decide whether the parents were alive. If they were, search for **their** death records after that year:
+  a civil death record of the 1890s–1910s names the birthplace and the deceased's own parents ("Sohn des … und der …
+  geb. …"), which is exactly the generation the marriage record leaves out.
+- **A death entered "nach amtlicher Mitteilung"** (from a prosecutor's or a police notice, for an accident far from home,
+  e.g. a forest worker killed by a felled tree) has the whole printed form struck through and a handwritten narrative in
+  the margin or across the form. It has no declarant, but the narrative gives the birth date and place, the parents and
+  the wife's maiden name. The record is in the register of the office where the person died, not where he lived, and the
+  name index of PomGenBaza may lack it although the parish index has the death.
+- **Place names in Latin script inside a Kurrent record**: clerks often wrote the place of birth in Latin letters, and the
+  long s (ſ) in the middle of a word looks like a t or an l — "Kowalſken" read as "Kowaltken" matches no village. Try the
+  reading with s and compare it with the places in the parish's own books: the baptism's godparents "beide aus Kowalsken"
+  settled one such name, and with it the birthplace.
+- **Two men of the same name and age** (a Jan Kowalski aged 48 who died in 1889, another aged 71 who died in 1912): do not
+  choose by name and age. Read the record — wife's name, birthplace, occupation, the declarant's relation — and compare it
+  with the facts already known (the marriage record said "mason"; the 1889 record said "railway guard" and a wife with
+  another name, so it was another man).
