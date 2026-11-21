@@ -34,7 +34,16 @@ the indexed form with its county in Meyers Gazetteer (or the FamilySearch catalo
 attach a record to a place.
 
 The civil registry office (Standesamt) of a village is not always in its parish village: Meyers gives the office of each
-place, and the office may be named after a neighbouring village or estate. Look for the fonds under that name.
+place, and the office may be named after a neighbouring village or estate. Look for the fonds under that name. When the
+archive's description of that fonds lists e.g. deaths "1874–1899, 1910–1938", the years in between are not in the archive
+and not online: order the record from today's civil registry office instead of searching further.
+
+**Every namesake in one district at once**: the search page of Meyers Gazetteer loads one JSON file of all places
+(`all.json`); one of its fields points into a list of "endings" (", Kreis, Regierungsbezirk, Province"). Filtering that file
+by the ending lists every place of a name in one Kreis, e.g. all "Musterhof" in Kreis Musterstadt — the way to tell whether a
+birthplace "Musterhof, Kreis Musterstadt" in a death record is one place or several. The Słownik geograficzny site serves the
+OCR text of each page through the page's "pobierz tekst" link; fetching the pages in the browser finds a cross-reference such
+as "Musterhof … ob. Przykładowo" (see Przykładowo) and then the parish in the entry it points to.
 
 A place name copied from a Polish sentence may be a case form: "urodzony w Przykładowie" gives either Przykładowo or
 Przykładów in the nominative. A private tree or a transcript that writes "Przykładowo" may have reconstructed the wrong

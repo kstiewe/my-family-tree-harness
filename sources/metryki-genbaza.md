@@ -64,7 +64,15 @@ books, open without a login). (Checked 2026-11.)
 - **Parish duplicates (fonds "…kat_1254"): the index photo can be one too low.** In tabular baptism books of the early 19th century
   the PomGenBaza photo number of an entry pointed to the double page before the one holding it (index "photo 0102" for record
   48; the page showed records 25–39, record 48 was on photo 0103). If the record numbers on the page stop short of yours, open
-  the next photo first.
+  the next photo first. In other duplicates the index photo was one too **high** (index "0112", entry on 0111): when the next
+  photo does not have it either, open the one before. Photo names often carry the years (`…_0150_1840_1841_ur`); read them
+  from the viewer's HTML to find the photos of a year before paging.
+- **A parish's civil-status duplicate may sit in a fonds of its own**, apart from the collection of the parish books (a
+  separate "duplikat ksiąg" fonds of the parish). For the 1840s–1870s such a duplicate can hold baptisms with godparents,
+  marriages, and deaths with columns for the heirs ("Erben") and the informant. The informant column often names the widow
+  with her maiden name ("die Frau Maria geb. Nowak"): the death of Jan Kowalski of Przykładowo gave no parents, but this
+  column gave the maiden name of his widow, and with it the mother of his daughter. Look for such a fonds under the parish's
+  name before deciding that a year is lost.
 - **A death missing from the index of the parish seat's office**: villages of one parish often belonged to two or three civil
   offices. Search the death over the whole database (no parish filter) by given name and surname prefix — the hit names the
   office whose district held the village (a Jan Kowalski of Przykładowo, parish Wzorcowo, was registered by the office of a

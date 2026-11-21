@@ -88,3 +88,9 @@ the workspace `places.yaml` notes).
   a record says nothing about whether it exists.
 - In the Prussian partition the German spelling usually has many more entries than the Polish one ("Kowalsky" more
   often than "Kowalski"); exact mode treats them as different surnames, so run the overview for both.
+- **A given name with no surname**: a query "Johannes" for one parish and five years lists every Johannes baptised there,
+  whatever the surname spelling. A Kowalski family of Przykładowo was indexed only as "Kowalewski", which no prefix search
+  had caught. In some Pomeranian parishes the "Akt" column holds the page number, not the record number.
+- **A calligraphic capital Ł can be indexed as G** ("Gukowski" for Łukowski). When a known surname gives no
+  hit, search the parish for the given name and the year alone and read every surname, or read the register at the end of
+  the year on the scan.

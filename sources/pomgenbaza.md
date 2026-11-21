@@ -116,6 +116,18 @@ applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only
   missing from the civil index of the office. Read the civil register itself (see
   [metryki-genbaza.md](metryki-genbaza.md): alphabetical register at the end of the book) before you conclude that the
   person died elsewhere.
+- **Is the year fully indexed?** Before concluding that a baptism is absent, list one parish-year with both name fields
+  empty. Forty to fifty baptisms in a year of a village parish mean the year is complete, so a missing entry is real; a
+  handful means the year is indexed only in part.
+- **The first letter of a maiden name is often misread** ("Rowalska" or "Bowalska" for Kowalska): match a candidate on
+  the father's name and the place, not on the mother's maiden name.
+- **Sisters who married in the town of origin** and then baptised their children in the new parish show when and where a
+  family moved; their marriages are often the quickest way to the parents' old parish.
+- **A prefix never crosses a Polish letter**: "Przyklad" does not match "Przykładowska", and "Ges" or "Gas" miss "Gęsiak". Query
+  every form ("Przyklad" and "Przykład"; "Ges", "Gas", "Gęs").
+- **A widow's remarriage**: search marriages with `spouseLastName` set to her maiden name and the surname empty. "Jan Nowak ×
+  Anna Kowalska, widow" may stand only under her first husband's name, "Anna Przykładowa"; a child of the first marriage
+  indexed with the mother "Kowalska" confirms that she is the same woman.
 
 ## The "Księga" (book) column
 

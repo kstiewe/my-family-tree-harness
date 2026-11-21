@@ -64,6 +64,20 @@ cover the State Archive in Gdańsk; for Pomerania see [pomgenbaza.md](pomgenbaza
   always, consecutive — they can jump by a few). When the viewer hangs on "Wczytywanie miniaturki", look at
   `performance.getEntriesByType('resource')`: a `/loris/…` request that took about 180 s means the image server is down,
   not that the query is wrong — note the exact book, year and record numbers in the log and retry another day.
+- **Which scans fail, and why.** Image ids have the form `<sha256>-<storage uuid>`, and the scans of one book are spread over
+  several storage volumes. When one volume is down, a third to two thirds of the scans of *every* book give "plik
+  niedostępny" while the rest load; when every `/loris/<id>/info.json` answers HTTP 403 within milliseconds, in several books,
+  the whole image service is down. Collect the ids of the scans you need (hook `XMLHttpRequest` in the tab, step through the
+  book with the viewer's next button and look for `loris/<id>` in the `UIDL` responses), test each with a 100-px image
+  (`/full/,100/0/default.jpg`) and log the ids that fail, so that a later session retries exactly those. Read the working
+  scans by IIIF tiles (a 2048-px region scaled to 1024 px), one request at a time: full-size renders and parallel requests
+  time out.
+- **Where a record sits on the scans**: in a reconstructed duplicate one scan is a two-page spread — the left page ends record
+  N−1 and the right page begins record N — so the bride's data of record 2 can be on scan 1 and the witnesses on scan 2. In a
+  Prussian main register one scan is often the first page of a record only, so scan N holds record N−1 (Kowalski × Nowak,
+  record 4, on scan 5).
+- **Tabs share the search state**: another tab of the same browser on this site can replace your query. Run searches through
+  the search form, not through the address hash, when several are open.
 - **The "(N)" in the viewer's header counts within the year** of the book, not across the whole unit.
 - **Page numbers in brackets** ("…/2.3/1088 (8)") are this site's own numbering; they need not match the scan numbers of
   the same book on [Szukaj w Archiwach](szukajwarchiwach.md), and the indexed name can belong to any person of the record

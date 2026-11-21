@@ -71,6 +71,11 @@ relying on it. (Verified 2026-11.)
 - **The office is not always named after the parish**: the civil registry office of a parish village can sit in a
   neighbouring village (Meyers Gazetteer gives the Standesamt of each place, see [gazetteers.md](gazetteers.md)); a fonds
   described as "vacat … włączony do zespołu X" points to the fonds that holds the books of an office that was dissolved.
+- **Unit ids of one parish need not follow the years**: a unit for another period can sit between two consecutive years
+  (a unit "1880–1905" between 1846 and 1847). Check the signature and the dates of each unit before relying on its id.
+- **Dark microfilm duplicates** (light writing on a dark background): turn the image to greyscale and stretch the contrast
+  (autocontrast) before reading. Find the yearly index pages on a contact sheet built from the `_max` images; the `_mid`
+  thumbnails are too dark to tell index pages from records.
 
 ## Reading a whole book without an index (verified 2026-11)
 

@@ -75,7 +75,16 @@ the record number. Reading the index first is much faster than paging through th
 
 - **A Geneteka year range hides gaps**: a parish listed as "U 1671–1921" may have births indexed only up to
   about 1800 plus a few late years. Search a common surname of the region (e.g. Kowalski) over the whole range
-  and count the hits per decade before concluding that a record does not exist.
+  and count the hits per decade before concluding that a record does not exist. The gap can also sit in the middle:
+  "M 1830–1880" may be 1830–1858 plus 1874–1880. Search the parish for one common given name over the range and see which
+  years appear; for the missing years read the yearly marriage indexes on the scans (Szukaj w Archiwach) — the Kowalski ×
+  Nowak marriage of a missing year was found that way.
+- **A widow's second marriage names her late husband** with the date and village of his death ("wdową po zmarłym Janie
+  Kowalskim, zmarłym we wsi Przykładowo dnia …"). That leads to his death record, often in a neighbouring parish, and the
+  death record gives his parents.
+- **A death reported by neighbours can name the wrong mother**: "Piotr Kowalski, son of Wawrzyniec and Dorota née Nowak" was
+  in fact the husband of Dorota née Nowak. Check the parents in a death record against the deceased's own marriage before
+  using them.
 - **Ages drift by a year or two** between records (a woman aged 26 at her wedding in 1907 may have been born in
   late 1880) — search ±2 years.
 - **Same village name in two counties**: check that the candidate village belongs to the parish named in the

@@ -51,6 +51,10 @@ by volunteers. Free account; the user signs in. (Checked 2026-11.)
 - **Marriage books without parents.** Some Catholic marriage registers of the 1850s list only residence, ages, date and
   witnesses. The bride's age still matters: 21 at the wedding outweighs "79" at her death 50 years later when the two give
   different years of birth, and it can move the search for her baptism to other years and other candidates.
+- **Books whose originals sit in a diocesan archive**: the West Prussian church-book collection includes Catholic
+  parish books that have no scans anywhere else. The index of such a parish may lack the village; the "Wohnort" (residence)
+  column on the image has it. Check a namesake there before accepting the match: Jan Kowalski of Przykładowo, not the Jan
+  Kowalski of the next village baptised the same year.
 
 ## Searching the index of a collection
 
