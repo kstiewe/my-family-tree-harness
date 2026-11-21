@@ -63,6 +63,16 @@ by volunteers. Free account; the user signs in. (Checked 2026-11.)
 - **A record page without an image link** may still name its image folder and number; "Check image availability" then says
   whether the image is viewable only at a FamilySearch center or affiliate library. Note the folder and the image number
   ("Anna Kowalska, baptism Musterstadt 1840, DGS 001234567 image 42") for the visit instead of searching the catalog again.
+- **Mapping a long unindexed film**: set the viewer's image-number box from the console (the input's native value setter,
+  then input, change and Enter events) and read the "Image index" table after each jump; its first and last event dates map a
+  film of several hundred images in about fifteen jumps. Keep one console call under about 40 seconds (some eight jumps), or
+  the automated browser drops the tab. When an indexed page jumps from 1786 to 1799 and the facing page shows the first leaf
+  of a new volume, the years between are lost, even if the catalog says "Taufen 1700–1850" without a gap. Unindexed images
+  between indexed ones are often re-shots of the same pages (e.g. with a pasted slip lifted).
+- **Survivors in Prussian-era burial tables**: Catholic burial registers of the period often state the survivors ("leaves 1
+  son and 3 adult daughters"). When a widow Kowalska died in Przykładowo in 1838 leaving one son, only one of her possible
+  sons can have been alive that year — an argument for a hypothesis about a man's parents when his own baptism falls in a
+  lost volume, never a proof of the link.
 - **Two indexes of one entry can misread a maiden name in different ways** ("Nowakowna", "Nawakowna", "Howakowna"): search
   by the father's name and the place, and record every reading as a variant until the image settles it.
 
