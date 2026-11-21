@@ -495,7 +495,8 @@ $('#cf').addEventListener('change', e => {
   draw();
   if (selected) select(selected, false, chart.classList.contains('focus'));
 });
-$('#cf-leg').innerHTML = BANDS.map(b => `<span class="cf-l"><i class="cb b-${b[0]}"></i>${esc(b[2])}${b[1] ? ' ≥' + b[1] : ''}</span>`).join('');
+$('#cf-leg').innerHTML = BANDS.map(b => `<span class="cf-l"><i class="cb b-${b[0]}"></i>${esc(b[2])}${b[1] ? ' ≥' + b[1] : ''}</span>`).join('') +
+  '<span class="cf-note">⟦dot = weakest link from the proband; links of living persons do not lower it⟧</span>';
 
 // ---- picking the proband: a text field that filters a list of every person (arrows, Enter, Esc)
 

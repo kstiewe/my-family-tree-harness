@@ -15,7 +15,7 @@ from .geo import Geo, valid_coords
 from .i18n import tr
 from .schema import (CONFIDENCE, CONFLICT_KEYS, EVENT_KEYS, EVENT_TYPES, EVIDENCE, EXTRA_EVENT_KEYS, FAMILY_CONFLICT_ABOUT,
                      FAMILY_KEYS, FAMILY_OVERRIDE_ABOUT, IDENTITY_KEYS, INFORMATION, LANGUAGES, LIFE_EVENTS, MARRIAGE_KEYS,
-                     NAMESAKES, NO_PARISH_NEEDED, OVERRIDE_KEYS, PARTITIONS, PERSON_CONFLICT_ABOUT, PERSON_KEYS,
+                     NAMESAKES, NO_PARISH_NEEDED, OVERRIDE_KEYS, PARENTAGE_KEYS, PARTITIONS, PERSON_CONFLICT_ABOUT, PERSON_KEYS,
                      PERSON_OVERRIDE_ABOUT, PLACE_KEYS, PROJECT_KEYS, QUOTE_KEYS, SEXES, SIGNATURES, SOURCE_CLASSES,
                      SOURCE_KEYS, SOURCE_QUALITY, SOURCE_TYPES, event_type_label, place_kind)
 
@@ -77,6 +77,7 @@ FIXES = {
     "bad-conflict": "Write each conflict as {about: birth, note: \"what disagrees\", resolved: false, sources: [S0001]}.",
     "bad-override": "Write confidence_override as {score: 0-100, reason: \"why the computed score is wrong\"}.",
     "bad-identity": "Write identity as {namesakes: excluded | possible, note: \"what was checked\"}.",
+    "bad-parentage": "Write parentage as {sources: [S0001], note: \"what the source says about the parents\"}.",
 }
 
 
@@ -295,6 +296,14 @@ class Tree:
                 else:
                     self._keys(f"{pid}.identity", p["identity"], IDENTITY_KEYS)
                     self._enum(f"{pid}.identity.namesakes", p["identity"].get("namesakes"), NAMESAKES)
+            if "parentage" in p:
+                pa = p["parentage"]
+                if not isinstance(pa, dict) or not isinstance(pa.get("sources"), list) or not pa["sources"]:
+                    self.err("bad-parentage", pid, tr("{ctx}: expected {{sources: [S0001], note: \"…\"}}",
+                                                      ctx=f"{pid}.parentage"))
+                else:
+                    self._keys(f"{pid}.parentage", pa, PARENTAGE_KEYS)
+                    self._source_refs(f"{pid}.parentage", pa["sources"], use=True)
             for k in ("married_surnames", "variants", "occupation", "todo"):
                 self._list(pid, p, k)
             if len(self.child_of.get(pid, [])) > 1:

@@ -15,7 +15,7 @@ ID_PREFIX = {"persons": "I", "families": "F", "places": "P", "sources": "S"}
 PROJECT_KEYS = {"name", "author", "proband", "surnames", "regions", "language"}
 PERSON_KEYS = {"id", "given", "surname", "married_surnames", "variants", "sex", "living", "religion",
                "birth", "baptism", "death", "burial", "events", "occupation", "confidence", "notes", "todo", "quote",
-               "conflicts", "confidence_override", "identity"}
+               "conflicts", "confidence_override", "identity", "parentage"}
 LIFE_EVENTS = ("birth", "baptism", "death", "burial")
 EVENT_KEYS = {"date", "place", "sources", "note", "age", "cause", "confidence", "godparents"}
 EXTRA_EVENT_KEYS = EVENT_KEYS | {"type", "value"}
@@ -67,6 +67,8 @@ FAMILY_OVERRIDE_ABOUT = {"marriage"}
 # `identity` of a person: whether other persons of the same name (namesakes) were checked.
 IDENTITY_KEYS = {"namesakes", "note"}
 NAMESAKES = {"excluded", "possible"}
+# `parentage` of a person: sources cited directly as evidence that the person is the child of their parents.
+PARENTAGE_KEYS = {"sources", "note"}
 
 # Language of the original document (ISO 639-1; `la` = Latin). A list when a record mixes languages.
 LANGUAGES = {"pl": "Polish", "la": "Latin", "de": "German", "ru": "Russian", "uk": "Ukrainian", "be": "Belarusian",
@@ -107,6 +109,7 @@ def schema_json() -> dict:
         "conflict": sorted(CONFLICT_KEYS),
         "confidence_override": sorted(OVERRIDE_KEYS),
         "person_identity": sorted(IDENTITY_KEYS),
+        "person_parentage": sorted(PARENTAGE_KEYS),
         "person_life_events": list(LIFE_EVENTS),
         "event": sorted(EVENT_KEYS),
         "extra_event": sorted(EXTRA_EVENT_KEYS),
@@ -164,6 +167,9 @@ def schema_json() -> dict:
             "family.confidence_override": "optional {score: 0-100, reason}: replaces the computed score of the marriage.",
             "person.identity": "optional {namesakes: excluded|possible, note}: excluded = other persons of the same name "
                                "were checked and ruled out; possible = a namesake could be the person.",
+            "person.parentage": "optional {sources: [S0001], note}: sources cited directly as evidence that the person is "
+                                "the child of their parents (direct evidence for the link). A family account cited on "
+                                "one of the person's events counts for the link too, without this field.",
             "source.file": "optional: path (or list of paths) relative to the workspace of the local copy of the source, "
                            f"e.g. {SCANS_DIR}/<archive>/<fonds>/<file>.jpg. The build checks that the file exists and "
                            "reports sources whose scan is not saved locally.",
@@ -173,6 +179,6 @@ def schema_json() -> dict:
             "family.wife": "persons", "family.children[]": "persons", "place.parish": "places",
             "source.parish": "places", "project.proband": "persons", "person.quote.source": "sources",
             "source.same_record_as[]": "sources", "source.derived_from": "sources", "person.conflicts[].sources[]": "sources",
-            "family.conflicts[].sources[]": "sources",
+            "family.conflicts[].sources[]": "sources", "person.parentage.sources[]": "sources",
         },
     }

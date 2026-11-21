@@ -199,6 +199,44 @@ class Variations(unittest.TestCase):
         self.assertLess(possible.value, base.value)
         self.assertTrue(any(ln.pts == -15 for ln in possible.lines))
 
+    def test_family_account_on_an_event_counts_for_the_link(self):
+        def account(*sources):
+            def edit(data):
+                p = rec(data, "persons", "I0007")              # Stanisław: his parents known only from the family
+                p["birth"].pop("sources")
+                p["events"] = [{"type": "other", "sources": [s],
+                                "note": "parents: Karol Nowak and Marta Majewska (family account)"} for s in sources]
+            return edit
+        without = scores(tree_of(account()))
+        self.assertEqual(without.link("I0007").value, 0)
+        self.assertLess(without.paths("I0001", "anc")["I0013"], 30)    # a deceased parent-in-path: the branch above falls
+        one = scores(tree_of(account("S0001")))
+        k = one.link("I0007")
+        self.assertEqual([(i.sid, i.role, i.cls, i.info, i.ev) for i in k.items],
+                         [("S0001", "account", "authored", "secondary", "direct")])
+        self.assertEqual(k.value, 34)
+        self.assertGreaterEqual(one.paths("I0001", "anc")["I0013"], 30)
+        two = scores(tree_of(account("S0001", "S0016"))).link("I0007")  # two accounts of one informant
+        self.assertEqual([i.sid for i in two.items], ["S0016"])
+        self.assertTrue(any("S0001 is the same record as S0016 (the same informant)" in ln.text for ln in two.lines))
+        self.assertEqual(two.value, 34 + 5)                              # the transcription of S0016, no corroboration
+
+    def test_records_on_residence_and_occupation_events_do_not_count_for_the_link(self):
+        jakub = scores(Tree(EXAMPLE / "data")).link("I0022")            # S0011, S0012 are cited on such events
+        self.assertFalse([i for i in jakub.items if i.role == "account"])
+        self.assertNotIn("S0012", [i.sid for i in jakub.items])
+
+    def test_parentage_field_cites_link_evidence(self):
+        def parentage(data):
+            rec(data, "persons", "I0009")["parentage"] = {"sources": ["S0008"], "note": "the service book names the father"}
+        base = scores(Tree(EXAMPLE / "data")).link("I0009").value
+        cf = scores(tree_of(parentage))
+        k = cf.link("I0009")
+        item = next(i for i in k.items if i.sid == "S0008")
+        self.assertEqual((item.role, item.cls, item.info, item.ev), ("parentage", "original", "secondary", "direct"))
+        self.assertGreater(k.value, base)
+        self.assertFalse([w for w in cf.tree.warnings if w.code in ("unknown-field", "unused-source") and w.record == "S0008"])
+
     def test_new_fields_are_validated(self):
         def bad(data):
             rec(data, "persons", "I0013").update(conflicts=[{"about": "weather", "note": "x"}, {"about": "birth"}],
@@ -206,10 +244,13 @@ class Variations(unittest.TestCase):
                                                  identity={"namesakes": "maybe"})
             rec(data, "families", "F0011")["confidence_override"] = {"score": 50}
             rec(data, "sources", "S0017").update(classification="copy", information="tertiary", same_record_as=["S9999"])
+            rec(data, "persons", "I0014")["parentage"] = {"note": "no sources"}
+            rec(data, "persons", "I0015")["parentage"] = {"sources": ["S9998"]}
         t = tree_of(bad)
         codes = {(e.code, e.record) for e in t.errors}
         for expected in (("bad-value", "I0013"), ("bad-conflict", "I0013"), ("bad-override", "I0013"),
-                         ("bad-override", "F0011"), ("bad-value", "S0017"), ("unknown-source", "S0017")):
+                         ("bad-override", "F0011"), ("bad-value", "S0017"), ("unknown-source", "S0017"),
+                         ("bad-parentage", "I0014"), ("unknown-source", "I0015")):
             self.assertIn(expected, codes)
         self.assertTrue(all(FIXES.get(code) for code, _ in codes))
 
@@ -292,6 +333,8 @@ class Outputs(unittest.TestCase):
         self.assertIn("# Confidence of the tree", report)
         self.assertIn("## Weakest links on the line of ancestors", report)
         self.assertIn("Find the birth or baptism record of Karol Nowak", report)
+        self.assertIn("**Exception to the weakest link:**", report)     # the living-persons rule is stated
+        self.assertIn("links of living persons do not lower it", (out / "tree.html").read_text(encoding="utf-8"))
         out_pl = tmpdir()
         code, stdout, _ = run(build.main, ["--workspace", str(EXAMPLE), "--out", str(out_pl), "--lang", "pl"])
         self.assertEqual(code, 0, stdout)
@@ -301,8 +344,9 @@ class Outputs(unittest.TestCase):
     def test_schema_documents_the_new_fields(self):
         code, stdout, _ = run(build.main, ["--schema"])
         schema = json.loads(stdout)
-        for name in ("conflicts", "confidence_override", "identity"):
+        for name in ("conflicts", "confidence_override", "identity", "parentage"):
             self.assertIn(name, schema["person"])
+        self.assertIn("person.parentage", schema["field_notes"])
         for name in ("classification", "information", "evidence", "same_record_as", "derived_from"):
             self.assertIn(name, schema["source"])
             self.assertIn(f"source.{name}", schema["field_notes"])

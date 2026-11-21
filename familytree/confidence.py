@@ -22,10 +22,14 @@ an upper cap; `confidence_override` replaces the computed score and shows its re
 Scores, each with a breakdown ("why this score") and suggestions ("to strengthen"):
 
 - link(child, family): the child is the child of the family's parents and the same person as in the records
-  (identity: the records name the parents, ages and places agree, namesakes checked);
+  (identity: the records name the parents, ages and places agree, namesakes checked). Evidence: the child's
+  birth/baptism sources, the child's death and marriage records, the parents' marriage (indirect), family accounts
+  cited on the child's extra events, and the sources of the optional `parentage` field;
 - facts: the birth (birth or baptism) and the death (death or burial) of a person, the marriage of a family;
 - union(family): how well the couple is attested (the marriage, or a child's link) — the step to a spouse;
-- path(person): the weakest link between the proband and the person; with several paths, the best one.
+- path(person): the weakest link between the proband and the person; with several paths, the best one. Exception:
+  the link of a living person (the union of a couple with a living spouse) does not lower the path — only a manual
+  label caps it — because the family knows it first-hand and the records are not public.
 
 `scores(tree)` computes everything once per tree. The page gets the per-link scores and computes the paths for the
 proband picked there (templates/layout.js); `Confidence.paths()` does the same here for the reports.
@@ -109,6 +113,11 @@ def classify(s: dict) -> str:
     if q in ("original", "image") or (q is None and s.get("file")):
         return "original"
     return "derivative"           # quality unknown: assume a copy was seen, not the record
+
+
+def narrative(s: dict) -> bool:
+    """A family account, someone's tree or a publication: a narrative that may tell the parents of a person."""
+    return s.get("type") in NARRATIVE_TYPES or s.get("quality") == "oral"
 
 
 def _latin(text: str) -> str:
@@ -275,6 +284,8 @@ class Confidence:
             for i, e in enumerate(p.get("events") or []):
                 for s in (e.get("sources") or []) if isinstance(e, dict) else []:
                     out[s].add(f"{pid}.events[{i}]")
+            for s in _ids((p.get("parentage") or {}).get("sources") if isinstance(p.get("parentage"), dict) else None):
+                out[s].add(f"{pid}.parentage")
         for fid, f in t.families.items():
             for key in ("marriage", "divorce"):
                 for s in t.ev(f, key).get("sources") or []:
@@ -329,6 +340,10 @@ class Confidence:
                             else ("secondary", "direct" if names else "indirect"))
             elif role == "parents-marriage":
                 info, ev = ("primary" if typ in MARRIAGE_TYPES else "secondary"), "indirect"
+            elif role == "account":
+                info, ev = "secondary", "direct"
+            elif role == "parentage":              # cited for the parentage on purpose: it states the parents
+                info, ev = ("primary" if typ in BIRTH_TYPES else "secondary"), "direct"
             else:
                 info, ev = "secondary", ("direct" if names else "indirect")
         elif role == "age":
@@ -345,7 +360,9 @@ class Confidence:
                   source=sid, classification=class_label(cls),
                   information=tr("primary information") if info == "primary" else tr("secondary information"))
         where = {"own-death": tr("from the person's death"), "own-marriage": tr("from the person's marriage"),
-                 "parents-marriage": tr("from the parents' marriage"), "age": tr("from the age in the record")}.get(role)
+                 "parents-marriage": tr("from the parents' marriage"), "age": tr("from the age in the record"),
+                 "account": tr("cited on an event of the person"),
+                 "parentage": tr("cited as evidence of the parentage")}.get(role)
         if where:
             desc += " — " + where
         if names:
@@ -452,6 +469,12 @@ class Confidence:
         items += [self._item(sid, "link", "own-marriage", parents) for g in t.spouse_in.get(pid, [])
                   for sid in self._cited(t.families[g], "marriage") if t.sources[sid].get("type") in MARRIAGE_TYPES]
         items += [self._item(sid, "link", "parents-marriage", parents) for sid in self._cited(f, "marriage")]
+        # a family account (or another narrative) cited on one of the person's extra events usually tells the parents;
+        # records cited on residence or occupation events do not count for the link
+        items += [self._item(sid, "link", "account", parents) for e in p.get("events") or [] if isinstance(e, dict)
+                  for sid in e.get("sources") or [] if sid in t.sources and narrative(t.sources[sid])]
+        parentage = p.get("parentage") if isinstance(p.get("parentage"), dict) else {}
+        items += [self._item(sid, "link", "parentage", parents) for sid in _ids(parentage.get("sources")) if sid in t.sources]
         extra: list[Line] = []
         named = sorted({i.sid for i in items if i.names})
         if named:
@@ -794,6 +817,9 @@ def write_confidence(tree: Tree, path: Path) -> None:
             "**hypothesis** 30–59 · **unsupported** < 30. The *link* of a person is the evidence that they are the child "
             "of their parents and the person in the records; the *path* is the weakest link between the proband and "
             "the person. A manual `confidence` caps a score; `confidence_override` replaces it."), "",
+         tr("**Exception to the weakest link:** the link of a living person (and the union of a couple with a living "
+            "spouse) keeps its own score but does not lower the path — the family knows it first-hand and the records "
+            "are not public; only a manual label caps it."), "",
          tr("## Summary"), ""]
     bands = [key for key, _ in BANDS]
 

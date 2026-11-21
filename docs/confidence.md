@@ -14,7 +14,7 @@ to what to research next, not a proof: the reasoning still belongs in `notes` an
 
 | Score | Question | Evidence it reads |
 |---|---|---|
-| **link** (child × parents' family) | Is this person the child of these parents, and the person named in the records (not a namesake)? | the child's birth/baptism sources; the child's death/burial and marriage records (when they name the parents); the parents' marriage (indirect); identity signals |
+| **link** (child × parents' family) | Is this person the child of these parents, and the person named in the records (not a namesake)? | the child's birth/baptism sources; the child's death/burial and marriage records (when they name the parents); the parents' marriage (indirect); family accounts and other narratives cited on the child's extra `events`; the sources of the optional `parentage` field; identity signals |
 | **birth** | date and place of birth or baptism | sources of `birth` and `baptism`; ages in the death and marriage records (indirect) |
 | **death** | date and place of death or burial | sources of `death` and `burial` |
 | **marriage** (family) | date and place of the marriage | sources of `marriage` |
@@ -43,6 +43,16 @@ record is direct when its transcription names the parents (the given names are m
 Cyrillic spellings included, also the forms in `variants`), indirect when it does not or has no
 transcription; the parents' marriage is always indirect. For a birth date, an age in another record
 is indirect.
+
+**Family accounts of parentage.** Who the parents are is often known only from the family and
+recorded as an extra event of the child, e.g.
+`{type: other, sources: [S0001], note: "parents: Stanisław Nowak and Zofia Zielińska (family account)"}`.
+A narrative source (`type: oral / online_tree / publication`, or `quality: oral`) cited on any of the
+person's extra `events` counts for the link as authored, secondary, direct evidence — one account
+alone gives 34 (39 with a transcription), and two accounts of one informant count once. Records cited on residence or
+occupation events do not count for the link. To cite any other source for the parentage on purpose,
+use the optional `parentage: {sources: [...], note}` of the person: its sources are direct evidence
+(primary information for a birth, baptism or civil record or its index, secondary otherwise).
 
 ## The table of points
 
@@ -128,17 +138,22 @@ All new fields are optional; data written before them keeps working.
   the record).
 - `identity: {namesakes: excluded | possible, note}` records whether other persons of the same name
   were checked.
+- `parentage: {sources: [...], note}` cites sources directly as evidence of the person's parents.
 
 The field reference is in [data-format.md](data-format.md) and in `build.py --schema`.
 
-## Living persons and the path
+## Exception to the weakest link: living persons
 
-The links of living persons usually rest on what the family knows first-hand: their records are
-younger than 100 years and not public. Such a link keeps its honest score on the card (often a
-family account or nothing), and a full copy of the civil certificate is suggested, but it **does not
-lower the path** — only a manual label caps it. The same holds for the union of a couple with a
-living spouse. Without this rule a proband whose own and parents' links cite nothing would hide the
-whole tree at any threshold.
+The path is the weakest link — with one deliberate exception. The links of living persons usually
+rest on what the family knows first-hand: their records are younger than 100 years and not public.
+Such a link keeps its honest score on the card (often a family account or nothing), its breakdown
+says "living person: … does not lower the path", and a full copy of the civil certificate is
+suggested — but it **does not lower the path**; only a manual label (`confidence` of the person or
+the family) caps it. The same holds for the union of a couple with a living spouse. Without this
+rule a proband whose own and parents' links cite nothing would hide the whole tree at any threshold.
+The confidence report states the exception under its introduction, and the legend of the page next
+to the band colours. A `confidence_override` on the link of a living person switches the exception
+off for that link (the override then counts as the step).
 
 ## Path confidence and the filter in the page
 

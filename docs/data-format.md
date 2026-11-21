@@ -55,7 +55,7 @@ that validates the data, so it is always current). Annotated templates are in
 | `events` | list of `{type, date, place, value, note, sources, age, confidence}`; `type`: residence, occupation, emigration, military, census, confirmation, education, signature, other |
 | `quote` | optional `{text, source, note}`: one short sentence the person card shows as a quote |
 | `confidence`, `notes`, `todo` | research state |
-| `conflicts`, `confidence_override`, `identity` | evidence analysis (see "Confidence fields" below) |
+| `conflicts`, `confidence_override`, `identity`, `parentage` | evidence analysis (see "Confidence fields" below) |
 
 All of these are optional; data written before a field existed stays valid.
 
@@ -128,6 +128,7 @@ optional fields refine them; the build validates them (unknown values are errors
 | person | `confidence_override` | `{score: 0–100, reason, about: link \| birth \| death}` (or a list): replaces the computed score; the reason is required and shown. |
 | family | `confidence_override` | `{score: 0–100, reason}`: replaces the score of the marriage. |
 | person | `identity` | `{namesakes: excluded \| possible, note}`: whether other persons of the same name were checked. |
+| person | `parentage` | `{sources: [S0001], note}`: sources cited directly as evidence that the person is the child of their parents (direct evidence for the link). A family account cited on one of the person's extra `events` (e.g. `{type: other, sources: [S0001], note: "parents: … (family account)"}`) counts for the link too, without this field. |
 
 ```yaml
 - id: I0013

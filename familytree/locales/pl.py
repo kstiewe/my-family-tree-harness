@@ -817,4 +817,15 @@ MESSAGES = {
     "Hidden by the confidence filter: the weakest link from the proband is ${path ?? '—'}, the filter needs ${minConf}.":
         "Ukryta przez filtr pewności: najsłabsze powiązanie od probanta to ${path ?? '—'}, filtr wymaga ${minConf}.",
     "confidence ≥ ${band[2]} (${minConf})": "pewność ≥ ${band[2]} (${minConf})",
+    "dot = weakest link from the proband; links of living persons do not lower it":
+        "kropka = najsłabsze powiązanie od probanta; powiązania osób żyjących go nie obniżają",
+    "cited on an event of the person": "przy zdarzeniu osoby",
+    "cited as evidence of the parentage": "wskazane jako dowód pochodzenia",
+    '{ctx}: expected {{sources: [S0001], note: "…"}}': '{ctx}: oczekiwano {{sources: [S0001], note: "…"}}',
+    "**Exception to the weakest link:** the link of a living person (and the union of a couple with a living spouse) "
+    "keeps its own score but does not lower the path — the family knows it first-hand and the records are not public; "
+    "only a manual label caps it.":
+        "**Wyjątek od najsłabszego powiązania:** powiązanie osoby żyjącej (i związek pary z żyjącym małżonkiem) "
+        "zachowuje własny wynik, ale nie obniża ścieżki — rodzina zna je z pierwszej ręki, a akty nie są publiczne; "
+        "ogranicza je tylko ręczna etykieta.",
 }
