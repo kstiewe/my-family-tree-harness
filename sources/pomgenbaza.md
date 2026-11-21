@@ -83,6 +83,16 @@ applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only
   next pages (buttons "2", "Następna" under the table). When the number of rows equals the number of the last record, the
   year is indexed completely — a list of every adult woman without a maiden name, say, then finds a person under any
   spelling. Use it where the books themselves have no name index.
+- **A woman known only by her given name and her date of birth** (from a gravestone: "Maria Kowalska, 14.03.1922",
+  maiden name unknown): query the given name alone (prefix, no surname) for that one year in the parish where the family
+  lived, then the neighbouring parishes. The result lists every girl of that name baptised there, with father, mother
+  and mother's maiden name — the candidates for her maiden name. **The index has no dates of birth or baptism**, so
+  place the baptism by its record number: run the same year once more with both name fields empty — the total (e.g.
+  "Urodzenia (180)") gives about 15 baptisms a month, so a birth in mid-March falls around records 35–45 (baptism
+  usually within one to three weeks of birth). This gives a short list, not an answer; the maiden name from the family,
+  the marriage record or the gravestone then picks one row. In the 1920s the Catholic books of the former Prussian
+  partition are in Polish: "Mar" finds "Maria", while the German or Latin form of a name may return nothing (a query
+  "Hedw" for the 1920s can find none where "Jadw" lists several girls). (Checked 2026-11.)
 - **Coverage of many parishes at once**: `fetch` each parish page in the console and read its `table tr`
   rows — the last three cells of a row are the years indexed for births, marriages and deaths.
 - **The coverage table is not complete.** It lists only books with a signature. Entries indexed from another copy, with no
@@ -123,3 +133,10 @@ applies to (`pgQ` in the helper takes `types` for that, and a regex to keep only
 
 `/pomgenbaza/indeksy-cmentarzy-i-pomnikow/` — about 190 cemeteries (2026-11); many rural cemeteries
 are not included.
+- Form fields: `selectCemetery` (0 = all cemeteries, otherwise the cemetery id from the list), `textInput_firstName`,
+  `textInput_lastName`; the results (`divAjaxFindInner_cemeteries`) carry the dates of birth and death. The table has a
+  "maiden name" column — for a woman known only from her husband's surname it gives the family name without a record
+  (e.g. "Nowak née Kowalska"); the data are sometimes shifted by a column. Most indexed cemeteries end around 2010.
+- The coverage table of a parish does not list every year: a parish whose table shows births 1848–1875 and two single
+  years may still have births of 1908–1921 in the index. Run a search with `selectParish` before treating years as
+  not indexed.
