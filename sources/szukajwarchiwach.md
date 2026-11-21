@@ -133,6 +133,14 @@ shell (`curl`) and read locally, which is faster than the viewer when a whole se
 The search sometimes answers "Portlety jest tymczasowo niedostępny" or "Brak wyników" for everything;
 a few hours later it works. Retry later and note the outage in the log.
 
+After about 60 full-size downloads in a row the image host answered scripted requests (curl) very slowly — over a minute
+per image — while the same images still loaded in the browser. Then read the images in the browser at full width instead
+of downloading them, and keep downloads to the records you cite.
+
+**Ranking pages by a script**: the `_mid` thumbnails are served with CORS headers, so a script in a tab of the site can draw
+them on an `OffscreenCanvas` and measure them (brightness, the number of ruled vertical lines) to rank the pages most likely
+to be index tables. In books of the Polish period (before 1868) this gave many false hits; check the ranked pages by eye.
+
 ## Browser window and screenshots
 
 An agent's browser window may be 1024×768 with screenshots scaled to 800×600: size an image
