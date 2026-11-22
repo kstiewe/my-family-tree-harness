@@ -6,6 +6,12 @@ The parish decides where the records are. Record it in `places.yaml` (`parish`, 
 - **Wikipedia (Polish)**: the commune, sometimes the parish. Watch out for disambiguation pages —
   several villages often share a name. Add the commune or county to the search, e.g.
   "Przykładowo wieś powiat przykładowski gmina".
+- **Today's parish of a village** (checked 2026-11): the Słownik geograficzny gives the 19th-century parish, and a village
+  may belong to another parish now (a filial church, a parish founded after 1945). Polish Wikipedia's full-text search for
+  the village name in quotes with the word *parafia* (`"Przykładowo Wielkie" parafia`) finds the parish article, which lists
+  "Do parafii należą wierni z miejscowości: …" and the filial churches; the parish's own website (office e-mail, cemetery)
+  is usually linked from there. Write the parish into `places.yaml` even when Geneteka has no 20th-century books of it: the
+  parish leads to the parish cemetery and its grave finder ([graves.md](graves.md)).
 - **polskawliczbach.pl** and **PRNG** (the national register of geographic names): coordinates and
   current administrative units.
 - **[Słownik geograficzny Królestwa Polskiego](https://dir.icm.edu.pl/Slownik_geograficzny/)**

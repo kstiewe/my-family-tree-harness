@@ -15,6 +15,9 @@ a book: Geneteka "Uwagi", the PomGenBaza "Księga" column.
    the button `_Result_search_again`. The ids may change; find them via the "Szukaj" button.
    From a script: set the value of the home-page field and call `form.requestSubmit()` on its form —
    the results page lists the fonds as links `/zespol/-/zespol/<id>` (checked 2026-11).
+   For several searches in a row, load the home page in a hidden `iframe`, do the same inside it and read the results page
+   from the frame once it has loaded; the tab itself stays where it is. The left column of the results page counts the hits
+   per archive and per decade — read it before the list.
 2. **Two kinds of hits.** A row like "Przykładowo, gmina …" is a description from the PRADZIAD
    database (`_Zespol_id_zespolu=…`), without scans. The real fonds has the address
    `/zespol/-/zespol/<id>`; on its page check "Liczba skanów" — 0 means nothing is online.
@@ -76,6 +79,26 @@ relying on it. (Verified 2026-11.)
 - **Dark microfilm duplicates** (light writing on a dark background): turn the image to greyscale and stretch the contrast
   (autocontrast) before reading. Find the yearly index pages on a contact sheet built from the `_max` images; the `_mid`
   thumbnails are too dark to tell index pages from records.
+
+## Settlers after 1945: repatriation registers (checked 2026-11)
+
+Families that settled in a new place in 1945–1950 passed through the State Repatriation Office (PUR). In the fonds of a PUR
+voivodeship branch each district branch is a series of its own (`…/13.1/…`, `…/13.2/…` …). Besides reports and accounts, a
+district series can hold the registers that name the settlers: "Książka meldunkowa repatriantów" (arrivals in order, numbered),
+registration books of repatriates ("… rejestracyjna repatriantów"), "Listy imienne osadników", "Ewidencja wydanych
+zaświadczeń" and an alphabetical
+**"Skorowidz"** to the books. Such registers usually have a column for the place the family came from — the missing link for
+a family whose earlier records are elsewhere.
+
+- **Finding the series**: a voivodeship fonds can have over 3000 units. List it in the browser (`_Zespol_delta=100`, 30-odd
+  pages, a pause between pages), keep the rows and filter them by the district town; the signature shows the series
+  (`…/13.7/2345`). Units of the voivodeship branch outside the district series (lists of a staging point, lists of people
+  resettled in 1947) can name the same families.
+- **The district office's own fonds** (starostwo, 1945–1950) and the fonds of the communes (gminna rada narodowa) of the
+  first years hold "sprawy przesiedleńcze", settler lists and the farm census of 1950; a commune that existed only in
+  1945–1946 can have a fonds of its own under the village's name.
+- **None of these units had scans.** Prepare a search request (kwerenda) for the user: archive, fonds and signature, the
+  index first, then the books, with each person's name, date of birth and the village they settled in.
 
 ## Reading a whole book without an index (verified 2026-11)
 

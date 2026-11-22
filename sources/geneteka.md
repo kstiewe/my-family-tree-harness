@@ -40,6 +40,10 @@ the workspace `places.yaml` notes).
 - The `title` of another icon says where the books are kept ("Miejsce przechowywania ksiąg"); the
   link to a scan is an `<a>` containing `img[src*="/s.png"]`.
 - Helper: [geneteka-rows.js](geneteka-rows.js) returns rows with remarks and scan links.
+- **At most 50 rows per request** (checked 2026-11): a longer page length (`page.len(500)` in the console, or `rpp2=500` in
+  the URL) still brings 50 rows from the server — the counter says "Pozycje od 1 do 412" while the table holds 50. Narrow the
+  years (or the parish, with `searchtable=`) until the result fits in 50 rows instead of paging through it from a script; for
+  an overview of where a surname occurs, a few year ranges of the exact search are enough.
 
 ## Techniques
 

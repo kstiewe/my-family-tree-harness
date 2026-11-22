@@ -57,7 +57,45 @@ may be missing) and usually stops 10–15 years ago. The "near buried" block on 
 map, not the people in the same grave. To find a family grave, collect the grave numbers of everyone of the surname in
 that cemetery: neighbouring numbers (796-797, 801, 802-803) are often relatives.
 
+## Parish cemetery plans: Cmentarnik.net and parish finders (checked 2026-11)
+
+Many small parish cemeteries that are on neither Grobonet nor eCmentarze have an interactive plan with a search on a
+platform of their own. A web search for the parish village with "cmentarz" lists the services that host its cemetery
+(cmentarnik.net, mogily.pl, a Grobonet subdomain, eCmentarze); do it for the parish and for each village with a filial
+church, because a filial church often has its own cemetery.
+
+**Cmentarnik.net** (parishes and municipalities, about 200 cemeteries):
+- **Which cemeteries are there**: the global search page `https://cmentarnik.net/szukaj` has a select field listing every
+  cemetery ("Cmentarz Parafialny w Przykładowie"); read its options. The global search itself is behind a reCAPTCHA — do not
+  use it. Each cemetery has its own search without one.
+- **The cemetery's page** is `https://cmentarnik.net/<slug>`, the slug being the place name without diacritics, spaces or
+  hyphens (`przykladowowielkie`), with a hyphen before a district (`wzorcowo-zarzecze`). Test the candidates: a wrong slug gives 404.
+- **Search**: the form on the cemetery page posts to `/<slug>/szukaj/zmarly` with `_token` (a hidden field of the page) and
+  `mane` (a surname or a given name). In a tab of the site, `fetch` with a `FormData` and parse the `tr` rows: "Kowalski Jan
+  1921-03-04 1988-11-30 B/2/7", married women with "(zd. Nowak)" — the maiden name comes from the parish files and is often
+  not on the stone. The token of one cemetery page worked for the other cemeteries in the same session.
+- **The grave card** is `/<slug>/<sector>/<row>/<place>` (or `/g/<id>`): everyone in the plot with both dates, and photos under
+  `/images/inst/<cemetery id>/graves/…` in full size. The "Lat" column is the difference of the years, not the exact age.
+- **Neighbours in the row**: fetch the cards of the plots next to a family grave (place − 2 … + 2). Consecutive plots often
+  hold one family: the parents, a son-in-law, the wife's own parents. A neighbour whose name the family already gave (a
+  sibling's spouse, say) is the strongest sign that the grave next to him is that of the family's parents.
+- **Coverage**: search a common given name ("Jan", "Maria") — dozens of hits show a filled database, while a common surname
+  may honestly give 0 in a small village.
+
+**A parish's own finder** (e.g. `cmentarz-<town>.pl`): a POST form with given name and surname; each result has "Pokaż grób"
+(show the grave), and the card shows sector / row / place, the photo and everyone in the plot. "0000-00-00" means that the
+date is unknown, not that the person is alive. Such a finder covers the parish cemetery only; the town's municipal cemetery
+is usually a separate site (often a Grobonet subdomain whose data start in the 2000s).
+
 ## Reading grave results
+
+- **The stone and the parish database can disagree on the given name**: the database may hold the first baptismal name
+  (from the parish register) and the stone the name used in life — "Jan" in the database, another name on the stone. Record
+  both (`variants`) and quote both in the source.
+- **A family's account may give a near form of a name** (a similar-sounding name, a diminutive, the second of two given
+  names). When the surname, the maiden name, the year, the cemetery and the spouse all match the account, the stone's name is
+  the better one: correct `given`, keep the family's form in `variants` and say in `notes` what changed. When the names differ
+  and nothing else ties the grave to the person, keep the grave as an unlinked candidate and ask the family.
 
 - A search by a woman's given name and her maiden surname returns hundreds of unrelated graves nationwide (eCmentarze,
   Timenote). Use the married surname, a cemetery filter, or Grobonet with a voivodeship, which at least lists the
