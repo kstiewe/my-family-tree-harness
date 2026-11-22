@@ -329,7 +329,7 @@ the generic checks only.
 | Kind | Built from | Matching |
 |---|---|---|
 | Surnames | `surname`, `married_surnames`, surname-like `variants`, project surnames | inflected forms (*Kowalski → Kowalskiego, Kowalscy*), spelling variants |
-| Places | place names, aliases, project regions | inflected forms (*Wola → Woli*) |
+| Places | place names, aliases; proper nouns and place adjectives of the free-text project regions (not voivodeships, historical regions, countries or common words) | inflected forms (*Wola → Woli*) |
 | IDs | `I/F/P/S` IDs of the private data | exact, minus IDs the public example also uses |
 | Dates | full event dates | `YYYY-MM-DD` and `DD.MM.YYYY` |
 | Numbers | 5+ digit numbers in data, notes, instructions | exact (archive units, record IDs) |

@@ -89,6 +89,13 @@ The pointer files keep their old, lenient meaning: a stale `.workspace` is skipp
   ones to `block:` and keep notes out of the repository.
 - Given names are not blocked on their own (they occur in every example); rare ones can be added to
   `block:`.
+- `regions` in `data/project.yaml` is prose. Only its proper nouns and place adjectives (a parish, a
+  county such as "pow. wzorcowski") become terms; common words, the family's given names and the
+  names of voivodeships, historical regions, countries and partitions — in any inflected form — do
+  not, so that a note like "probably from Silesia" never blocks the guides. A village that matters
+  belongs in `places.yaml`, whose names are always checked.
+- Generic words such as *Nowa*, *Wielka* or *Kolonia* are skipped only in place names. A surname or
+  a `block:` entry is a term even when it is such a word (*Górny*, *Mazowiecka*).
 - A hook can be skipped with `--no-verify`; do not. The pre-push hook is the second line of defence.
 - The name of your hosting account and the e-mail address in commits are public. Choose them knowing
   that.

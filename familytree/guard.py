@@ -14,7 +14,8 @@ Private terms are built at run time from every workspace on this machine and kep
 one (--workspace, FAMILYTREE_WORKSPACE, the current directory, the `.workspace` file …), the linked ones and all
 in the registry ~/.config/familytree/workspaces (`scripts/workspace.py list` shows them). From each workspace:
   surnames      persons.yaml (surname, married_surnames, surname-like variants), project.yaml surnames
-  places        names and aliases from places.yaml, words of project.yaml `regions`
+  places        names and aliases from places.yaml; proper nouns and place adjectives of the free-text project.yaml
+                `regions` (never common words, given names, voivodeships, historical regions or countries)
   ids           I/F/P/S ids of the private data, minus ids that the public example data also uses
   dates         full dates (YYYY-MM-DD or DD.MM.YYYY) of events of persons and families
   numbers       numbers of 5+ digits from the data, research notes and INSTRUCTIONS.md (archive unit ids …)
@@ -58,7 +59,8 @@ from .workspace import APP_ROOT, ENV_VAR, NOT_FOUND, Workspace, all_workspaces, 
 NO_PRIVATE_ENV = "FAMILYTREE_GUARD_NO_PRIVATE"
 ZERO = "0" * 40
 
-# Words that occur in place names and region descriptions but identify nothing on their own.
+# Words that occur in place names and region descriptions but identify nothing on their own. Only places are
+# filtered with them: a surname (Górny, Mazowiecki) or a `block:` entry is a term even when it is one of these words.
 GENERIC_WORDS = set("""
 nowy nowa nowe nowo stary stara stare staro wielki wielka wielkie wielko maly mala male malo gorny gorna gorne dolny
 dolna dolne wyzszy nizszy srednia sredni polski polska polskie pomorski pomorska pomorskie kujawski kujawska swiety
@@ -72,6 +74,26 @@ mazowiecki mazowiecka podlaski podlaska slaski slaska
 """.split())
 ADJ_SUFFIXES = ("skiego", "skiej", "skich", "ckiego", "ckiej", "ckich", "dzkiego", "dzkiej", "dzkich",
                 "dzki", "dzka", "dzcy", "ski", "ska", "sky", "scy", "cki", "cka", "cky", "ccy")
+PLACE_ADJ = ADJ_SUFFIXES + ("skie", "ckie", "dzkie")
+# `regions` (project.yaml) is prose ("prawdopodobnie z Mazowsza", "Wzorcowo parish (Congress Poland)"). A word of it
+# is never a term when it starts with one of these roots: voivodeships, historical regions, countries and partitions
+# in Polish, English and German, in any inflected form (na Mazowszu, Silesian, Westpreußen), denominations and
+# descriptive adjectives (linia ojcowska, parafia katolicka).
+REGION_ROOTS = tuple("""
+dolnoslas gornoslas slask opolsk opolszczyzn lubels lubus lodzk malopol wielkopol mazowie mazowsz warmi pomors pomorz
+zachodniopomor kujaw podkarpac podlas swietokrzys kaszub galicj galicy polsk polsc niemc niemieck rosj rosyjsk austri
+austriack prusy prusach prusk litw litew ukrain bialorus krolestw kongresow ksiestw zabor poznansk
+silesi pomerani pomereli masovi mazovi masur kashubi kuyavi podlachi subcarpathi galici poland polish prussi russi
+german lithuani belarus kingdom congress duchy grand province partition governorate voivodeship empire upper lower
+greater lesser western eastern northern southern
+schlesi pommer posen galizi russland osterreich deutschland reichsgau regierungsbezirk provinz herzogtum
+katolic greckokatol ewangelic luteran unick zydowsk prawoslaw wiejsk miejsk szlachec chlopsk ojcowsk
+""".split())
+# Words of `regions` prose that name no place: hedges and directions (Zapewne …, Near …).
+REGION_WORDS = set("""
+zapewne prawdopodobnie moze chyba okolo obok blisko probably perhaps maybe possibly likely near around
+somewhere west east north south reich
+""".split())
 GENERIC_PATHS = (re.compile(r"^(data|output|research)/"), re.compile(r"(^|/)INSTRUCTIONS\.md$"),
                  re.compile(r"(^|/)privacy\.ya?ml$"), re.compile(r"(^|/)\.workspace$"), re.compile(r"\.ged$", re.I),
                  re.compile(r"(^|/)(persons|families|places|sources)\.ya?ml$"))
@@ -140,11 +162,27 @@ class Terms:
         if len(tokens) > 1:
             self._add(self.phrases, " ".join(tokens), kind)
         for t in tokens:
-            if t in GENERIC_WORDS:
+            if kind == "places" and t in GENERIC_WORDS:
                 continue
             s = stem(t, min_len)
             if s:
                 self._add(self.prefix if s[0] == "prefix" else self.exact, s[1], kind)
+
+    def add_region(self, text: str, given: set[str] | frozenset[str] = frozenset()) -> None:
+        """A `regions` entry is prose: only its proper nouns and place adjectives (Wzorcowo, pow. wzorcowski) become
+        place terms — not common words, generic words, the family's given names (`given`: their stems) or the names of
+        regions and countries (REGION_ROOTS). The whole entry is kept as a phrase as well."""
+        tokens = TOKEN.findall(fold(text))
+        if len(tokens) > 1:
+            self._add(self.phrases, " ".join(tokens), "places")
+        for word in re.findall(r"[^\W_]+", text):
+            for t in TOKEN.findall(fold(word)):
+                if not (word[:1].isupper() or t.endswith(PLACE_ADJ)) or t in GENERIC_WORDS or t in REGION_WORDS \
+                        or t.startswith(REGION_ROOTS):
+                    continue
+                s = stem(t)
+                if s and s[1] not in given:
+                    self._add(self.prefix if s[0] == "prefix" else self.exact, s[1], "places")
 
     def stats(self) -> dict[str, int]:
         out: dict[str, int] = {}
@@ -213,8 +251,9 @@ def load_terms(ws: Workspace, repo: Path = APP_ROOT) -> Terms:
             for v in [s.get("surname")] + list(s.get("variants") or []):
                 if v:
                     T.add_word(str(v), "surnames", min_len=3)
+    given_stems = {s[1] for s in map(stem, given_names) if s}
     for r in project.get("regions") or []:
-        T.add_word(str(r), "places")
+        T.add_region(str(r), given_stems)
     for f in families:
         if isinstance(f, dict):
             for key in ("marriage", "divorce"):

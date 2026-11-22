@@ -7,7 +7,7 @@ import subprocess
 import unittest
 from pathlib import Path
 
-from _common import env, own_config, run, sample_copy, tmpdir
+from _common import ROOT, env, own_config, run, sample_copy, tmpdir
 
 from familytree import guard, workspace
 from familytree.workspace import Workspace
@@ -25,11 +25,11 @@ PRIVATE = {
 }
 
 
-def private_workspace() -> Workspace:
+def private_workspace(files: dict[str, str] | None = None) -> Workspace:
     root = tmpdir() / "private"
     (root / "data").mkdir(parents=True)
     (root / "research").mkdir()
-    for name, text in PRIVATE.items():
+    for name, text in {**PRIVATE, **(files or {})}.items():
         (root / "data" / name).write_text(text, encoding="utf-8")
     (root / "research" / "notes.md").write_text("Unit 30301234 has the record.\n", encoding="utf-8")
     (root / "privacy.yaml").write_text('block: ["Ciocia Bronia"]\nallow: ["Archiwum w Brzozówce"]\n', encoding="utf-8")
@@ -69,6 +69,29 @@ class Terms(unittest.TestCase):
                      "born 1850-03-12", "Archiwum w Brzozówce has the books", "a given name: Bronislava",
                      'key("Archiwum w Brzozówce"), "Archiwum w Brzozówce"'):
             self.assertClean(text)
+
+    def test_free_text_regions_give_names_never_common_words_or_regions(self):
+        regions = ('regions: ["okolice Olszynki (Brzozówka)", "Prawdopodobnie z Mazowsza albo ze Śląska (według babci '
+                   'Bronisławy: rodzina ojca z Kujaw), pow. jarzębiecki", "probably Greater Poland or Upper Silesia"]\n')
+        project = PRIVATE["project.yaml"].replace('regions: ["okolice Olszynki (Brzozówka)"]\n', regions)
+        T = guard.load_terms(private_workspace({"project.yaml": project}))
+        for text in ("mazowieckie", "na Mazowszu", "śląskie", "ze Śląska", "Prawdopodobnie", "według babci",
+                     "Bronisławy", "na Kujawach", "Greater Poland", "Silesian", "probably"):
+            self.assertEqual(guard.scan_text(T, text, "t"), [], text)
+        for text in ("powiat jarzębiecki", "w Olszynce", "Brzozówka"):
+            self.assertTrue(guard.scan_text(T, text, "t"), text)
+        for path in ("familytree/guard.py", "familytree/geneteka.py"):     # its own lists of regions and voivodeships
+            self.assertEqual(guard.scan_text(T, (ROOT / path).read_text(encoding="utf-8"), path), [], path)
+
+    def test_generic_words_never_hide_a_surname_or_a_block_entry(self):
+        for name in ("Górny", "Mazowiecka"):
+            for kind in ("surnames", "block"):
+                T = guard.Terms()
+                T.add_word(name, kind, min_len=3)
+                self.assertTrue(guard.scan_text(T, f"Jan {name}", "t"), (name, kind))
+            T = guard.Terms()
+            T.add_word(name, "places")                  # in a place name only a qualifier (Wola Górna)
+            self.assertEqual(guard.scan_text(T, f"Jan {name}", "t"), [], name)
 
     def test_artifact_links_are_blocked_even_without_private_data(self):
         T = guard.Terms(private=False)
