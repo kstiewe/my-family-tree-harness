@@ -15,6 +15,10 @@ The workspace is found in this order:
   3. the current directory or one of its parents
   4. the `.workspace` file in the application root (one line: a path), written by `workspace.py link`
   5. ~/.config/familytree/workspace (same format)
+
+Every workspace on this machine is also listed in the registry ~/.config/familytree/workspaces (one path per
+line), written by `init`, `link` and `register`. The privacy guard checks the private terms of all of them, not
+only of the one found above, so that several families can share one machine (docs/privacy.md).
 """
 
 from __future__ import annotations
@@ -28,14 +32,28 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from .i18n import tr
+
 APP_ROOT = Path(__file__).resolve().parent.parent
 ENV_VAR = "FAMILYTREE_WORKSPACE"
 POINTER = APP_ROOT / ".workspace"
 SKELETON = Path(__file__).parent / "skeleton"
+REGISTERED = "registry"     # Workspace.found_via of a workspace that only the registry knows
+REGISTRY_HEADER = ("# Family-tree workspaces on this machine, one path per line. The privacy guard checks the private\n"
+                   "# terms of every one. Change it with: python3 scripts/workspace.py register / unregister PATH\n")
+
+
+def config_dir() -> Path:
+    return Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config") / "familytree"
 
 
 def user_config() -> Path:
-    return Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config") / "familytree" / "workspace"
+    return config_dir() / "workspace"
+
+
+def registry_file() -> Path:
+    """Every workspace on this machine, one path per line (`#` starts a comment)."""
+    return config_dir() / "workspaces"
 
 
 def is_workspace(path: Path) -> bool:
@@ -95,11 +113,100 @@ def find_workspace(explicit: str | Path | None = None, cwd: Path | None = None) 
     for d in (here, *here.parents):
         if is_workspace(d):
             return Workspace(d, "current directory")
+    linked = _linked()
+    return Workspace(*linked[0]) if linked else None
+
+
+def _linked() -> list[tuple[Path, str]]:
+    """The workspaces named in the pointer files (`workspace.py link`) that exist, with how they were found."""
+    out = []
     for pointer, label in ((POINTER, f"{POINTER.name} file in the application root"), (user_config(), str(user_config()))):
         p = _read_pointer(pointer)
         if p and is_workspace(p):
-            return Workspace(p, label)
-    return None
+            out.append((p, label))
+    return out
+
+
+# ------------------------------------------------------------------ registry of every workspace on this machine
+
+def _entry(line: str, base: Path) -> Path | None:
+    line = line.strip()
+    if not line or line.startswith("#"):
+        return None
+    p = Path(line).expanduser()
+    return p if p.is_absolute() else (base / p).resolve()
+
+
+def _names(line: str, base: Path, root: Path) -> bool:
+    """Whether a registry line names this workspace (resolved paths are compared too, for symbolic links)."""
+    p = _entry(line, base)
+    return p is not None and (p == root or p.resolve() == root.resolve())
+
+
+def _registry_lines() -> list[str]:
+    """The lines of the registry; none if it does not exist. One that exists but cannot be read raises OSError or
+    UnicodeError: callers must never treat it as empty."""
+    try:
+        return registry_file().read_text(encoding="utf-8").splitlines()
+    except FileNotFoundError:
+        return []
+
+
+def _write_registry(lines: list[str]) -> None:
+    """Replace the registry in one step, so that it is never left half-written."""
+    path = registry_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text("".join(f"{line}\n" for line in lines), encoding="utf-8")
+    os.replace(tmp, path)
+
+
+def registered() -> list[Path]:
+    """The registered workspaces in the order they were added, also those that no longer exist."""
+    base = registry_file().parent
+    return list(dict.fromkeys(p for p in (_entry(line, base) for line in _registry_lines()) if p))
+
+
+def register(root: Path) -> bool:
+    """Add a workspace to the registry; False if it is there already."""
+    lines, base = _registry_lines(), registry_file().parent
+    if any(_names(line, base, root) for line in lines):
+        return False
+    _write_registry((lines or REGISTRY_HEADER.splitlines()) + [str(root)])
+    return True
+
+
+def unregister(path: Path) -> bool:
+    """Remove a workspace (also one that no longer exists) from the registry; False if it was not there."""
+    lines, base = _registry_lines(), registry_file().parent
+    keep = [line for line in lines if not _names(line, base, path)]
+    if len(keep) == len(lines):
+        return False
+    _write_registry(keep)
+    return True
+
+
+def all_workspaces(active: Workspace | None) -> tuple[list[Workspace], list[Path]]:
+    """Every workspace this machine knows about, each once: `active` (find_workspace) first, then the linked and the
+    registered ones; and the registered paths that are missing or no longer a workspace. Raises OSError or UnicodeError
+    when the registry cannot be read."""
+    found = [active] if active else []
+    found += [Workspace(p, label) for p, label in _linked()]
+    missing = []
+    for p in registered():
+        if is_workspace(p):
+            found.append(Workspace(p, REGISTERED))
+        else:
+            missing.append(p)
+    unique: dict[Path, Workspace] = {}
+    for ws in found:
+        unique.setdefault(ws.root.resolve(), ws)
+    return list(unique.values()), missing
+
+
+def inside_app(root: Path) -> bool:
+    root = root.resolve()
+    return root == APP_ROOT or APP_ROOT in root.parents
 
 
 NOT_FOUND = ("No workspace found. Create one with `python3 scripts/workspace.py init PATH`, or connect an existing one "
@@ -120,13 +227,71 @@ def cmd_where(ws: Workspace | None, as_json: bool) -> int:
 def cmd_link(path: str, user: bool) -> int:
     p = Path(path).expanduser().resolve()
     if not is_workspace(p):
-        print(f"{p} is not a workspace (no data/project.yaml).", file=sys.stderr)
+        print(tr("{path} is not a workspace (no data/project.yaml).", path=p), file=sys.stderr)
         return 1
     target = user_config() if user else POINTER
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(f"{p}\n", encoding="utf-8")
     print(f"Linked {p} via {target}")
+    return 0 if inside_app(p) else _register(p)     # the sample family is public: never a source of private terms
+
+
+def _register(root: Path) -> int:
+    try:
+        added = register(root)
+    except (OSError, UnicodeError) as e:
+        print(tr("Could not register {path} in {registry} ({error}). The privacy guard does not check its private terms "
+                 "until it is registered: python3 scripts/workspace.py register {path}",
+                 path=root, registry=registry_file(), error=e), file=sys.stderr)
+        return 1
+    if added:
+        print(tr("Registered {path} in {registry}: the privacy guard checks its private terms too.",
+                 path=root, registry=registry_file()))
+    else:
+        print(tr("{path} is registered already.", path=root))
     return 0
+
+
+def cmd_register(path: str) -> int:
+    root = Path(path).expanduser().resolve()
+    if not is_workspace(root):
+        print(tr("{path} is not a workspace (no data/project.yaml).", path=root), file=sys.stderr)
+        return 1
+    if inside_app(root):
+        print(tr("Not registered: {path} is inside the application repository, whose data (the sample family) is "
+                 "public.", path=root), file=sys.stderr)
+        return 1
+    return _register(root)
+
+
+def cmd_unregister(path: str) -> int:
+    p = Path(path).expanduser().absolute()
+    if unregister(p):
+        print(tr("Removed {path} from the registry of workspaces.", path=p))
+        return 0
+    print(tr("{path} is not in the registry of workspaces ({registry}).", path=p, registry=registry_file()),
+          file=sys.stderr)
+    return 1
+
+
+def cmd_list(active: Workspace | None) -> int:
+    workspaces, missing = all_workspaces(active)
+    if not workspaces and not missing:
+        print(NOT_FOUND)
+        return 1
+    known = {p.resolve() for p in registered()}
+    print(tr("Workspaces on this machine (the privacy guard checks the private terms of each):"))
+    for ws in workspaces:
+        notes = [] if ws.found_via == REGISTERED else [
+            tr("active, found via {via}", via=ws.found_via) if ws is active else tr("linked via {via}", via=ws.found_via)]
+        if not inside_app(ws.root):     # the sample family is public: there is nothing to register
+            notes.append(tr("registered") if ws.root.resolve() in known else
+                         tr("not registered: python3 scripts/workspace.py register PATH"))
+        print(f"  {ws.root}  ({'; '.join(notes)})")
+    for p in missing:
+        print(f"  {p}  ({tr('registered, but MISSING: the privacy guard blocks until it is back or unregistered')})")
+    print(tr("Registry: {path}", path=registry_file()))
+    return 1 if missing else 0
 
 
 def cmd_init(path: str, name: str, lang: str, git: bool) -> int:
@@ -134,7 +299,7 @@ def cmd_init(path: str, name: str, lang: str, git: bool) -> int:
     if is_workspace(root):
         print(f"{root} already is a workspace; nothing changed.", file=sys.stderr)
         return 1
-    if root.resolve() == APP_ROOT or APP_ROOT in root.parents:
+    if inside_app(root):
         print("Refusing to create a workspace inside the application repository: family data must live outside it.",
               file=sys.stderr)
         return 1
@@ -149,7 +314,7 @@ def cmd_init(path: str, name: str, lang: str, git: bool) -> int:
     if git and not (root / ".git").exists() and shutil.which("git"):
         subprocess.run(["git", "init", "-q", str(root)], check=False)
     print(f"Workspace created: {root}\nConnect it: python3 scripts/workspace.py link {root}")
-    return 0
+    return _register(root)
 
 
 def context_text(ws: Workspace | None) -> str:
@@ -207,6 +372,11 @@ def main(argv: list[str] | None = None) -> int:
     it.add_argument("--name", default="Family tree")
     it.add_argument("--lang", default="en", help="language of reports (en, pl …)")
     it.add_argument("--git", action="store_true", help="also run git init (a private repository, never public)")
+    rg = sub.add_parser("register", help="add a workspace to the registry (the privacy guard checks every one)")
+    rg.add_argument("path")
+    ur = sub.add_parser("unregister", help="remove a workspace from the registry, also one that no longer exists")
+    ur.add_argument("path")
+    sub.add_parser("list", help="every workspace on this machine, as the privacy guard sees them")
     cx = sub.add_parser("context", help="print the workspace summary and private instructions for an agent")
     cx.add_argument("--hook", action="store_true", help="never fail (for the SessionStart hook)")
     sv = sub.add_parser("serve", help="serve output/ on localhost for previewing the tree")
@@ -217,6 +387,17 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_link(a.path, a.user)
     if a.cmd == "init":
         return cmd_init(a.path, a.name, a.lang, a.git)
+    if a.cmd == "register":
+        return cmd_register(a.path)
+    try:
+        if a.cmd == "unregister":
+            return cmd_unregister(a.path)
+        if a.cmd == "list":
+            return cmd_list(find_workspace(a.workspace))
+    except (OSError, UnicodeError) as e:
+        print(tr("The registry of workspaces {path} cannot be read or written ({error}).", path=registry_file(), error=e),
+              file=sys.stderr)
+        return 1
     ws = find_workspace(a.workspace)
     if a.cmd == "where":
         return cmd_where(ws, a.json)

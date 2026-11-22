@@ -10,7 +10,9 @@ Other commands:
   check        scan text from stdin — use it before writing anything into the repository
   terms        how many private terms of each kind were loaded (never the terms themselves)
 
-Private terms are built from the workspace at run time and kept in memory only:
+Private terms are built at run time from every workspace on this machine and kept in memory only: the active
+one (--workspace, FAMILYTREE_WORKSPACE, the current directory, the `.workspace` file …), the linked ones and all
+in the registry ~/.config/familytree/workspaces (`scripts/workspace.py list` shows them). From each workspace:
   surnames      persons.yaml (surname, married_surnames, surname-like variants), project.yaml surnames
   places        names and aliases from places.yaml, words of project.yaml `regions`
   ids           I/F/P/S ids of the private data, minus ids that the public example data also uses
@@ -20,9 +22,15 @@ Private terms are built from the workspace at run time and kept in memory only:
   block         `block:` entries of <workspace>/privacy.yaml
 Phrases listed under `allow:` in privacy.yaml are removed from the text before matching (the
 allow list is private too: it would otherwise reveal which public words occur in the family data).
+The terms of each workspace are matched on their own, after removing only that workspace's allow
+list: a phrase one family allows never hides a term of another family.
 
 Matching ignores case and Polish diacritics; names and places also match inflected forms
 (Kowalski → Kowalskiego, Kowalscy; Wola → Woli) through a stem prefix.
+
+A registered workspace that is missing (an unmounted disk, a renamed folder) blocks: its terms
+cannot be checked. Restore it, or after a deliberate move or removal update the registry
+(`scripts/workspace.py unregister OLD_PATH`, `register NEW_PATH`).
 
 Without a workspace the guard fails closed. Contributors without family data and CI set
 FAMILYTREE_GUARD_NO_PRIVATE=1 (or pass --no-private): only the generic checks run — no workspace
@@ -44,7 +52,8 @@ from pathlib import Path
 
 import yaml
 
-from .workspace import APP_ROOT, NOT_FOUND, Workspace, find_workspace
+from .i18n import tr
+from .workspace import APP_ROOT, ENV_VAR, NOT_FOUND, Workspace, all_workspaces, find_workspace, registry_file
 
 NO_PRIVATE_ENV = "FAMILYTREE_GUARD_NO_PRIVATE"
 ZERO = "0" * 40
@@ -55,8 +64,11 @@ nowy nowa nowe nowo stary stara stare staro wielki wielka wielkie wielko maly ma
 dolna dolne wyzszy nizszy srednia sredni polski polska polskie pomorski pomorska pomorskie kujawski kujawska swiety
 swieta swiete sw kolonia wies wies parafia parafii gmina gminy gm powiat powiatu pow woj wojewodztwo okolice okolic
 miasto osada folwark majatek dwor przedmiescie wybudowanie kosciol koscielny koscielna kat katolicka ewang
-ewangelicka usc urzad stanu cywilnego rodzina rodziny linia trop kraj region abbau neu alt gross klein deutsch
-polnisch kreis dorf gut vorwerk bei an der die und von zu am im lesne lesna lesny lesnej
+ewangelicka usc urzad stanu cywilnego rodzina rodziny krewni krewny krewna krewnych linia trop kraj region abbau neu
+alt gross klein deutsch polnisch kreis dorf gut vorwerk bei an der die und von zu am im lesne lesna lesny lesnej
+dolnoslaskie kujawsko lubelskie lubuskie lodzkie malopolskie mazowieckie opolskie podkarpackie podlaskie slaskie
+swietokrzyskie warminsko mazurskie wielkopolskie zachodniopomorskie wielkopolski wielkopolska malopolski malopolska
+mazowiecki mazowiecka podlaski podlaska slaski slaska
 """.split())
 ADJ_SUFFIXES = ("skiego", "skiej", "skich", "ckiego", "ckiej", "ckich", "dzkiego", "dzkiej", "dzkich",
                 "dzki", "dzka", "dzcy", "ski", "ska", "sky", "scy", "cki", "cka", "cky", "ccy")
@@ -107,6 +119,18 @@ class Terms:
     allow_phrases: list[str] = field(default_factory=list)
     allow_raw: list[str] = field(default_factory=list)
     private: bool = True
+    origin: str = ""    # how the guard found the workspace (Workspace.found_via); never its path
+
+    @classmethod
+    def union(cls, sets: list[Terms]) -> Terms:
+        """The terms of several sets in one, for counting them (scan_text keeps the sets apart)."""
+        U = cls(private=any(t.private for t in sets))
+        for t in sets:
+            for name in ("prefix", "exact", "phrases", "raw"):
+                for key, kinds in getattr(t, name).items():
+                    getattr(U, name).setdefault(key, set()).update(kinds)
+            U.dates |= t.dates
+        return U
 
     def _add(self, table: dict, key: str, kind: str) -> None:
         table.setdefault(key, set()).add(kind)
@@ -151,7 +175,7 @@ def example_ids(repo: Path) -> set[str]:
 
 
 def load_terms(ws: Workspace, repo: Path = APP_ROOT) -> Terms:
-    T = Terms()
+    T = Terms(origin=ws.found_via)
     persons = _yaml(ws.data / "persons.yaml") or []
     families = _yaml(ws.data / "families.yaml") or []
     places = _yaml(ws.data / "places.yaml") or []
@@ -256,45 +280,57 @@ class Finding:
         return f"{self.where}:{self.line}: {self.kind}: {self.found!r}"
 
 
-def scan_text(T: Terms, text: str, where: str) -> list[Finding]:
+def scan_text(T: Terms | list[Terms], text: str, where: str) -> list[Finding]:
+    """Findings in `text`. Several term sets (one per workspace) are matched one by one, each after removing only its
+    own allow list; a finding an earlier set already made on the same line is not repeated."""
+    sets = [T] if isinstance(T, Terms) else T
     out: list[Finding] = []
     for no, line in enumerate(text.splitlines() or [text], 1):
         for m in ARTIFACT_URL.finditer(line):
             out.append(Finding(where, no, "artifact link", m.group(0)))
-        if not T.private:
+        seen: set[tuple[str, str]] = set()
+        for t in sets:
+            if t.private:
+                found = _scan_line(t, line, where, no)
+                out += [f for f in found if (f.kind, f.found) not in seen]
+                seen.update((f.kind, f.found) for f in found)
+    return out
+
+
+def _scan_line(T: Terms, line: str, where: str, no: int) -> list[Finding]:
+    out: list[Finding] = []
+    low = line.lower()
+    for a in T.allow_raw:
+        low = low.replace(a, " ")
+    for sub, kinds in T.raw.items():
+        if sub in low:
+            out.append(Finding(where, no, "/".join(sorted(kinds)), sub))
+    folded = fold(line)
+    tokens = TOKEN.findall(folded)
+    joined = " " + " ".join(tokens) + " "
+    for a in T.allow_phrases:
+        # Repeat: str.replace skips the second of two adjacent matches, which share a space.
+        while a and " " + a + " " in joined:
+            joined = joined.replace(" " + a + " ", " ")
+    for ph, kinds in T.phrases.items():
+        if " " + ph + " " in joined:
+            out.append(Finding(where, no, "/".join(sorted(kinds)), ph))
+    for tok in joined.split():
+        if tok in T.exact:
+            out.append(Finding(where, no, "/".join(sorted(T.exact[tok])), tok))
             continue
-        low = line.lower()
-        for a in T.allow_raw:
-            low = low.replace(a, " ")
-        for sub, kinds in T.raw.items():
-            if sub in low:
-                out.append(Finding(where, no, "/".join(sorted(kinds)), sub))
-        folded = fold(line)
-        tokens = TOKEN.findall(folded)
-        joined = " " + " ".join(tokens) + " "
-        for a in T.allow_phrases:
-            # Repeat: str.replace skips the second of two adjacent matches, which share a space.
-            while a and " " + a + " " in joined:
-                joined = joined.replace(" " + a + " ", " ")
-        for ph, kinds in T.phrases.items():
-            if " " + ph + " " in joined:
-                out.append(Finding(where, no, "/".join(sorted(kinds)), ph))
-        for tok in joined.split():
-            if tok in T.exact:
-                out.append(Finding(where, no, "/".join(sorted(T.exact[tok])), tok))
-                continue
-            for n in range(min(len(tok), 24), 3, -1):
-                kinds = T.prefix.get(tok[:n])
-                if kinds:
-                    out.append(Finding(where, no, "/".join(sorted(kinds)), tok))
-                    break
-        for rx, order in ((DATE_ISO, (1, 2, 3)), (DATE_PL, (3, 2, 1))):
-            for m in rx.finditer(line):
-                try:
-                    if tuple(int(m.group(i)) for i in order) in T.dates:
-                        out.append(Finding(where, no, "dates", m.group(0)))
-                except ValueError:
-                    pass
+        for n in range(min(len(tok), 24), 3, -1):
+            kinds = T.prefix.get(tok[:n])
+            if kinds:
+                out.append(Finding(where, no, "/".join(sorted(kinds)), tok))
+                break
+    for rx, order in ((DATE_ISO, (1, 2, 3)), (DATE_PL, (3, 2, 1))):
+        for m in rx.finditer(line):
+            try:
+                if tuple(int(m.group(i)) for i in order) in T.dates:
+                    out.append(Finding(where, no, "dates", m.group(0)))
+            except ValueError:
+                pass
     return out
 
 
@@ -304,7 +340,7 @@ def scan_path(path: str) -> list[Finding]:
     return [Finding(path, 0, "workspace file", path) for rx in GENERIC_PATHS if rx.search(path)][:1]
 
 
-def scan_blob(T: Terms, path: str, data: bytes) -> list[Finding]:
+def scan_blob(T: Terms | list[Terms], path: str, data: bytes) -> list[Finding]:
     found = scan_path(path) + scan_text(T, path, f"{path} (file name)")
     return found + scan_text(T, data.decode("utf-8", "replace"), path)
 
@@ -361,15 +397,42 @@ def ident(var: str) -> str:
 
 # ------------------------------------------------------------------ commands
 
-def load(args) -> Terms | None:
+def load(args) -> list[Terms] | None:
+    """One set of private terms per workspace on this machine; None when the guard has to block."""
     if args.no_private or os.environ.get(NO_PRIVATE_ENV) == "1":
-        return Terms(private=False)
-    ws = find_workspace(args.workspace)
-    if not ws:
-        print("privacy guard: no workspace, so private terms cannot be checked — blocking.\n" + NOT_FOUND +
-              f"\nWithout any family data set {NO_PRIVATE_ENV}=1 to run only the generic checks.", file=sys.stderr)
+        return [Terms(private=False)]
+    active = find_workspace(args.workspace)
+    if not active and (args.workspace or os.environ.get(ENV_VAR)):
+        return _no_workspace()                      # the workspace asked for is not one
+    try:
+        workspaces, missing = all_workspaces(active)
+    except (OSError, UnicodeError) as e:
+        print(tr("privacy guard: the registry of workspaces {path} cannot be read ({error}) — blocking.",
+                 path=registry_file(), error=e), file=sys.stderr)
         return None
-    return load_terms(ws)
+    if missing:
+        for p in missing:
+            print(tr("privacy guard: a registered workspace is missing or no longer has data/project.yaml: {path}",
+                     path=p), file=sys.stderr)
+        print(tr("The private terms of a missing workspace cannot be checked, so the guard blocks. Make it available "
+                 "again (e.g. mount its disk) or, if it was moved or removed on purpose, update the registry: "
+                 "python3 scripts/workspace.py unregister OLD_PATH (then register NEW_PATH)."), file=sys.stderr)
+        return None
+    if not workspaces:
+        return _no_workspace()
+    return [load_terms(ws) for ws in workspaces]
+
+
+def _no_workspace() -> None:
+    print("privacy guard: no workspace, so private terms cannot be checked — blocking.\n" + NOT_FOUND +
+          f"\nWithout any family data set {NO_PRIVATE_ENV}=1 to run only the generic checks.", file=sys.stderr)
+    return None
+
+
+def counts(sets: list[Terms], key: str = "private") -> dict:
+    """How many private terms of each kind are checked, over all workspaces — never the terms themselves."""
+    private = [t for t in sets if t.private]
+    return {key: bool(private), "workspaces": len(private), **Terms.union(sets).stats()}
 
 
 def report(findings: list[Finding], what: str) -> int:
@@ -393,7 +456,8 @@ def worktree_files() -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Privacy guard for the public repository.",
                                  formatter_class=argparse.RawDescriptionHelpFormatter, epilog=__doc__)
-    ap.add_argument("--workspace", help="workspace directory (default: the usual search order)")
+    ap.add_argument("--workspace", help="workspace directory (default: the usual search order); the linked and the "
+                                        "registered workspaces are checked as well")
     ap.add_argument("--no-private", action="store_true", help="generic checks only (no workspace needed)")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("pre-commit")
@@ -414,22 +478,24 @@ def main(argv: list[str] | None = None) -> int:
         git("config", "core.hooksPath", ".githooks")
         print("Hooks installed: core.hooksPath = .githooks (pre-commit, commit-msg, pre-push).")
         return 0
-    T = load(a)
-    if T is None:
+    sets = load(a)
+    if sets is None:
         return 1
     if a.cmd == "terms":
-        print({"private": T.private, **T.stats()})
+        print(counts(sets))
+        for i, t in enumerate((t for t in sets if t.private), 1):
+            print(f"  {i}. {t.origin}: {t.stats()}")
         return 0
     if a.cmd == "check":
-        return report(scan_text(T, sys.stdin.read(), "stdin"), "text")
+        return report(scan_text(sets, sys.stdin.read(), "stdin"), "text")
     if a.cmd == "commit-msg":
-        return report(scan_text(T, Path(a.file).read_text(encoding="utf-8", errors="replace"), "commit message"), "commit message")
+        return report(scan_text(sets, Path(a.file).read_text(encoding="utf-8", errors="replace"), "commit message"), "commit message")
     if a.cmd == "pre-commit":
         entries = index_entries()
         data = blobs(entries)
-        findings = [f for sha, path in entries for f in scan_blob(T, path, data[sha])]
+        findings = [f for sha, path in entries for f in scan_blob(sets, path, data[sha])]
         for var in ("GIT_AUTHOR_IDENT", "GIT_COMMITTER_IDENT"):
-            findings += scan_text(T, ident(var), var.lower())
+            findings += scan_text(sets, ident(var), var.lower())
         return report(findings, f"{len(entries)} files in the index")
     if a.cmd == "pre-push":
         findings: list[Finding] = []
@@ -444,11 +510,11 @@ def main(argv: list[str] | None = None) -> int:
         seen: set[str] = set()
         for c in dict.fromkeys(commits):
             meta = git("log", "-1", "--format=%an <%ae>%n%cn <%ce>%n%B", c).decode()
-            findings += scan_text(T, meta, f"commit {c[:10]}")
+            findings += scan_text(sets, meta, f"commit {c[:10]}")
             entries = [(sha, p) for sha, p in tree_entries(c) if (sha, p) not in seen]
             seen.update(entries)
             data = blobs(entries)
-            findings += [f for sha, path in entries for f in scan_blob(T, path, data[sha])]
+            findings += [f for sha, path in entries for f in scan_blob(sets, path, data[sha])]
         return report(findings, f"{len(set(commits))} commit(s) to push")
     if a.cmd in ("scan", "audit"):
         paths = getattr(a, "paths", None) or worktree_files()
@@ -456,10 +522,10 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Files that would be published ({len(paths)}):")
             for p in paths:
                 print(f"  {p}")
-            print({"private_terms": T.private, **T.stats()})
+            print(counts(sets, "private_terms"))
         findings = []
         for p in paths:
-            findings += scan_blob(T, p, (REPO / p).read_bytes() if not Path(p).is_absolute() else Path(p).read_bytes())
+            findings += scan_blob(sets, p, (REPO / p).read_bytes() if not Path(p).is_absolute() else Path(p).read_bytes())
         return report(findings, f"{len(paths)} files")
     return 2
 
