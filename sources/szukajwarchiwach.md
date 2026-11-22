@@ -100,6 +100,20 @@ a family whose earlier records are elsewhere.
 - **None of these units had scans.** Prepare a search request (kwerenda) for the user: archive, fonds and signature, the
   index first, then the books, with each person's name, date of birth and the village they settled in.
 
+## Combined yearly books and their indexes (checked 2026-11)
+
+In the Russian partition (1868–1917) the births, marriages and deaths of one year of a parish are often bound in one unit.
+Each section ends with a closing protocol and an alphabetical index (for births "Алфавитный список урожденных …"), 2–4
+scans that show on the thumbnails as ruled tables. Show the `_mid` thumbnails of the whole unit in a grid to find them.
+
+- Within one letter the index lists the entries in the order of the record numbers, so one look under the letter gives the
+  record number, and the scan follows from the number of records per double page (often 6–8).
+- The index can begin on the lower half of the page that holds the closing protocol, not on a new page: when the first index
+  page starts in the middle of a letter, look under the protocol on the facing page.
+- A name absent from the index of the year on a gravestone is worth checking in the neighbouring years too: the stone may be
+  two years off, and the record found then settles whether it is the same person (see the namesake trap in
+  [familysearch.md](familysearch.md)).
+
 ## Reading a whole book without an index (verified 2026-11)
 
 When a register has no name index and the record you need could be anywhere in a year (or in several years), read one
