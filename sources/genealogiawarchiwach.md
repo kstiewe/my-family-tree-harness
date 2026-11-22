@@ -30,6 +30,10 @@ cover the State Archive in Gdańsk; for Pomerania see [pomgenbaza.md](pomgenbaza
   quickest way to see that a namesake married someone else and can be excluded.
 - A query of two words (surname + town) is matched as one phrase: "Kowalski Przykładowo" can give
   nothing although both words occur separately.
+- **Polish letters and the address**: a query set through `location.hash` in encoded form
+  (`query.query=Przyk%C5%82adowski`) lands in the search field as that encoded text, and the search finds nothing. Type
+  the surname into the field instead (click it, select all, type, then click "Szukaj"); the label "szukaj w dokumentach:
+  <surname>" above the results shows what was searched. (Checked 2026-11.)
 - The person files are far from complete: no hit does not mean there is no record. For the scans
   themselves the same books are on [Szukaj w Archiwach](szukajwarchiwach.md) (fonds signatures start
   with the same archive number), where the unit list shows which years have scans.
