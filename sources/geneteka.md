@@ -35,6 +35,9 @@ the workspace `places.yaml` notes).
 ## Reading the results page
 
 - The visible table is `table.tablesearch`; the counter `.dataTables_info` says "Pozycje od 1 do N z N".
+- **A zero needs a settled counter.** Read in a hidden frame, the table first shows "Pozycji 0 z 0 dostępnych" before the
+  server's rows arrive. Accept a zero only when the counter has stayed the same for a few seconds after the frame loaded;
+  a loop that stops at the first counter with a digit records false zeros (checked 2026-11).
 - **"Uwagi" (remarks: age, year of birth, maiden name) are not cell text** but the `title` of an image
   `img[title^="Uwagi"]` in the last column — `innerText` of the row does not show them (checked 2026-11).
 - The `title` of another icon says where the books are kept ("Miejsce przechowywania ksiąg"); the
@@ -47,6 +50,11 @@ the workspace `places.yaml` notes).
 
 ## Techniques
 
+- **The years of a parish are the union of its books.** One parish in Geneteka can merge the books of several villages (a
+  mother parish and a daughter church, or two villages that kept separate books). The range from `--parishes` ("B 1819–1921")
+  then holds for the union only. Check the "Miejscowość" column and the record numbers: if after some year only one village
+  appears, with small record numbers, the other village's books are not indexed for those years, and a zero says nothing
+  about a person born there. The scan sites list the units (books) and their years — compare.
 - Without `exac=1` the search adds many spelling variants (Kowalski → Kowalewski …). For a surname
   overview use the exact mode; for finding a person, try both.
 - A given name in the query also matches some foreign forms of the name.
@@ -98,3 +106,17 @@ the workspace `places.yaml` notes).
 - **A calligraphic capital Ł can be indexed as G** ("Gukowski" for Łukowski). When a known surname gives no
   hit, search the parish for the given name and the year alone and read every surname, or read the register at the end of
   the year on the scan.
+
+## Linked scans (Skanoteka, metryki.genealodzy.pl)
+
+- The scan link of a row opens the unit (one book) with its list of files; a file page draws the image on a canvas, so a
+  screenshot of the page is small. The full-resolution JPEG (about 3000 × 4700 px) is the
+  `metbox….genealodzy.pl/metryka_get.php?dir=…&znak=…&plik=NNN.JPG` link in the page source, and the
+  `…/metryka_get.php?op=download…` link saves the file into the browser's download folder — move it into `research/skany/…`
+  and attach it with `file`. Do not print these links: they carry tokens.
+- Books are chronological: estimate the file from the unit's years (121 files for 1918–1945 ≈ 4 per year, fewer in war years),
+  open it, read the year in the page header and step from there.
+- **Galician marriage books** (Austrian partition; Latin printed forms "Liber copulatorum" from about 1900) give the groom's
+  and the bride's date and place of birth ("natus hic 4/III 1893"), age, house number and parents. That is enough to tell
+  namesakes apart: a groom with the right name and the right parents' surnames, but born three years before the person on the
+  gravestone, is someone else. A marriage a few days after a child's birth may come with a legitimation note in the margin.
