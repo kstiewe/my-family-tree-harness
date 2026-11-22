@@ -20,7 +20,8 @@ class BuildSampleFamily(unittest.TestCase):
     def test_builds_all_outputs_in_english(self):
         code, stdout, out = self.build()
         self.assertEqual(code, 0, stdout)
-        for name in ("tree.html", "tree-artifact.html", "tree.mmd", "ancestors.mmd", "tree.ged", "gaps.md", "ancestors.md"):
+        for name in ("tree.html", "tree-artifact.html", "tree.mmd", "ancestors.mmd", "tree.ged", "gaps.md", "ancestors.md",
+                     "confidence.md"):
             self.assertTrue((out / name).is_file(), name)
         self.assertIn("Next free IDs: I0030 F0013 P0007 S0019", stdout)
         self.assertIn("# Gaps in the data and research suggestions", (out / "gaps.md").read_text())

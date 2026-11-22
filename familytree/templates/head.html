@@ -9,6 +9,7 @@
   --accent: #2f4f8a; --on-accent: #ffffff; --hl: #c98a00; --line: #7c8a86; --crit: #c43d3d; --warn: #c9821f;
   --male: #3d6fb6; --male-bg: #e2ecfa; --female: #b6416f; --female-bg: #fae3ec; --unk: #7d8784; --unk-bg: #eceeed;
   --lane-a: #edf1ef; --lane-b: #f7f9f8; --lane-line: #dbe3e0; --pill-bg: #fff4d6; --pill-line: #d9b75c;
+  --cf-confirmed: #2f7d4f; --cf-probable: #2b7f8c; --cf-hypothesis: #c9821f; --cf-unsupported: #c43d3d;
   --font-display: "Spectral", Georgia, "Times New Roman", serif;
   --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -19,6 +20,7 @@
     --accent: #9db8f2; --on-accent: #0f1520; --hl: #f0b429; --line: #8d9b97; --crit: #ef6b6b; --warn: #f0a648;
     --male: #82a9ea; --male-bg: #1b2840; --female: #e489ad; --female-bg: #3b2231; --unk: #9aa8a3; --unk-bg: #262c2b;
     --lane-a: #141918; --lane-b: #1a201f; --lane-line: #262e2c; --pill-bg: #3b3218; --pill-line: #8c7431;
+    --cf-confirmed: #5cc488; --cf-probable: #5cbdc9; --cf-hypothesis: #f0a648; --cf-unsupported: #ef6b6b;
     color-scheme: dark;
   }
 }
@@ -27,6 +29,7 @@
   --accent: #9db8f2; --on-accent: #0f1520; --hl: #f0b429; --line: #8d9b97; --crit: #ef6b6b; --warn: #f0a648;
   --male: #82a9ea; --male-bg: #1b2840; --female: #e489ad; --female-bg: #3b2231; --unk: #9aa8a3; --unk-bg: #262c2b;
   --lane-a: #141918; --lane-b: #1a201f; --lane-line: #262e2c; --pill-bg: #3b3218; --pill-line: #8c7431;
+  --cf-confirmed: #5cc488; --cf-probable: #5cbdc9; --cf-hypothesis: #f0a648; --cf-unsupported: #ef6b6b;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -138,6 +141,41 @@ a.src:hover { background: var(--accent); color: var(--on-accent); }
 .hint { margin: 0 0 10px; padding-left: 10px; border-left: 3px solid var(--border); }
 .hint.l1 { border-color: var(--crit); } .hint.l2 { border-color: var(--warn); }
 .hint ul { margin: 4px 0 0; padding-left: 18px; }
+/* Confidence (familytree/confidence.py): the filter in the header, the band dot on the tree cards, the scores on the card. */
+.b-confirmed { --band: var(--cf-confirmed); } .b-probable { --band: var(--cf-probable); }
+.b-hypothesis { --band: var(--cf-hypothesis); } .b-unsupported { --band: var(--cf-unsupported); }
+.cfsel { display: inline-flex; align-items: center; gap: 6px 8px; flex-wrap: wrap; min-width: 0; }
+.cfsel label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+#cf { font: inherit; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); color: var(--text); max-width: 100%; }
+#cf-n { white-space: nowrap; }
+.cb { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--band); margin-right: 4px; vertical-align: 0; }
+.card .kn .cb { width: 7px; height: 7px; margin-right: 4px; vertical-align: .5px; }
+.legend .cf-l { display: inline-flex; align-items: center; margin-right: 10px; white-space: nowrap; }
+.legend .cf-l .cb { margin-right: 5px; }
+.cfb { display: inline-flex; align-items: center; gap: 5px; font: 500 11.5px/1.6 var(--font-mono); padding: 0 7px; border-radius: 9px; white-space: nowrap;
+  background: color-mix(in srgb, var(--band) 14%, transparent); border: 1px solid color-mix(in srgb, var(--band) 45%, transparent); color: var(--text); }
+.cfb::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--band); }
+.cf-sum { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 12px; color: var(--muted); }
+.cf-sum > span { display: inline-flex; align-items: center; gap: 6px; }
+.conf .cf-row { border-top: 1px solid var(--border); }
+.conf .cf-row:last-child { border-bottom: 1px solid var(--border); }
+.conf .cf-row, .conf .cf-row > summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; padding: 6px 0; }
+.conf details.cf-row { display: block; padding: 0; }
+.conf .cf-row > summary { list-style: none; cursor: pointer; }
+.conf .cf-row > summary::-webkit-details-marker { display: none; }
+.conf .cf-row > summary .cf-k::before { content: "▸ "; color: var(--muted); font-size: 11px; }
+.conf .cf-row[open] > summary .cf-k::before { content: "▾ "; }
+.cf-k { font-size: 12.5px; }
+.cf-h { margin: 2px 0 2px; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.cf-why, .cf-tips { margin: 0 0 8px; padding: 0; list-style: none; font-size: 12.5px; }
+.cf-why li { display: flex; gap: 8px; padding: 1px 0; line-height: 1.45; }
+.cf-why .pt { flex: 0 0 34px; text-align: right; font: 600 11.5px/1.75 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--muted); }
+.cf-tips { padding-left: 16px; list-style: disc; }
+.cf-tips li { padding: 1px 0; }
+.conf code { font: 11.5px var(--font-mono); background: var(--chip); border-radius: 3px; padding: 0 3px; }
+.cf-off { margin: 0 0 6px; padding: 6px 10px; border-left: 3px solid var(--warn); background: var(--chip); border-radius: 0 6px 6px 0; font-size: 12.5px; }
+#list div.off > span:first-child { color: var(--muted); }
+.cf-tag { font-style: normal; font-size: 11px; color: var(--warn); margin-left: 4px; white-space: nowrap; }
 /* "At a glance": the top of the card — short lines always shown, the details of each on demand. */
 .glance { margin: 10px 0 6px; }
 .glance .g-head { margin: 14px 0 4px; }

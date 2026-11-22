@@ -336,8 +336,46 @@ const TreeLayout = (() => {
     return set;
   }
 
-  /** The diagram from the perspective of `pb`. mode: 'anc' only their ancestors, 'kin' see kin(), 'all' every person. */
-  function build(D, G, pb, mode) {
+  // ---- confidence of the paths (familytree/confidence.py computes the scores of the links)
+
+  /** Path confidence from `pb`: for each person reached, the weakest step on the best path (maximin). A step to a
+   *  child or a parent weighs the child's link (family.k), between spouses the union (family.u); a person's manual
+   *  label caps their own value (person.cf.c). mode 'anc': only upwards through the first family of each child;
+   *  otherwise in every direction, within the persons of `within` (null: everyone). */
+  function paths(D, G, pb, mode, within) {
+    const P = D.persons, best = {};
+    if (!P[pb]) return best;
+    const inside = x => x && P[x] && (!within || within.has(x)), adj = {};
+    const add = (a, b, w) => (adj[a] ??= []).push([b, w]);
+    for (const [fid, f] of Object.entries(D.families)) {
+      const ps = [f.h, f.w].filter(inside);
+      for (const c of f.c) {
+        if (!inside(c) || (mode === 'anc' && G.childOf[c][0] !== fid)) continue;
+        const w = f.k?.[c] ?? 0;
+        for (const x of ps) { add(c, x, w); if (mode !== 'anc') add(x, c, w); }
+      }
+      if (mode !== 'anc' && ps.length === 2) { add(ps[0], ps[1], f.u ?? 0); add(ps[1], ps[0], f.u ?? 0); }
+    }
+    best[pb] = 100;
+    const open = [pb], done = new Set();
+    while (open.length) {
+      let i = 0;
+      for (let j = 1; j < open.length; j++) if (best[open[j]] > best[open[i]]) i = j;
+      const u = open.splice(i, 1)[0];
+      if (done.has(u)) continue;
+      done.add(u);
+      for (const [v, w] of adj[u] || []) {
+        const s = Math.min(best[u], w, P[v].cf?.c ?? 100);
+        if (!(v in best) || s > best[v]) { best[v] = s; open.push(v); }
+      }
+    }
+    return best;
+  }
+
+  /** The diagram from the perspective of `pb`. mode: 'anc' only their ancestors, 'kin' see kin(), 'all' every person.
+   *  With `min` > 0 only the persons whose path confidence reaches it are laid out; a hidden person's ancestors are
+   *  reached only through them, so the branch above disappears with them. */
+  function build(D, G, pb, mode, min = 0) {
     const kek = kekule(D, G, pb), gen = generations(D, G, pb);
     let pids = Object.keys(D.persons), fids = Object.keys(D.families);
     if (mode === 'anc') {
@@ -348,9 +386,16 @@ const TreeLayout = (() => {
       pids = pids.filter(p => set.has(p));
       fids = fids.filter(fid => set.has(D.families[fid].h) || set.has(D.families[fid].w));
     }
-    return { ...layoutView(D, G, pids, fids, gen, kek), kek, proband: D.persons[pb] ? pb : null };
+    const path = paths(D, G, pb, mode, mode === 'all' ? null : new Set(pids));
+    let hidden = [];
+    if (min > 0 && D.persons[pb]) {
+      hidden = pids.filter(p => !(path[p] >= min));
+      const gone = new Set(hidden);
+      pids = pids.filter(p => !gone.has(p));
+    }
+    return { ...layoutView(D, G, pids, fids, gen, kek), kek, path, hidden, proband: D.persons[pb] ? pb : null };
   }
 
-  return { graph, kekule, generations, ancestralFamilies, kin, layoutView, build };
+  return { graph, kekule, generations, ancestralFamilies, kin, layoutView, paths, build };
 })();
 if (typeof module !== 'undefined') module.exports = TreeLayout;
