@@ -40,12 +40,22 @@ the workspace `places.yaml` notes).
 - The `title` of another icon says where the books are kept ("Miejsce przechowywania ksiąg"); the
   link to a scan is an `<a>` containing `img[src*="/s.png"]`.
 - Helper: [geneteka-rows.js](geneteka-rows.js) returns rows with remarks and scan links.
+- **At most 50 rows are rendered per page.** A URL asking for more (`rpp2=1000`) changes the counter ("Pozycje od 1 do
+  140 z 140"), but the table still holds 50 rows. Narrow the query (a given name, fewer years) to stay under 50, or page
+  with the DataTable (`.page('next').draw('page')`), before concluding that a row is missing. (Checked 2026-11.)
+- **Many regions in one console call**: in a tab on geneteka.genealodzy.pl, load each result address in a hidden
+  `iframe` of the same page and read its `table.tablesearch` once `.dataTables_info` has appeared and the rows have
+  settled (about 3 s a page). The page then loads its data as in normal browsing; nothing calls the results API
+  directly. Fifteen regions for one surname and given name take about a minute; keep one call under about 40 seconds
+  (four or five regions, two queries each). (Checked 2026-11.)
 
 ## Techniques
 
 - Without `exac=1` the search adds many spelling variants (Kowalski → Kowalewski …). For a surname
   overview use the exact mode; for finding a person, try both.
 - A given name in the query also matches some foreign forms of the name.
+- In births, a given name in the query matches the father as well as the child: a query "Kowalski Jan" also lists
+  Jan Kowalski's daughters. Keep the rows whose child has the name. (Checked 2026-11.)
 - 20th-century deaths often have the age or the year of birth in "Uwagi" (married women: the
   maiden name). Listing all deaths of a surname in a region and period, without a given name,
   finds children who died young.
@@ -86,6 +96,20 @@ the workspace `places.yaml` notes).
   Wzorcowo") — read it even when the parents are missing from the table.
 - **A marriage after 1945, a death after about 2006 or a birth after 1926 is outside most indexes**: a zero for such
   a record says nothing about whether it exists.
+- **The marriage of a couple known only from a gravestone**: when the children were born after 1926, their births are
+  outside the indexes, but the parents' wedding of the 1920s–1930s may be indexed. Search marriages of the husband's
+  surname and given name over the plausible years, region by region, and keep the rows whose bride has the wife's given
+  name (filter the table, or the rows in a script). Then check each candidate's ages on the scan against the gravestone.
+  Example: for Jan Kowalski (born 1898) and his wife Anna (born 1900), marriages "Kowalski Jan" 1916–1934 gave two
+  weddings with an Anna; the scans gave grooms born in 1893 and 1905, so neither couple was theirs. (Checked 2026-11.)
+- **Margin notes of a later death**: marriage records of the 1920s–1940s often carry a note added decades later, e.g.
+  "zmarła dnia 12.03.1994 r. w Przykładowie, USC Przykładowo Nr 57/1994". A note that contradicts the family's dates
+  (the wife buried elsewhere in 1979) excludes the candidate couple at once.
+- **A probable brother as a second key**: when a couple's place of origin is unknown, but another man of the same
+  surname and generation lies in the same village cemetery (Piotr Kowalski born 1901 beside Jan born 1898), search the
+  births of both given names in their birth years (±1) region by region and look for the same pair of parents in both
+  lists. One pair in one parish points to the place of origin; no pair proves little where the parishes are not indexed
+  for those years. (Checked 2026-11.)
 - In the Prussian partition the German spelling usually has many more entries than the Polish one ("Kowalsky" more
   often than "Kowalski"); exact mode treats them as different surnames, so run the overview for both.
 - **A given name with no surname**: a query "Johannes" for one parish and five years lists every Johannes baptised there,

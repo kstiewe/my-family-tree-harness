@@ -72,6 +72,10 @@ that cemetery: neighbouring numbers (796-797, 801, 802-803) are often relatives.
   surname (see above). The person page
   has the gravestone photo — read the inscription there; "Osoby pochowane w tym grobie" lists only the entries typed into
   the database, not every name on the monument.
+- **A town's cemetery may be in Grobonet with a small part of its graves.** Count a very common surname there
+  (`nazw=Nowak` with the cemetery's `idcmproj`) and compare it with the size of the town: a municipal cemetery of a town
+  of 80,000 that lists 15 graves of Nowak holds a fraction of the burials, and a missing name there means little.
+  (Checked 2026-11.)
 - Burials from about 2012 on are in practically no index (cemetery indexes, parish indexes and the obituary search
   `nekrolog.pl/nekrologi?q=<surname>` stop earlier). The exception is a parish's own Grobonet site (above), which can
   be current to the last few months, though often with gaps in single years. For a recent death what is left

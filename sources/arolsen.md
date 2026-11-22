@@ -21,6 +21,10 @@ persons (DP) after 1945. Free, no account.
   returns nothing. When the surname alone gives hundreds of fuzzy matches, add the given name
   ("Kowalska Leokadia"): a hit is then reliable, and no hit proves little. Polish letters are folded (Kowalska = KOWALSKA), but spelling variants are not:
   also try the German spelling (Kowalsky, Nowack).
+- **Dates are month/day/year in the English interface** ("03/25/1910" is 25 March 1910). Write a filter for a known
+  date of birth in that order, or test both orders when the day is 12 or less.
+- Until the search has run, the counters show the whole archive (tens of millions of people): wait for a count that fits
+  the query before reading the list. (Checked 2026-11.)
 - **Given names were Germanized** in wartime documents (Wojciech → Adalbert, Jan → Johann,
   Kazimierz → Kasimir, and sometimes a different German name altogether). Match on the date of birth and
   the home town rather than on the given name.
@@ -36,6 +40,10 @@ persons (DP) after 1945. Free, no account.
   data under the applicable law) with "I agree". Accepting it is the user's decision: ask before
   ticking it. After that, documents open in a viewer with a "DeepLink"
   (`…/en/document/<DocID>`).
+- The welcome dialog with the same declaration can appear already on the search page (checked 2026-11). The results
+  load behind it, and the People list can be read from the page without ticking anything: each `tr` gives the archive
+  unit, surname, given name, maiden name, place and date of birth. "Show all search results" opens 25 rows a page; the
+  next page is the button whose `aria-label` contains "next". Opening a document still needs the declaration.
 - The thumbnails on a person's record page (`…/search/person/<id>`) are already the full images: their
   `img` addresses end in `…/001.jpg`, `…/002.jpg`, so a card can be read without opening the viewer.
 - The images are plain JPEGs on `collections-server.arolsen-archives.org/…/001.jpg`; open one in its
