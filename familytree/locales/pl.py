@@ -293,6 +293,44 @@ MESSAGES = {
     "## 4. Files not attached to any source": "## 4. Pliki niepodpięte do żadnego źródła",
     "{ctx}: file {path} does not exist in the workspace": "{ctx}: plik {path} nie istnieje w workspace",
 
+    # ---- registry of workspaces (familytree/workspace.py) and the privacy guard (familytree/guard.py)
+    "{path} is not a workspace (no data/project.yaml).": "{path} nie jest przestrzenią roboczą (brak data/project.yaml).",
+    "Registered {path} in {registry}: the privacy guard checks its private terms too.":
+        "Zarejestrowano przestrzeń roboczą {path} w {registry}: strażnik prywatności sprawdza także jej prywatne terminy.",
+    "{path} is registered already.": "Przestrzeń robocza {path} jest już zarejestrowana.",
+    "Could not register {path} in {registry} ({error}). The privacy guard does not check its private terms until it is "
+    "registered: python3 scripts/workspace.py register {path}":
+        "Nie udało się zarejestrować przestrzeni roboczej {path} w {registry} ({error}). Dopóki nie zostanie "
+        "zarejestrowana, strażnik prywatności nie sprawdza jej prywatnych terminów: "
+        "python3 scripts/workspace.py register {path}",
+    "Not registered: {path} is inside the application repository, whose data (the sample family) is public.":
+        "Nie zarejestrowano: {path} leży w repozytorium aplikacji, którego dane (przykładowa rodzina) są publiczne.",
+    "Removed {path} from the registry of workspaces.": "Usunięto przestrzeń roboczą {path} z rejestru.",
+    "{path} is not in the registry of workspaces ({registry}).":
+        "Przestrzeni roboczej {path} nie ma w rejestrze ({registry}).",
+    "The registry of workspaces {path} cannot be read or written ({error}).":
+        "Nie można odczytać ani zapisać rejestru przestrzeni roboczych {path} ({error}).",
+    "Workspaces on this machine (the privacy guard checks the private terms of each):":
+        "Przestrzenie robocze na tym komputerze (strażnik prywatności sprawdza prywatne terminy każdej z nich):",
+    "active, found via {via}": "aktywna, znaleziona przez: {via}",
+    "linked via {via}": "połączona przez: {via}",
+    "registered": "zarejestrowana",
+    "not registered: python3 scripts/workspace.py register PATH":
+        "niezarejestrowana: python3 scripts/workspace.py register ŚCIEŻKA",
+    "registered, but MISSING: the privacy guard blocks until it is back or unregistered":
+        "zarejestrowana, ale jej BRAK: strażnik prywatności blokuje, dopóki nie wróci albo nie zostanie wyrejestrowana",
+    "Registry: {path}": "Rejestr: {path}",
+    "privacy guard: the registry of workspaces {path} cannot be read ({error}) — blocking.":
+        "strażnik prywatności: nie można odczytać rejestru przestrzeni roboczych {path} ({error}) — blokuję.",
+    "privacy guard: a registered workspace is missing or no longer has data/project.yaml: {path}":
+        "strażnik prywatności: brak zarejestrowanej przestrzeni roboczej albo nie ma już w niej data/project.yaml: {path}",
+    "The private terms of a missing workspace cannot be checked, so the guard blocks. Make it available again (e.g. "
+    "mount its disk) or, if it was moved or removed on purpose, update the registry: python3 scripts/workspace.py "
+    "unregister OLD_PATH (then register NEW_PATH).":
+        "Prywatnych terminów brakującej przestrzeni roboczej nie da się sprawdzić, więc strażnik blokuje. Przywróć ją "
+        "(np. zamontuj jej dysk), a jeśli przeniesiono ją lub usunięto celowo, popraw rejestr: python3 "
+        "scripts/workspace.py unregister STARA_ŚCIEŻKA (potem register NOWA_ŚCIEŻKA).",
+
     # ---- HTML page (templates/*.html, ⟦…⟧ markers)
     "Whole tree": "Całe drzewo",
     "Ancestors of the proband": "Przodkowie probanta",

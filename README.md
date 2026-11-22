@@ -154,8 +154,8 @@ flowchart TD
 ```bash
 pip install pyyaml
 python3 scripts/guard.py install                                  # 1. git hooks with the privacy guard
-python3 scripts/workspace.py init ~/family-tree --lang en --git   # 2. your private workspace
-python3 scripts/workspace.py link ~/family-tree                   # 3. remember it (git-ignored .workspace)
+python3 scripts/workspace.py init ~/family-tree --lang en --git   # 2. your private workspace (registered for the guard)
+python3 scripts/workspace.py link ~/family-tree                   # 3. make it the default (git-ignored .workspace)
 python3 scripts/build.py                                          # 4. validate + outputs in ~/family-tree/output/
 ```
 
@@ -190,6 +190,12 @@ validator reports.
 | 3 | current directory or a parent containing `data/project.yaml` | working inside the workspace |
 | 4 | `.workspace` file in the application root (git-ignored) | the default after `workspace.py link` |
 | 5 | `~/.config/familytree/workspace` | `workspace.py link --user`, several app checkouts |
+
+Several families on one machine? Give each its own workspace (`workspace.py init`) and link only the
+default one. Every workspace is also recorded in the registry `~/.config/familytree/workspaces`
+(`init` and `link` add it, `workspace.py register PATH` adds an older one, `workspace.py list`
+shows them all), and the privacy guard checks the private terms of **every** registered workspace,
+not only of the one found above.
 
 ---
 
@@ -283,11 +289,11 @@ sequenceDiagram
     actor Dev as You / the agent
     participant Git as git
     participant Guard as scripts/guard.py
-    participant WS as Private workspace
+    participant WS as Every private workspace
 
     Dev->>Git: git commit
     Git->>Guard: pre-commit
-    Guard->>WS: read data/, research/, INSTRUCTIONS.md, privacy.yaml
+    Guard->>WS: read data/, research/, INSTRUCTIONS.md, privacy.yaml of each
     Note over Guard,WS: terms are built in memory only,<br/>never written to disk or to the repository
     Guard->>Guard: scan every staged file, its path, author and committer
     alt private term found
@@ -311,15 +317,19 @@ sequenceDiagram
 | CI (`--no-private`) | push, pull request | generic only: no workspace files outside `examples/`, `tests/` and the skeleton; no artifact links | — |
 | `guard.py check` | before the agent writes public text | stdin | ✅ |
 
-Without a workspace the guard **fails closed**. Contributors who have no family data set
-`FAMILYTREE_GUARD_NO_PRIVATE=1` and run the generic checks only.
+The guard checks the terms of **every** workspace on the machine: the active one, the linked ones
+and all in the registry `~/.config/familytree/workspaces` (`workspace.py list`). Each workspace is
+matched on its own, so one family's allow list never hides another family's term. Without a
+workspace, or when a registered one is missing (an unmounted disk, a renamed folder), the guard
+**fails closed**. Contributors who have no family data set `FAMILYTREE_GUARD_NO_PRIVATE=1` and run
+the generic checks only.
 
 ### What counts as a private term
 
 | Kind | Built from | Matching |
 |---|---|---|
 | Surnames | `surname`, `married_surnames`, surname-like `variants`, project surnames | inflected forms (*Kowalski → Kowalskiego, Kowalscy*), spelling variants |
-| Places | place names, aliases, project regions | inflected forms (*Wola → Woli*) |
+| Places | place names, aliases; proper nouns and place adjectives of the free-text project regions (not voivodeships, historical regions, countries or common words) | inflected forms (*Wola → Woli*) |
 | IDs | `I/F/P/S` IDs of the private data | exact, minus IDs the public example also uses |
 | Dates | full event dates | `YYYY-MM-DD` and `DD.MM.YYYY` |
 | Numbers | 5+ digit numbers in data, notes, instructions | exact (archive units, record IDs) |
@@ -345,6 +355,7 @@ allowed in `privacy.yaml`. That allow list stays private as well. More in
 | `build.py --lang en\|pl` | override the report language |
 | `geneteka.py --help` | Geneteka search links, parish lists, surname overview |
 | `workspace.py where · context · init · link · serve` | find, create and connect the workspace; preview the tree on localhost |
+| `workspace.py register · unregister · list` | the registry of every workspace on the machine, which the guard checks |
 | `guard.py install · check · scan · audit · terms` | the privacy guard |
 | `python3 -m unittest discover -s tests` | the test suite (fictional data only) |
 

@@ -28,7 +28,8 @@ after it has been rewritten without the people it was learned on.
      committer identity;
    - `commit-msg` scans the message;
    - `pre-push` scans every commit being pushed: all files of its tree, message, author, committer.
-   The list of private terms is built at run time from the workspace and kept in memory; it is
+   The list of private terms is built at run time from every workspace on the machine (see
+   [Several families on one machine](#several-families-on-one-machine)) and kept in memory; it is
    never written into the repository. Matching ignores case and diacritics and catches inflected
    forms (a surname in the genitive, a village in the locative). Without a workspace the guard
    blocks (fail closed).
@@ -47,13 +48,54 @@ allow:            # generic phrases the guard would otherwise block, e.g. an arc
 The allow list is private too: published, it would reveal which public words occur in the family
 data. Prefer whole phrases (an institution's name) to single words.
 
+## Several families on one machine
+
+One application checkout can serve several families, each in its own workspace; only one of them is
+the default (`workspace.py link`). The guard checks the private terms of all of them, wherever the
+commit comes from:
+
+- the active workspace (`--workspace`, `FAMILYTREE_WORKSPACE`, the current directory, the pointer
+  files — the usual search order),
+- the workspaces in the pointer files (`.workspace`, `~/.config/familytree/workspace`),
+- every workspace in the **registry** `~/.config/familytree/workspaces` (`$XDG_CONFIG_HOME` is
+  honoured): a plain text file outside every repository, one path per line, `#` for comments.
+
+`workspace.py init` and `workspace.py link` add a workspace to the registry. A workspace created
+before the registry existed, or copied in by hand, is added with `workspace.py register PATH`;
+`workspace.py unregister PATH` removes one and `workspace.py list` shows what the guard checks.
+A second family therefore does not have to be linked (which would switch the default) to be
+protected. Workspaces inside the application repository — the public sample family — are never
+registered.
+
+Each workspace's terms are matched on their own, after removing only that workspace's `allow:`
+list. An allowed phrase is a decision about one family's data; it must never hide another family's
+term (a phrase allowed for one family can contain a surname or a village that is private for the
+other).
+
+**A registered workspace that is missing blocks** (fail closed). It is usually not gone: a disk is
+not mounted, a folder was renamed, a path changed. A warning would scroll past in a hook's output
+while the commit went through without that family's terms, and the guard cannot tell an accident
+from a deliberate removal. So it stops and names the path. Make the workspace available again, or,
+after moving or deleting it on purpose, update the registry: `workspace.py unregister OLD_PATH`
+(and `register NEW_PATH`). A registry that exists but cannot be read blocks for the same reason.
+The pointer files keep their old, lenient meaning: a stale `.workspace` is skipped as before.
+
 ## Limits
 
+- The guard knows only the workspaces on this machine. A family whose data is elsewhere (another
+  computer, an unregistered copy) is not checked: register every workspace you work with.
 - The guard knows only what is in the workspace data and `block:`. Names that appear only in free-text
   research notes (e.g. candidates from an index) are not extracted automatically — add the important
   ones to `block:` and keep notes out of the repository.
 - Given names are not blocked on their own (they occur in every example); rare ones can be added to
   `block:`.
+- `regions` in `data/project.yaml` is prose. Only its proper nouns and place adjectives (a parish, a
+  county such as "pow. wzorcowski") become terms; common words, the family's given names and the
+  names of voivodeships, historical regions, countries and partitions — in any inflected form — do
+  not, so that a note like "probably from Silesia" never blocks the guides. A village that matters
+  belongs in `places.yaml`, whose names are always checked.
+- Generic words such as *Nowa*, *Wielka* or *Kolonia* are skipped only in place names. A surname or
+  a `block:` entry is a term even when it is such a word (*Górny*, *Mazowiecka*).
 - A hook can be skipped with `--no-verify`; do not. The pre-push hook is the second line of defence.
 - The name of your hosting account and the e-mail address in commits are public. Choose them knowing
   that.

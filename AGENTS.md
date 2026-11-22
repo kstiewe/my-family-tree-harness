@@ -44,6 +44,12 @@ commit messages or file names. Examples and tests use only the fictional family 
   clone). Never use `--no-verify`. If the guard blocks, rephrase or move the content to the
   workspace; only a generic phrase (e.g. an archive's name) may go to `allow:` in the workspace
   `privacy.yaml`, and only with the user's consent.
+- The guard checks the terms of every workspace on this machine, not only the active one: the
+  linked ones and all in the registry (`python3 scripts/workspace.py list`). `init` and `link`
+  register a workspace; another family's workspace stays unlinked (linking switches the default)
+  but must be registered — `python3 scripts/workspace.py register PATH` for one created otherwise.
+  A registered workspace that is missing blocks the guard: never `unregister` it to get a commit
+  through — ask the user whether it was moved or removed on purpose.
 - Do not search online for living persons: `living: true`, or no `living` field and born less than
   100 years ago without a death date. `living: false` (death confirmed by the family, even without
   a date) lifts the block. Never log in to the user's accounts.
@@ -150,6 +156,7 @@ Steps:
 | `python3 scripts/build.py --schema` | the data model as JSON |
 | `python3 scripts/geneteka.py --help` | Geneteka links, parishes, surname overview |
 | `python3 scripts/workspace.py where / context / init / link / serve` | the private workspace |
+| `python3 scripts/workspace.py register / unregister / list` | the registry of every workspace on this machine (the guard checks all) |
 | `python3 scripts/guard.py check / scan / audit / terms / install` | privacy guard |
 | `python3 -m unittest discover -s tests` | tests (fictional data only) |
 
