@@ -34,15 +34,40 @@ to what to research next, not a proof: the reasoning still belongs in `notes` an
 **Information** (`information` overrides it): *primary* comes from someone who knew it first-hand,
 at the time; *secondary* from hearsay or long after. Default: primary when the record's own event is
 the question (a birth or baptism record for the birth and the parents, a death record or gravestone
-for the death, a marriage record for the marriage); secondary otherwise (a death record for the age
-or the parents, a family account, someone's tree).
+for the death, a marriage record for the marriage); secondary otherwise. The parents of the
+deceased in a death record and the parents of the couple in a marriage record are **secondary**
+information (the informant did not witness the birth): only the child's own birth or baptism record
+gives primary information on parentage.
+
+**Whose record it is.** A record of one act (birth, baptism, death, burial, marriage, civil record,
+index entry) proves something about the person only when it is the record of *their own* event. The
+daughter's marriage record cited on the father's death (for his death date) or a child's baptism
+cited on the mother's birth (for her age) says nothing about the father's or the mother's parents.
+The build decides by the kind of record, its year (`year`, or the years in the rows of an index)
+against the year of the event (±1), and otherwise by whether the record is also cited for the same
+kind of event of someone else. Another person's record does not count for the link at all and
+counts only as indirect evidence (a date or an age) for a fact; when it is unclear whose record it
+is, it counts at most as indirect evidence.
 
 **Evidence** (`evidence` overrides it): *direct* answers the question alone, *indirect* only together
-with other evidence. For a link: the child's own birth/baptism record is direct; a death or marriage
-record is direct when its transcription names the parents (the given names are matched, Latin and
-Cyrillic spellings included, also the forms in `variants`), indirect when it does not or has no
-transcription; the parents' marriage is always indirect. For a birth date, an age in another record
-is indirect.
+with other evidence. For a link: the child's own birth/baptism record is direct; the person's own
+death or marriage record is direct only when its transcription **names the parents**; the parents'
+marriage is always indirect. For a birth date, an age in another record is indirect.
+
+"Names the parents" is strict on purpose (a false "no" is better than a false "yes"): both parents
+must be named in the statement of the parents — after "syn / córka", "Sohn / Tochter des",
+"filius / filia", "сын / дочь", "son / daughter of", "spłodzone z" and the like — or, when the
+family has one parent, that parent with the surname; in an index row the two names may stand side
+by side ("| Jakub | Rozalia Nowicka"). Names found elsewhere in the text (witnesses, the priest,
+other people's parents) do not count. Given names are matched by their first letters, Latin and
+Cyrillic spellings included, also the forms in `variants`.
+
+**A record that names another parent is a conflict.** When the statement of the parents matches
+one parent and gives the other a name that begins with a different letter than every form of the
+family's name (Latin, German and Russian forms considered: Agnes for Agnieszka, Adalbertus for
+Wojciech are no conflict), it counts as an unresolved conflict (−20, no "confirmed"), and the record
+counts only as indirect evidence. A resolved conflict of the person (`conflicts`, `about: link`,
+`resolved: true`, with the reasoning) explains it.
 
 **Family accounts of parentage.** Who the parents are is often known only from the family and
 recorded as an extra event of the child, e.g.
@@ -79,8 +104,13 @@ then 10 % of its own strength (at most +30 together). Then:
 | resolved conflict | −5 each |
 | chronology warning of the validator touching the score (unless a resolved conflict explains it) | −10 each |
 | contradictory evidence about the year of birth | −10 |
+| a record names another parent | −20 (unresolved) |
 
-The total is kept within 0–100. Worked examples from the sample family:
+The total is kept within 0–100. **Identity of an adult:** when the person is an adult (married, or
+died aged 15 or more) and is linked to their parents by a baptism, but none of their own adult
+records (marriage, death) names the parents, the baptised child is the adult only by agreement of
+name, place and age — it could be a namesake's baptism. Such a link stays at most 84 (probable), and
+the suggestions ask for the adult's record that names the parents. Worked examples from the sample family:
 
 | Evidence | Score |
 |---|---|
@@ -114,14 +144,15 @@ Citations of one record count once — independent corroboration counts, duplica
 are one record when:
 
 - one lists the other in `same_record_as`, or names it in `derived_from`;
-- they point to the same local copy (`file`);
 - they have the same `parish` (or `repository`), `year` and `act` and are cited for the same event
   (an index entry and the image of the act it indexes);
-- a derivative source names the other source's ID in its `notes` or `transcription`;
 - they are family accounts of the same informant (the name before the first comma or parenthesis
   of `informant`).
 
-The breakdown shows such a source with ±0 and the reason.
+A shared local copy (`file`) does not join sources — an index may carry the image of one of its
+entries and still hold other, independent entries — and neither does a mention of another source's
+ID in the notes. Mark such pairs with `same_record_as` when they are one record. The breakdown shows
+a source counted once with ±0 and the reason.
 
 ## Manual labels and overrides
 
@@ -182,10 +213,12 @@ weakest links and the scores of every person and family.
 
 ## Limits
 
-- The defaults are heuristics. The names in a transcription are matched by their first letters, a
-  shared act number is trusted only for sources cited on the same event, and a death or marriage
-  record without a transcription is treated as not naming the parents. The optional fields correct
-  them where they are wrong.
+- The defaults are heuristics. The names in a transcription are matched by their first letters and
+  only in a statement of the parents, whose record a source is follows from its year and where else
+  it is cited, a shared act number is trusted only for sources cited on the same event, and a death
+  or marriage record without a transcription is treated as not naming the parents. The optional
+  fields (`evidence`, `information`, `same_record_as`, `parentage`, `conflicts`) correct them where
+  they are wrong.
 - Siblings' records are not counted for a link: they show the parents, not the child.
 - A score measures the evidence cited in the data, not the truth. A well-reasoned conclusion with a
   written proof argument may deserve more: record it with `confidence_override` and its reason.

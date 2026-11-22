@@ -76,8 +76,36 @@ NARRATIVE_TYPES = {"oral", "online_tree", "publication"}
 # sources that state a date outright, though seldom first-hand (secondary, direct)
 STATING_TYPES = NARRATIVE_TYPES | {"family_document", "population_register", "census", "gravestone"}
 PRIMARY_FOR = {"birth": BIRTH_TYPES, "death": DEATH_TYPES | {"gravestone"}, "marriage": MARRIAGE_TYPES}
+# Records of one event (one act). Whose event such a record is decides what it proves: the daughter's marriage record
+# cited on the father's death gives his death date, not his parents (see Confidence._owns).
+SINGLE_ACT_TYPES = BIRTH_TYPES | DEATH_TYPES | MARRIAGE_TYPES
+KIND_OF_TYPE = {"birth_record": "birth", "baptism_record": "birth", "death_record": "death", "burial_record": "death",
+                "marriage_record": "marriage"}
+EVENT_KIND = {"birth": "birth", "baptism": "birth", "death": "death", "burial": "death"}
+IDENTITY_CAP = 84                  # a baptised child linked to the adult only by agreement of name, place and age
 
-_SOURCE_ID = re.compile(r"\bS\d{4,}\b")
+_YEAR = re.compile(r"\b(1[5-9]\d\d|20\d\d)\b")
+# Words that open the statement of the parents in a record (folded, Cyrillic written in Latin letters): "syn
+# Antoniego i Marianny", "Sohn des …", "filius Joannis et Mariae", "сын Антония и Марианны", "spłodzone z …".
+_FILIATION = re.compile(r"\b(?:syn|syna|corka|corki|sohn|tochter|filius|filia|filii|filiae|son|daughter|child|docz|"
+                        r"doczeri|rodzice|rodzicow|eltern|parentes|parentibus|parents|roditeli|ojciec|matka|vater|"
+                        r"mutter|pater|mater|otec|otca|mat|materi|splodzon[a-z]*)\b")
+_CONJ = re.compile(r"\b(?:i|und|et|and|oraz|y)\b|&")
+# Words between the parents' names that are not names (articles, "his wife", "née" …).
+_NOT_NAMES = {"der", "die", "des", "dem", "den", "von", "seiner", "seine", "dessen", "ehefrau", "frau", "ehegattin",
+              "gattin", "geborene", "geb", "jego", "jej", "zony", "malzonki", "malzonka", "uxoris", "ejus", "eius",
+              "legitimae", "legitimi", "legitimus", "legitima", "conjugis", "coniugis", "zeny", "ego", "the", "his", "her",
+              "wife", "late", "nee", "domu", "urodzonej", "rodz", "zmarlej", "zmarlego", "niegdy", "olim", "quondam",
+              "pokojnoj", "pokojnago", "pani", "pana", "dnia", "roku", "lat"}
+# First letters of other-language forms of Polish given names that begin with another letter (Wojciech: Adalbertus).
+_OTHER_INITIALS = {"wojc": "a", "miko": "n", "jerz": "g", "jadw": "h", "jan": "h", "idzi": "ae", "jace": "h",
+                   "hele": "e", "wawr": "l", "elzb": "i"}
+
+
+def _initial(word: str) -> str:
+    """The first letter of a name after spelling differences between languages (c/k, ph/f, th/t, w/v, y/j/i, z/s)."""
+    w = word.replace("ph", "f").replace("th", "t")
+    return {"c": "k", "w": "v", "y": "i", "j": "i", "z": "s"}.get(w[:1], w[:1])
 # Cyrillic to Latin letters (Polish spelling), to find the parents' names in Russian transcriptions.
 _CYRILLIC = str.maketrans({
     "а": "a", "б": "b", "в": "w", "г": "g", "д": "d", "е": "e", "ё": "e", "ж": "z", "з": "z", "и": "i", "й": "j",
@@ -136,9 +164,10 @@ def _informant(text: str) -> str:
 # ---- which sources are one record
 
 class RecordGroups:
-    """Sources that are one record count once: marked with `same_record_as` / `derived_from`, the same local copy,
-    the same parish (or repository), year and act cited for the same event, a derivative whose notes or
-    transcription name the other source's ID, and family accounts of one informant."""
+    """Sources that are one record count once: marked with `same_record_as` / `derived_from`, the same parish (or
+    repository), year and act cited for the same event, and family accounts of one informant. A shared local copy
+    or a mention of another source's ID in the notes does not join sources: an index may carry the image of one of
+    its entries and still hold other, independent entries."""
 
     def __init__(self, tree: Tree, cited_on: dict[str, set[str]]):
         self.parent = {sid: sid for sid in tree.sources}
@@ -148,12 +177,6 @@ class RecordGroups:
             for other in _ids(s.get("same_record_as")) + _ids(s.get("derived_from")):
                 if other in sources:
                     self.join(sid, other, tr("marked as the same record"))
-        files: dict[str, str] = {}
-        for sid in sources:
-            for path in tree.source_files(sid):
-                if path in files:
-                    self.join(sid, files[path], tr("the same local copy"))
-                files.setdefault(path, sid)
         acts: dict[tuple, list[str]] = defaultdict(list)
         for sid, s in sources.items():
             where = s.get("parish") or s.get("repository")
@@ -164,12 +187,6 @@ class RecordGroups:
                 for b in group[i + 1:]:
                     if cited_on.get(a, set()) & cited_on.get(b, set()):
                         self.join(a, b, tr("the same parish, year and act, cited for the same event"))
-        for sid, s in sources.items():
-            if classify(s) == "derivative":
-                text = " ".join(str(s.get(k) or "") for k in ("notes", "transcription"))
-                for other in _SOURCE_ID.findall(text):
-                    if other in sources and other != sid:
-                        self.join(sid, other, tr("the entry refers to {source}", source=other))
         informants: dict[str, str] = {}
         for sid, s in sources.items():
             if s.get("type") == "oral" and s.get("informant") and (key := _informant(s["informant"])):
@@ -214,6 +231,7 @@ class Item:
     lines: list[Line]
     desc: str
     names: list[str] | None = None      # the parents' names found in the transcription (None: no transcription)
+    contradiction: str = ""             # the record names another parent
 
 
 @dataclass
@@ -275,12 +293,15 @@ class Confidence:
     # ---- reading the data
 
     def _citations(self) -> dict[str, set[str]]:
+        """Where each source is cited (event keys); also `cited_kinds`: (record, birth/death/marriage) per source."""
         out: dict[str, set[str]] = defaultdict(set)
+        self.cited_kinds: dict[str, set[tuple[str, str]]] = defaultdict(set)
         t = self.tree
         for pid, p in t.persons.items():
             for key in LIFE_EVENTS:
                 for s in t.ev(p, key).get("sources") or []:
                     out[s].add(f"{pid}.{key}")
+                    self.cited_kinds[s].add((pid, EVENT_KIND[key]))
             for i, e in enumerate(p.get("events") or []):
                 for s in (e.get("sources") or []) if isinstance(e, dict) else []:
                     out[s].add(f"{pid}.events[{i}]")
@@ -290,6 +311,8 @@ class Confidence:
             for key in ("marriage", "divorce"):
                 for s in t.ev(f, key).get("sources") or []:
                     out[s].add(f"{fid}.{key}")
+            for s in t.ev(f, "marriage").get("sources") or []:
+                self.cited_kinds[s].add((fid, "marriage"))
         return out
 
     def _cited(self, rec: dict, key: str) -> list[str]:
@@ -317,24 +340,129 @@ class Confidence:
                 out.add(word[:4] if len(word) >= 5 else word)
         return out
 
-    def _parents_named(self, s: dict, parents: list[str]) -> list[str] | None:
-        """Given names of the parents found in the transcription; None when there is no transcription."""
+    def _initials(self, pid: str) -> set[str]:
+        """First letters any form of the person's given name may start with."""
+        p = self.tree.persons[pid]
+        words = [_latin(w.split()[0]) for w in [p.get("given") or ""] + [str(v) for v in p.get("variants") or []] if w.split()]
+        out = {_initial(w) for w in words if w}
+        for w in words:
+            out |= {_initial(c) for c in _OTHER_INITIALS.get(w[:4] if len(w) >= 5 else w, "")}
+        return out
+
+    def _surname_stems(self, pids: list[str]) -> set[str]:
+        out = set()
+        for pid in pids:
+            p = self.tree.persons[pid]
+            for s in [p.get("surname") or ""] + list(p.get("married_surnames") or []):
+                if len(w := _latin(str(s))) >= 3:
+                    out.add(w[:4])
+        return out
+
+    def _filiation(self, s: dict, fam: dict, child: str) -> tuple[list[str] | None, str]:
+        """Does the transcription name the parents? Returns (given names of the parents it names, a contradiction).
+
+        Strict on purpose (a false "no" is better than a false "yes"): both parents must be named after a word that
+        opens the statement of the parents ("son of", "Sohn des", "filius", "сын" …) — or one parent with the surname
+        when the family has only one — or, in an index row, side by side ("| Jakub | Rozalia Nowicka"). A name found
+        only somewhere in the text (a witness, the priest, another person's parents) does not count. A contradiction
+        is a statement of the parents where one parent matches and the other has a name that starts with another letter
+        than every form of the family's name (Latin, German and Russian forms considered). None: no transcription."""
         text = s.get("transcription")
         if not text:
-            return None
+            return None, ""
+        t = self.tree
         hay = _latin(text)
-        return [self.tree.persons[x].get("given") or "?" for x in parents
-                if any(re.search(r"\b" + re.escape(st), hay) for st in self._stems(x))]
+        father = fam.get("husband") if fam.get("husband") in t.persons else None
+        mother = fam.get("wife") if fam.get("wife") in t.persons else None
+        parents = [x for x in (father, mother) if x]
+        if not parents:
+            return [], ""
+        given = {x: t.persons[x].get("given") or "?" for x in parents}
+        surnames = self._surname_stems(parents + [child])
+
+        def hit(x: str | None, a: int, b: int) -> tuple[int, int] | None:
+            stems = self._stems(x) if x else set()
+            m = re.search(r"\b(?:" + "|".join(map(re.escape, sorted(stems))) + r")[a-z]*", hay[a:b]) if stems else None
+            return (a + m.start(), a + m.end()) if m else None
+
+        def names_only(segment: str) -> list[str]:
+            return [w for w in re.findall(r"[a-z]+", segment) if len(w) >= 3 and w not in _NOT_NAMES
+                    and not _CONJ.fullmatch(w) and not any(w.startswith(st) for st in surnames)]
+
+        def other(words: list[str], pid: str) -> bool:
+            return bool(words) and not any(_initial(w) in self._initials(pid) for w in words)
+
+        contradiction = ""
+        for k in _FILIATION.finditer(hay):
+            a, b = k.end(), min(len(hay), k.end() + 100)
+            hf, hm = hit(father, a, b), hit(mother, a, b)
+            if father and mother and hf and hm:
+                return [given[father], given[mother]], ""
+            if len(parents) == 1 and (h := hf or hm):
+                near = hay[max(a, h[0] - 40):h[1] + 40]
+                if any(re.search(r"\b" + re.escape(st), near) for st in surnames):
+                    return [given[parents[0]]], ""
+            if contradiction or not (father and mother):
+                continue
+            if hf and not hm and (c := _CONJ.search(hay, hf[1], b)):
+                words = names_only(hay[c.end():b])[:2]
+                if other(words, mother):
+                    contradiction = tr("{source} names another mother: {name}", source=s["id"], name=words[0].capitalize())
+            elif hm and not hf:
+                words = names_only(hay[a:hm[0]])
+                if other(words, father):
+                    contradiction = tr("{source} names another father: {name}", source=s["id"], name=words[-1].capitalize())
+        if father and mother and not contradiction and (s.get("type") == "index" or s.get("quality") == "index"):
+            for m in re.finditer(r"\b(?:" + "|".join(map(re.escape, sorted(self._stems(father)))) + r")[a-z]*", hay):
+                h = hit(mother, m.end(), m.end() + 30)
+                if h and "|" in hay[m.end():h[0]] and len(re.findall(r"[a-z]+", hay[m.end():h[0]])) <= 2:
+                    return [given[father], given[mother]], ""
+        return [], contradiction
+
+    def _event_year(self, rid: str, kind: str) -> int | None:
+        t = self.tree
+        if kind == "marriage":
+            d = t.date(t.families[rid], "marriage")
+            return d.year if d and d.precise else None
+        p = t.persons[rid]
+        return t.birth_year(p) if kind == "birth" else t.death_year(p)
+
+    def _owns(self, sid: str, rid: str, kind: str) -> bool | None:
+        """Is the source the record of this event (the birth or death of person rid, the marriage of family rid)?
+        True, False, or None when it is not clear. Decided by the kind of record, its year (the `year` field, or the
+        years in the rows of an index) against the year of the event, and otherwise by whether it is also cited for
+        the same kind of event of someone else. Sources that are not records of one act (accounts, gravestones,
+        documents) are taken as they are cited."""
+        s = self.tree.sources[sid]
+        typ = s.get("type")
+        if typ not in SINGLE_ACT_TYPES:
+            return True
+        if KIND_OF_TYPE.get(typ, kind) != kind:
+            return False
+        year = self._event_year(rid, kind)
+        years = {int(y) for y in _YEAR.findall(str(s.get("year") or ""))}
+        if not years and typ == "index":
+            years = {int(y) for y in _YEAR.findall(str(s.get("transcription") or ""))}
+        if years and year:
+            return any(abs(y - year) <= 1 for y in years)
+        cited = self.cited_kinds.get(sid, set())
+        if any(r != rid and k == kind for r, k in cited) or (typ == "civil_record" and any(k != kind for _, k in cited)):
+            return None
+        return True
 
     # ---- one citation
 
-    def _item(self, sid: str, question: str, role: str, parents: list[str] = ()) -> Item:
+    def _item(self, sid: str, question: str, role: str, fam: dict | None = None, pid: str | None = None) -> Item:
+        """One citation as evidence. Link roles: own-birth / own-death / own-marriage (the record of the person's
+        own event), parents-marriage, account (a narrative on an extra event), parentage (the `parentage` field),
+        unsure (a record cited for the person whose event it may not be: at most indirect). Fact roles: the event key,
+        age (an age in the person's death or marriage record), other (a record of another event: date or age only)."""
         s = self.tree.sources[sid]
         typ, cls = s.get("type"), classify(s)
-        names = None
+        names, contradiction = None, ""
         if question == "link":
-            if role != "parents-marriage":
-                names = self._parents_named(s, list(parents))
+            if role in ("own-birth", "own-death", "own-marriage", "parentage") and fam is not None:
+                names, contradiction = self._filiation(s, fam, pid)
             if role == "own-birth":
                 info, ev = (("primary", "direct") if typ in BIRTH_TYPES else ("secondary", "direct") if typ in STATING_TYPES
                             else ("secondary", "direct" if names else "indirect"))
@@ -343,10 +471,15 @@ class Confidence:
             elif role == "account":
                 info, ev = "secondary", "direct"
             elif role == "parentage":              # cited for the parentage on purpose: it states the parents
-                info, ev = ("primary" if typ in BIRTH_TYPES else "secondary"), "direct"
-            else:
+                own_birth = typ in BIRTH_TYPES and self._owns(sid, pid, "birth") is True
+                info, ev = ("primary" if own_birth else "secondary"), "direct"
+            elif role == "unsure":
+                info, ev = "secondary", "indirect"
+            else:                                  # the parents of the deceased or of the couple: hearsay at that time
                 info, ev = "secondary", ("direct" if names else "indirect")
-        elif role == "age":
+            if contradiction:
+                ev = "indirect"
+        elif role in ("age", "other"):
             info, ev = "secondary", "indirect"
         else:
             info = "primary" if typ in PRIMARY_FOR[question] else "secondary"
@@ -362,19 +495,23 @@ class Confidence:
         where = {"own-death": tr("from the person's death"), "own-marriage": tr("from the person's marriage"),
                  "parents-marriage": tr("from the parents' marriage"), "age": tr("from the age in the record"),
                  "account": tr("cited on an event of the person"),
-                 "parentage": tr("cited as evidence of the parentage")}.get(role)
+                 "parentage": tr("cited as evidence of the parentage"),
+                 "unsure": tr("not clearly the record of the person's own event: counted as indirect"),
+                 "other": tr("a record of another event: its date or age only")}.get(role)
         if where:
             desc += " — " + where
         if names:
             desc += "; " + tr("names the parents: {names}", names=", ".join(names))
-        elif names == [] and parents:
+        elif contradiction:
+            desc += "; " + contradiction
+        elif names == [] and role != "own-birth":
             desc += "; " + tr("the transcription does not name the parents")
         lines = [Line(pts, desc)]
         if FILE_POINTS[cls] and self.tree.source_files(sid):
             lines.append(Line(FILE_POINTS[cls], tr("local copy of {source}", source=sid)))
         if s.get("transcription"):
             lines.append(Line(TRANSCRIPTION_POINTS, tr("transcription of {source}", source=sid)))
-        return Item(sid, role, cls, info, ev, sum(ln.pts for ln in lines), lines, desc, names)
+        return Item(sid, role, cls, info, ev, sum(ln.pts for ln in lines), lines, desc, names, contradiction)
 
     # ---- combining the evidence
 
@@ -462,23 +599,42 @@ class Confidence:
     def _link(self, pid: str, fid: str) -> Score:
         t = self.tree
         p, f = t.persons[pid], t.families[fid]
-        parents = [x for x in (f.get("husband"), f.get("wife")) if x in t.persons]
-        items = [self._item(sid, "link", "own-birth", parents) for key in ("birth", "baptism") for sid in self._cited(p, key)]
-        items += [self._item(sid, "link", "own-death", parents) for key in ("death", "burial") for sid in self._cited(p, key)
-                  if t.sources[sid].get("type") in DEATH_TYPES]
-        items += [self._item(sid, "link", "own-marriage", parents) for g in t.spouse_in.get(pid, [])
-                  for sid in self._cited(t.families[g], "marriage") if t.sources[sid].get("type") in MARRIAGE_TYPES]
-        items += [self._item(sid, "link", "parents-marriage", parents) for sid in self._cited(f, "marriage")]
+        items: list[Item] = []
+
+        def own(rid: str, kind: str, sids: list[str], role: str) -> None:
+            """Records of the person's own event count in `role`; when that is unclear, at most as indirect evidence;
+            another person's record (the daughter's marriage cited on the father's death) not at all."""
+            for sid in sids:
+                if (whose := self._owns(sid, rid, kind)) is not False:
+                    items.append(self._item(sid, "link", role if whose else "unsure", f, pid))
+
+        own(pid, "birth", [s for k in ("birth", "baptism") for s in self._cited(p, k)], "own-birth")
+        own(pid, "death", [s for k in ("death", "burial") for s in self._cited(p, k) if t.sources[s].get("type") in DEATH_TYPES],
+            "own-death")
+        for g in t.spouse_in.get(pid, []):
+            own(g, "marriage", [s for s in self._cited(t.families[g], "marriage") if t.sources[s].get("type") in MARRIAGE_TYPES],
+                "own-marriage")
+        items += [self._item(sid, "link", "parents-marriage") for sid in self._cited(f, "marriage")
+                  if self._owns(sid, fid, "marriage") is not False]
         # a family account (or another narrative) cited on one of the person's extra events usually tells the parents;
         # records cited on residence or occupation events do not count for the link
-        items += [self._item(sid, "link", "account", parents) for e in p.get("events") or [] if isinstance(e, dict)
+        items += [self._item(sid, "link", "account") for e in p.get("events") or [] if isinstance(e, dict)
                   for sid in e.get("sources") or [] if sid in t.sources and narrative(t.sources[sid])]
         parentage = p.get("parentage") if isinstance(p.get("parentage"), dict) else {}
-        items += [self._item(sid, "link", "parentage", parents) for sid in _ids(parentage.get("sources")) if sid in t.sources]
+        items += [self._item(sid, "link", "parentage", f, pid) for sid in _ids(parentage.get("sources")) if sid in t.sources]
         extra: list[Line] = []
         named = sorted({i.sid for i in items if i.names})
         if named:
             extra.append(Line(PARENTS_NAMED, tr("identity: {sources} name the parents", sources=", ".join(named))))
+        explained = any(isinstance(c, dict) and c.get("resolved") is True and c.get("about") in (None, "link", "identity")
+                        for c in p.get("conflicts") or [])
+        contradicted = False
+        for text in dict.fromkeys(i.contradiction for i in items if i.contradiction):
+            if explained:
+                extra.append(Line(0, tr("conflict explained by a resolved conflict: {conflict}", conflict=text)))
+            else:
+                extra.append(Line(UNRESOLVED, tr("conflict: {conflict}", conflict=text)))
+                contradicted = True
         if agree := self._ages_agree(pid):
             extra.append(Line(AGES_AGREE, tr("identity: the ages in {sources} agree with the year of birth", sources=agree)))
         if where := self._same_parish(pid, fid):
@@ -504,8 +660,21 @@ class Confidence:
         if (label := f.get("confidence")) in MANUAL_CAP:
             caps.append((MANUAL_CAP[label], tr("manual confidence \"{label}\" of the family {family}", label=band_label(label),
                                                 family=fid)))
-        score = self._combine("link", items, extra, unresolved or unres or fam_unres, caps, self._override(p, "link"))
-        score.tips = self._link_tips(pid, fid, score, unresolved or unres or fam_unres, caps)
+        # the baptised child is the adult only by agreement of name, place and age unless a record of the adult (their
+        # marriage or death) names the parents
+        death_age = t.ev(p, "death").get("age")
+        adult = bool(t.spouse_in.get(pid)) or (isinstance(death_age, int) and death_age >= 15)
+        baptised = any(i.role == "own-birth" and t.sources[i.sid].get("type") in BIRTH_TYPES for i in items)
+        identity_gap = adult and baptised and not any(i.names for i in items if i.role in ("own-death", "own-marriage"))
+        identity_cap = [(IDENTITY_CAP, tr("identity: no record of the adult (marriage, death) names the parents — the "
+                                          "baptism could be a namesake's"))] if identity_gap else []
+        unresolved = unresolved or unres or fam_unres or contradicted
+        score = self._combine("link", items, extra, unresolved, caps + identity_cap, self._override(p, "link"))
+        score.tips = self._link_tips(pid, fid, score, unresolved, caps)
+        if identity_gap and score.value >= IDENTITY_CAP:
+            score.tips.insert(0, tr("Tie the baptism to the adult: the marriage or death record of {name} that names the "
+                                    "parents.", name=t.name(pid)))
+            score.tips = score.tips[:5]
         return score
 
     def _ages_agree(self, pid: str) -> str:
@@ -549,14 +718,16 @@ class Confidence:
         keys = ("birth", "baptism") if kind == "birth" else ("death", "burial")
         if not any(t.ev(p, k) for k in keys):
             return None
-        items = [self._item(sid, kind, k) for k in keys for sid in self._cited(p, k)]
-        if kind == "birth":            # ages in other records: indirect evidence for the year of birth
+        # a record of another event cited here (a child's birth record for the mother's age) gives a date or an age only
+        items = [self._item(sid, kind, k if self._owns(sid, pid, kind) else "other") for k in keys for sid in self._cited(p, k)]
+        if kind == "birth":            # ages in the person's own death and marriage records: indirect evidence
             if isinstance(t.ev(p, "death").get("age"), int):
-                items += [self._item(sid, "birth", "age") for sid in self._cited(p, "death")]
+                items += [self._item(sid, "birth", "age") for sid in self._cited(p, "death") if self._owns(sid, pid, "death")]
             for g in t.spouse_in.get(pid, []):
                 fam = t.families[g]
                 if isinstance(t.ev(fam, "marriage").get("husband_age" if fam.get("husband") == pid else "wife_age"), int):
-                    items += [self._item(sid, "birth", "age") for sid in self._cited(fam, "marriage")]
+                    items += [self._item(sid, "birth", "age") for sid in self._cited(fam, "marriage")
+                              if self._owns(sid, g, "marriage")]
         extra, unresolved = self._conflict_lines(p, {kind}, pid)
         if kind == "birth" and (w := t.birth_window(pid)) and w.conflict:
             extra.append(Line(CONTRADICTION, tr("the evidence about the year of birth is contradictory")))
@@ -571,7 +742,8 @@ class Confidence:
         t, f = self.tree, self.tree.families[fid]
         if not t.ev(f, "marriage"):
             return None
-        items = [self._item(sid, "marriage", "own") for sid in self._cited(f, "marriage")]
+        items = [self._item(sid, "marriage", "own" if self._owns(sid, fid, "marriage") else "other")
+                 for sid in self._cited(f, "marriage")]
         extra, unresolved = self._conflict_lines(f, {"marriage"}, fid)
         caps = []
         if (c := t.ev(f, "marriage").get("confidence")) in MANUAL_CAP:

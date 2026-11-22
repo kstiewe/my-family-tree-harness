@@ -237,6 +237,77 @@ class Variations(unittest.TestCase):
         self.assertGreater(k.value, base)
         self.assertFalse([w for w in cf.tree.warnings if w.code in ("unknown-field", "unused-source") and w.record == "S0008"])
 
+    def test_another_persons_record_does_not_count_for_the_link(self):
+        cf = scores(Tree(EXAMPLE / "data"))
+        death = cf.facts["I0024"]["death"]                  # Jakub's death record of 1931 cited for his wife's death in 1925
+        self.assertEqual([(i.sid, i.role, i.ev) for i in death.items], [("S0013", "other", "indirect")])
+        self.assertLess(death.value, 60)
+
+        def child_record(data):                             # Franciszek's birth record (1903) cited on Wojciech's birth
+            rec(data, "persons", "I0015")["birth"]["sources"] = ["S0012"]
+        changed = scores(tree_of(child_record))
+        self.assertNotIn("S0012", [i.sid for i in changed.link("I0015").items])
+        self.assertEqual(changed.link("I0015").value, cf.link("I0015").value)
+        self.assertEqual([(i.sid, i.role, i.ev) for i in changed.facts["I0015"]["birth"].items if i.sid == "S0012"],
+                         [("S0012", "other", "indirect")])
+
+    def test_names_count_only_in_a_statement_of_the_parents(self):
+        def witnesses(data):                                # the parents' names occur, but as witnesses
+            rec(data, "sources", "S0004")["transcription"] = ("Działo się we wsi Przykładowo … zmarł Wojciech Kowalski, "
+                                                              "lat 55, rolnik … świadkowie Antoni Nowak i Marianna Lis …")
+        w = scores(tree_of(witnesses)).link("I0015")
+        s0004 = next(i for i in w.items if i.sid == "S0004")
+        self.assertEqual((s0004.names, s0004.ev, s0004.info), ([], "indirect", "secondary"))
+        base = next(i for i in scores(Tree(EXAMPLE / "data")).link("I0015").items if i.sid == "S0004")
+        self.assertEqual((base.names, base.ev, base.info), (["Antoni", "Marianna"], "direct", "secondary"))
+
+    def test_a_record_naming_another_parent_is_a_conflict(self):
+        def other_mother(data):
+            rec(data, "sources", "S0004")["transcription"] = "… zmarł Wojciech Kowalski, lat 55, syn Antoniego i Katarzyny …"
+        w = scores(tree_of(other_mother)).link("I0015")
+        s0004 = next(i for i in w.items if i.sid == "S0004")
+        self.assertEqual(s0004.ev, "indirect")
+        self.assertIn("S0004 names another mother: Katarzyny", s0004.contradiction)
+        self.assertTrue(any(ln.pts == -20 and ln.text.startswith("conflict: S0004 names another mother") for ln in w.lines))
+
+        def documented(data):
+            other_mother(data)
+            rec(data, "persons", "I0015")["conflicts"] = [{"about": "link", "resolved": True,
+                                                           "note": "Katarzyna is the stepmother; see the second marriage"}]
+        d = scores(tree_of(documented)).link("I0015")
+        self.assertTrue(any(ln.pts == 0 and ln.text.startswith("conflict explained") for ln in d.lines))
+
+    def test_latin_form_of_a_name_is_not_a_conflict(self):
+        def latin(data):                                    # Agnieszka written as Agnes, Wojciech as Adalbertus
+            rec(data, "sources", "S0004")["transcription"] = "… obiit Adalbertus Kowalski, filius Antonii et Agnetis …"
+            rec(data, "persons", "I0021")["given"] = "Agnieszka"
+        w = scores(tree_of(latin)).link("I0015")
+        self.assertFalse(next(i for i in w.items if i.sid == "S0004").contradiction)
+
+    def test_shared_file_or_a_mentioned_id_does_not_join_sources(self):
+        def share(data):
+            rec(data, "sources", "S0018")["file"] = rec(data, "sources", "S0003")["file"]
+            rec(data, "sources", "S0017")["notes"] = "See also S0010 for the first marriage."
+        g = scores(tree_of(share)).groups
+        self.assertNotEqual(g.find("S0018"), g.find("S0003"))
+        self.assertNotEqual(g.find("S0017"), g.find("S0010"))
+
+    def test_baptism_without_an_adult_record_naming_the_parents_stays_probable(self):
+        def strong(names_parents):
+            def edit(data):
+                rec(data, "sources", "S0015")["quality"] = "image"
+                add_source(data, "S0019", type="civil_record", quality="image", year=1873,
+                           transcription="… urodził się Jakub, syn Antoniego i Marianny …")
+                rec(data, "persons", "I0022")["baptism"]["sources"].append("S0019")
+                if not names_parents:
+                    rec(data, "sources", "S0010")["transcription"] = "… Якуб Ковальский, холостой, 20 лет, батрак …"
+            return edit
+        capped = scores(tree_of(strong(False))).link("I0022")
+        self.assertEqual(capped.value, 84)
+        self.assertTrue(any(ln.pts is None and "no record of the adult" in ln.text for ln in capped.lines))
+        self.assertTrue(capped.tips[0].startswith("Tie the baptism to the adult"))
+        self.assertEqual(scores(tree_of(strong(True))).link("I0022").band, "confirmed")
+
     def test_new_fields_are_validated(self):
         def bad(data):
             rec(data, "persons", "I0013").update(conflicts=[{"about": "weather", "note": "x"}, {"about": "birth"}],

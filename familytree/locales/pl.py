@@ -699,9 +699,18 @@ MESSAGES = {
     "local copy of {source}": "kopia lokalna {source}",
     "transcription of {source}": "transkrypcja {source}",
     "marked as the same record": "oznaczone jako ten sam akt",
-    "the same local copy": "ta sama kopia lokalna",
     "the same parish, year and act, cited for the same event": "ta sama parafia, rok i numer aktu, przy tym samym zdarzeniu",
-    "the entry refers to {source}": "wpis odsyła do {source}",
+    "Tie the baptism to the adult: the marriage or death record of {name} that names the parents.":
+        "Powiąż chrzest z dorosłym: akt małżeństwa lub zgonu — {name} — podający rodziców.",
+    "a record of another event: its date or age only": "akt innego zdarzenia: tylko jego data lub wiek",
+    "conflict explained by a resolved conflict: {conflict}": "sprzeczność wyjaśniona rozstrzygniętą sprzecznością: {conflict}",
+    "conflict: {conflict}": "sprzeczność: {conflict}",
+    "identity: no record of the adult (marriage, death) names the parents — the baptism could be a namesake's":
+        "tożsamość: żaden akt dorosłego (ślub, zgon) nie podaje rodziców — chrzest może dotyczyć imiennika",
+    "not clearly the record of the person's own event: counted as indirect":
+        "nie wiadomo, czy to akt zdarzenia tej osoby: liczony jako dowód pośredni",
+    "{source} names another father: {name}": "{source} podaje innego ojca: {name}",
+    "{source} names another mother: {name}": "{source} podaje inną matkę: {name}",
     "the same informant": "ten sam informator",
     "the same record": "ten sam akt",
     "{source} is the same record as {other} ({why}): counted once": "{source} to ten sam akt co {other} ({why}): liczony raz",
