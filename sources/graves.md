@@ -19,6 +19,25 @@ the first list. In a tab on grobonet.com the pages can be fetched one after anot
 elements read (one person each) — a quick way to check several family surnames in the cemetery where one
 relative is known to lie. (Verified 2026-11.)
 
+**Person pages and the others in a grave**: a person's page is `https://grobonet.com/p/<cemetery>/<id>/<name>`, and
+its title ends with the plot (sector/row/number). The page shows only that person. Its link "Inne osoby w grobie" is
+the same address with `?others=1`, which adds "Wspólny grób — Osoby pochowane w tym grobie" with the dates of everyone
+entered for the grave. This works also when a script fetches the page. The name part of the address is not checked
+(`/p/<cemetery>/<id>/x` opens the person), so the IDs around a person can be opened one by one. "Otwórz pełną kartę
+grobu" leads to the cemetery's own subdomain with the same id
+(`https://<cemetery>.grobonet.com/grobonet/start.php?id=detale&idg=<id>`). (Verified 2026-11.)
+
+**Consecutive IDs prove nothing**: the IDs follow the order in which a cemetery was typed in.
+- In one village cemetery they ran along the rows (B/7/13, B/7/13a, B/7/14, B/7/14a …).
+- In one town cemetery they ran by surname and given name: three persons named Nowak from three sectors in a row.
+- In another they ran by given name: five men of the same given name in five sectors.
+
+Entries added after the first inventory get far higher IDs. So consecutive IDs only repeat "neighbouring graves" or
+"same surname". Where many numbers of a row have an "a" grave beside them, such pairs often hold the same surname
+(spouses, a parent and a child). A couple in B/7/14 next to a known sibling in B/7/14a is a hypothesis about the
+sibling's parents, never proof: check the ages, and let the sibling's death record (the parents' names) decide. See
+also [regions/western-territories.md](regions/western-territories.md) for settler families. (Verified 2026-11.)
+
 **Parish finders on a Grobonet subdomain**: many parishes run their own Grobonet site,
 `https://<parish>.grobonet.com/` (found by a web search for the parish name with "grobonet"). It often
 covers more than grobonet.com: several cemeteries of the parish (old and new), "Ostatnio pochowani"
@@ -101,7 +120,8 @@ Large cities run their own grave finders for municipal cemeteries (the city's or
 board's website, "wyszukiwarka grobów"), separate from Grobonet and eCmentarze, with name, years of life
 and the date of burial; parish cemeteries in the same city often have a separate finder. Typical form:
 surname, given name, optional cemetery, a "Filtruj"/"Szukaj" button and results in a side panel. Useful
-for families who settled in the western and northern territories after 1945. Search the surname alone
+for families who settled in the western and northern territories after 1945
+([regions/western-territories.md](regions/western-territories.md)). Search the surname alone
 and read the list, then narrow by given name.
 The details of a result ("Pokaż szczegóły rekordu" / "Więcej") often add the **burial date** and "Inne osoby" — the
 others buried in the same grave, with their dates — the quickest way to a spouse; a person born too late to be the

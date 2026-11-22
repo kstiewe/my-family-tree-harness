@@ -443,6 +443,7 @@ my-family-tree-harness/
 | [graves](sources/graves.md) | grave databases (Grobonet, eCmentarze …) |
 | [gazetteers](sources/gazetteers.md) | finding villages and their parishes |
 | [regions/pomerania](sources/regions/pomerania.md) | Pomerania / former West Prussia |
+| [regions/western-territories](sources/regions/western-territories.md) | Western and Northern Territories: lands German until 1945, settler families after 1945 |
 
 The toolkit targets research in Polish lands across all three partitions. The guides are meant to
 grow: new regions and services are the most valuable contributions.
