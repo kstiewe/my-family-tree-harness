@@ -21,6 +21,7 @@ helpers live next to the guide (`*.js` for the browser's JavaScript console, Pyt
 | [gazetteers.md](gazetteers.md) | finding villages and their parishes |
 | [regions/pomerania.md](regions/pomerania.md) | Pomerania / former West Prussia |
 | [regions/congress-poland.md](regions/congress-poland.md) | Congress Poland / Russian partition: parish civil-status books, Russian indexes, Szukaj w Archiwach and Skanoteka coverage |
+| [regions/western-territories.md](regions/western-territories.md) | Western and Northern Territories (German until 1945): settler families after 1945, temporary place names, PUR and settler files in the state archives, tracing where a family came from |
 
 ## Writing a guide
 
