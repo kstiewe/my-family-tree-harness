@@ -117,6 +117,18 @@ by volunteers. Free account; the user signs in. (Checked 2026-11.)
   known.
 - A film's own index is searched with `q.filmNumber=<DGS number>` (the "Search the index" link of a catalog row), also when
   its images are restricted.
+- **FamilySearch's own indexes cover years that Geneteka lacks** (checked 2026-11). A parish whose Geneteka entry lists only a
+  few early years of marriages can have its 1920s–1930s marriages indexed in a FamilySearch regional collection (one of the
+  Polish Roman Catholic church-book collections, 1784–1964). Search the groom's surname and given name with the bride's given
+  name (`q.spouseGivenName`) and a range of marriage years (`q.marriageLikeDate.from` / `.to`): it finds such a wedding in any
+  region. The record page gives the folder and image number, and the viewer's download button saves the image ("JPG only").
+- **A namesake couple is likely in a large parish.** Before accepting a wedding found this way, compare each spouse's age
+  in the record with the birth date known from elsewhere (a gravestone, a death record), and look up both baptisms: the books of
+  the same parish for those years may be scanned on Szukaj w Archiwach ([szukajwarchiwach.md](szukajwarchiwach.md)). Example: Jan
+  Kowalski, 25, married Anna Nowak, 24, a few months before their first child was born, with a Wojciech Kowalski as witness —
+  but the parish book gives the groom's birth three years after the year on Jan's gravestone, and no Anna Nowak was baptised in
+  the year on hers.
+  Record such a couple as a hypothesis with both dates, not as a match.
 - **A search needs a name.** With only the parents' given names FamilySearch asks for a surname. Use the child's given name
   with a date range (`q.filmNumber=<DGS>&q.givenName=Johannes&q.birthLikeDate.from=1720&q.birthLikeDate.to=1730`), or a
   surname wildcard with the father's given name (`q.surname=Kow*&q.fatherGivenName=Jan`).
